@@ -11,7 +11,7 @@
 
 #include "zip/ziptool.h"
 
-#include "crocods/plateform.h"
+#include "crocods-core/plateform.h"
 
 extern const unsigned char icons_gif[];
 extern const unsigned char cpc6128_bin[];

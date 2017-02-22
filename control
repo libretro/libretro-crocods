@@ -1,0 +1,10 @@
+Package: com.libretro.crocods
+Name: CrocoDS
+Depends: 
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Libretro core of CrocoDS
+Maintainer: libretro
+Author: libretro
+Section: System
+Tag: role::developer

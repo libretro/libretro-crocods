@@ -12,15 +12,21 @@
 #include "zip/ziptool.h"
 
 #include "crocods-core/plateform.h"
+#include "crocods-core/gif.h"
 
 extern const unsigned char icons_gif[];
 extern const unsigned char cpc6128_bin[];
 extern const unsigned char romdisc_bin[];
 
+#define maxByCycle 400 // 50 fois par frame
+
 bool loadGame(void);
 void updateFromEnvironnement();
 
 u16 pixels[320*200*8];   // Verifier taille
+
+u16 *splash;
+u32 splashWidth, splashHeight;
 
 static int KeySymToCPCKey[RETROK_LAST];
 
@@ -33,8 +39,6 @@ static retro_audio_sample_batch_t audio_batch_cb;
 retro_environment_t environ_cb;
 static retro_input_poll_t input_poll_cb;
 static retro_input_state_t input_state_cb;
-
-// float frame_time = 0;
 
 struct CrocoKeyMap {
     unsigned port;
@@ -99,7 +103,7 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 void retro_init(void)
 {
     char *savedir = NULL;
-	int i;
+    int i;
 
     environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &savedir);
 
@@ -208,8 +212,6 @@ void retro_init(void)
 
     KeySymToCPCKey[0x0134] = CPC_COPY; /* Alt */
     KeySymToCPCKey[0x0137] = CPC_COPY; /* Compose */
-
-
 
     // Init nds
 
@@ -367,11 +369,6 @@ void retro_reset(void)
 
 // }
 
-long nds_GetTicks(void) {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
-}
 
 void readIni(void) {
     /*
@@ -416,16 +413,16 @@ void updateFromEnvironnement() {
 
 void retro_key_down(int key)
 {
-    printf("key: %d\n", key);
+    log_cb(RETRO_LOG_INFO, "key: %d\n", key);
 }
 
 
-unsigned long TimeOut = 0, OldTime = 0;
-long tz80 = 0;
 char framebuf[128];
 
 char Core_Key_Sate[512];
 char Core_old_Key_Sate[512];
+
+int frame=0;
 
 void retro_run(void)
 {
@@ -437,11 +434,58 @@ void retro_run(void)
 
     input_poll_cb();
 
+    if (splash!=NULL) {
+        static int startPressed=0;
+
+        struct retro_game_geometry geometry;
+
+        geometry.base_width = splashWidth;
+        geometry.base_height = splashHeight;
+        geometry.max_width = splashWidth;
+        geometry.max_height = splashHeight;
+        geometry.aspect_ratio = 0.0f;
+
+        environ_cb( RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry );
+
+        frame++;
+
+        if ((frame>>5) & 1) {
+            video_cb(splash, splashWidth, splashHeight, splashWidth*2);
+        } else {
+            char *str = "Start";
+
+            u16 *buf = (u16*)malloc(splashWidth*splashHeight*2);
+            memcpy(buf, splash, splashWidth*splashHeight*2);
+
+            int x,y;
+            int multi=2;
+
+            x=(splashWidth/2)-(strlen(str)*multi*8)/2;
+            y=splashHeight - 8*2 - 10;
+
+
+            cpcprint16(buf, splashWidth, x,y, str, 1, multi, 1);
+
+            video_cb(buf, splashWidth, splashHeight, splashWidth*2);
+
+        }
+
+
+        if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START)) {
+            startPressed=1;
+        } else if (startPressed) {
+            splash = NULL;
+        }
+
+        return;
+    }
+
+
     if ((gb.AutoType.nFlags & (AUTOTYPE_ACTIVE|AUTOTYPE_WAITING))==0) {
 
         memset(gb.clav,0xFF,16);
 
-		int i;
+        int i;
         for(i=0; i<RETROK_LAST; i++) {
             int scanCode=KeySymToCPCKey[i];
 
@@ -470,10 +514,6 @@ void retro_run(void)
     int byCycle=0;
 
     // Crocods
-    //
-    //
-    //
-    //
     while(1) {
 
 
@@ -481,30 +521,20 @@ void retro_run(void)
 
 
 
-
         } else if (gb.isPaused) { // Pause only the Z80
 
 
         } else {
-            tz80 -= nds_GetTicks(); // TODO("replace this function")
             byCycle += ExecInstZ80(&gb); // Fais tourner le CPU tant CptInstr < CYCLELIGNE
-            tz80 += nds_GetTicks();
 
             procSound(&gb, byCycle);
         }
 
 
-        TimeOut += gb.RegsCRTC[ 0 ] + 1;
+        // TimeOut += gb.RegsCRTC[ 0 ] + 1;
 
         if (!CalcCRTCLine(&gb)) { // Arrive en fin d'ecran ?
             // Rafraichissement de l'ecran...
-
-
-            // procSound(&gb, (int)TimeOut);
-
-
-            //                static int frame=0;
-            //                printf("frame: %d\n", frame++);
 
             if (gb.dispframerate) {
                 cpcprint(&gb, 0, 192 - 8, framebuf, 1);
@@ -523,9 +553,6 @@ void retro_run(void)
             UpdateScreen(&gb);
             nds_ReadKey(&gb);
 
-
-
-
             if (gb.changeFilter!=0) {
 
                 struct retro_game_geometry geometry;
@@ -543,62 +570,28 @@ void retro_run(void)
             video_cb(pixels, gb.screenBufferWidth, gb.screenBufferHeight, gb.screenBufferWidth*2);
 
 
-
             updateScreenBuffer(&gb, pixels, gb.screenBufferWidth);
-
-
-
 
             // Synchronisation de l'image ‡ 50 Hz
             // Pourcentage, temps espere, temps pris, temps z80, nombre de drawligne
 
             if (gb.DoResync) {
-                //                    NSInteger Time;
-
-
-                if ((!gb.turbo)  && ((gb.AutoType.nFlags & (AUTOTYPE_ACTIVE|AUTOTYPE_WAITING))==0)) {
-
-                    // Wait Timeout - (Time - OldTime) milliseconds
-
-                    float waitTime = TimeOut - (nds_GetTicks() - OldTime);
-                    waitTime = waitTime / 1000000;
-
-                    if (waitTime<1) {
-
-                        // [NSThread sleepForTimeInterval:waitTime];
-                    }
-
-                }
-
-                tz80 = 0;
-
-                OldTime = nds_GetTicks();
-                TimeOut = 0;
-
                 break;
             }
 
         }
 
-        int maxByCycle=400; // 50 fois par frame
 
         if (byCycle>=maxByCycle) { // Sur 20000
 
             int snd_sampler = (44100/50/(20000/maxByCycle));
             GB_sample_t sample[snd_sampler];
-            int x;
 
             crocods_copy_sound_buffer(&gb, sample, snd_sampler);
             audio_batch_cb((int16_t*)&sample, snd_sampler);
-            // for(x = 0; x < snd_sampler; x++) {
-            //     audio_cb(sample[x].left,sample[x].right);
-            // }
-            //
-            //
-            //
+
             byCycle-=maxByCycle;
             sndSamplerToPlay -= snd_sampler;
-
         }
 
     }
@@ -611,33 +604,8 @@ void retro_run(void)
 
         crocods_copy_sound_buffer(&gb, sample, sndSamplerToPlay);
         audio_batch_cb((int16_t*)&sample, sndSamplerToPlay);
-
-        // for(x = 0; x < sndSamplerToPlay; x++) {
-        //     audio_cb(sample[x].left,sample[x].right);
-        // }
-
-
-
     }
 
-
-/*
-    printf("Bycycle: %d", byCycle);
-    byCycle=0;
-
-    {
-        int snd_sampler = (44100/50);
-        GB_sample_t sample[snd_sampler];
-        int x;
-
-        crocods_copy_sound_buffer(&gb, sample, snd_sampler);
-
-
-        for(x = 0; x < snd_sampler; x++) {
-            audio_cb(sample[x].left,sample[x].right);
-        }
-    }
- */
 
 }
 
@@ -646,7 +614,7 @@ void setVariable(char *key, char *value) {
     unsigned index;
     unsigned port;
 
-    printf("setVariable: %s=%s\n", key, value);
+    log_cb(RETRO_LOG_INFO, "setVariable: %s=%s\n", key, value);
 
     CPC_SCANCODE scanCode;
 
@@ -918,7 +886,7 @@ void setVariable(char *key, char *value) {
 
 
     if (isMap) {
-		int i;
+        int i;
         for(i=0; i<sizeof(crocokeymap)/sizeof(struct CrocoKeyMap); i++) {
 
             if ((crocokeymap[i].port == port) && (crocokeymap[i].index == index)) {
@@ -983,6 +951,15 @@ bool loadGame(void) {
         snapshot = unzip(dsk, dsk_size, "snapshot.sna", &snapshotLength);
         disk = unzip(dsk, dsk_size, "disk.dsk", &diskLength);
 
+        u32 gifLength;
+        u8 *gif = unzip(dsk, dsk_size, "capture.gif", &gifLength);
+        if (gif!=NULL) {
+            ReadBackgroundGifInfo(&splashWidth, &splashHeight, gif, gifLength);
+
+            splash = (u16*)malloc(splashWidth*splashHeight*2);
+
+            ReadBackgroundGif16(splash, gif, gifLength);
+        }
 
         u32 settings_length;
         unsigned char *settings = unzip(dsk, dsk_size, "settings.ini", &settings_length);
@@ -1069,7 +1046,7 @@ bool loadGame(void) {
             if (autoString[0]!=0) {
                 AutoType_SetString(&gb, autoString, true);
             }
-            printf("\n%s\n", autoString);
+            log_cb(RETRO_LOG_INFO, "\n%s\n", autoString);
         }
 
     }
@@ -1080,7 +1057,7 @@ bool loadGame(void) {
     }
 
 
-    printf("end of load games\n");
+    log_cb(RETRO_LOG_INFO, "end of load games\n");
 
     return true;
 }
@@ -1099,7 +1076,7 @@ bool retro_load_game(const struct retro_game_info *info)
         { 0 },
     };
 
-    printf("begin of load games\n");
+    log_cb(RETRO_LOG_INFO, "begin of load games\n");
 
     environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
@@ -1117,7 +1094,7 @@ bool retro_load_game(const struct retro_game_info *info)
 
     strcpy(gb.openFilename, info->path);
 
-    printf("open file: %s", info->path);
+    log_cb(RETRO_LOG_INFO, "open file: %s\n", info->path);
 
 
     return loadGame();
@@ -1129,7 +1106,7 @@ void retro_unload_game(void)
 
 unsigned retro_get_region(void)
 {
-    return RETRO_REGION_NTSC;
+    return RETRO_REGION_PAL;
 }
 
 bool retro_load_game_special(unsigned type, const struct retro_game_info *info, size_t num)
@@ -1142,19 +1119,11 @@ bool retro_load_game_special(unsigned type, const struct retro_game_info *info, 
 
 size_t retro_serialize_size(void)
 {
-    int len;
-    char *buffer = getSnapshot(&gb, &len);
-    if (buffer != NULL) {
-        free(buffer);
-        return len;
-    }
-    return 0;
+    return getSnapshotSize(&gb);
 }
 
 bool retro_serialize(void *data_, size_t size)
 {
-    printf("serialise\n");
-
     int len;
     char *buffer = getSnapshot(&gb, &len);
     if (buffer != NULL) {
@@ -1166,15 +1135,6 @@ bool retro_serialize(void *data_, size_t size)
         memcpy(data_, buffer, len);
         free(buffer);
 
-        printf("Data copied\n");
-
-        // FILE * fp = fopen( "/Users/miguelvanhove/Downloads/save.sna", "wb" );
-
-        // if (fp)  {
-        //     fwrite( data_, 1, len, fp );
-        // }
-        // fclose(fp);
-
         return true;
     }
     return false;
@@ -1182,9 +1142,6 @@ bool retro_serialize(void *data_, size_t size)
 
 bool retro_unserialize(const void *data_, size_t size)
 {
-
-    printf("unserialise\n");
-
     LireSnapshotMem(&gb, (u8*)data_);
 
     return true;

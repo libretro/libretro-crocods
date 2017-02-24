@@ -1,5 +1,6 @@
 # libretro-crocods
 
+Look for .kcr file format to use CrocoDS at its best: https://github.com/redbug26/crocods-core/wiki/kcr
 
 BUILD INSTRUCTIONS:
 
@@ -24,5 +25,9 @@ Compile for win
 make -f Makefile.libretro platform="win" -j2 CC="cc" CXX="c++"
 ```
 
+Compile for raspberry
+```
+sudo apt-get install gcc-arm-linux-gnueabi make ncurses-dev g++-arm-linux-gnueabi
+make -f Makefile.libretro platform="unix" -j2 CC="arm-linux-gnueabi-gcc" CXX="arm-linux-gnueabi-g++"
+```
 
-Look for .kcr file format to use CrocoDS at its best: https://github.com/redbug26/crocods-core/wiki/kcr

@@ -44,7 +44,7 @@ else ifeq ($(platform), emscripten)
 else
    CC = gcc
    TARGET := $(TARGET_NAME)_libretro.dll
-   SHARED := -shared -static-libgcc -static-libstdc++ -Wl,--no-undefined -s
+   SHARED := -shared -static-libgcc -Wl,--no-undefined -s
 endif
 
 ifeq ($(DEBUG), 1)

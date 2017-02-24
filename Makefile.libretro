@@ -57,7 +57,6 @@ ifeq ($(platform), unix)
    TARGET := $(TARGET_NAME)_libretro$(PLAT).$(EXT)
    fpic := -fPIC
    SHARED := -shared -Wl,--no-undefined
-   LIBM := -lstdc++
 else ifeq ($(platform), linux-portable)
 	EXT?=so
    TARGET := $(TARGET_NAME)_libretro.$(EXT)
@@ -69,7 +68,6 @@ else ifeq ($(platform), osx)
    TARGET := $(TARGET_NAME)_libretro.$(EXT)
    fpic := -fPIC
    SHARED := -dynamiclib
-   LIBM := -lstdc++
 # iOS
 else ifneq (,$(findstring ios,$(platform)))
 	EXT?=dylib
@@ -207,8 +205,7 @@ else ifeq ($(platform), wiiu)
 else
 	EXT?=dll
    TARGET := $(TARGET_NAME)_libretro.$(EXT)
-   SHARED := -shared -static-libgcc -static-libstdc++ -Wl,--no-undefined -s
-   LIBM := -lstdc++
+   SHARED := -shared -static-libgcc -Wl,--no-undefined -s
 
 endif
 

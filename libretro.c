@@ -25,6 +25,9 @@ void updateFromEnvironnement();
 
 u16 pixels[320*200*8];   // Verifier taille
 
+char Core_Key_Sate[512];
+char Core_old_Key_Sate[512];
+
 u16 *splash;
 u32 splashWidth, splashHeight;
 
@@ -53,11 +56,11 @@ struct CrocoKeyMap {
     { 0, RETRO_DEVICE_ID_JOYPAD_LEFT, CPC_JOY_LEFT},
     { 0, RETRO_DEVICE_ID_JOYPAD_DOWN, CPC_JOY_DOWN},
     { 0, RETRO_DEVICE_ID_JOYPAD_X, CPC_NIL},
-    { 0, RETRO_DEVICE_ID_JOYPAD_Y, CPC_NIL},
+    { 0, RETRO_DEVICE_ID_JOYPAD_Y, CPC_NIL}, // 7
     { 0, RETRO_DEVICE_ID_JOYPAD_L, CPC_NIL},
     { 0, RETRO_DEVICE_ID_JOYPAD_R, CPC_NIL},
     { 0, RETRO_DEVICE_ID_JOYPAD_SELECT, CPC_SPACE},
-    { 0, RETRO_DEVICE_ID_JOYPAD_START, CPC_RETURN},
+    { 0, RETRO_DEVICE_ID_JOYPAD_START, CPC_RETURN}, // 11
 
     { 1, RETRO_DEVICE_ID_JOYPAD_A, CPC_SPACE},
     { 1, RETRO_DEVICE_ID_JOYPAD_B, CPC_SPACE},
@@ -244,6 +247,9 @@ void retro_init(void)
 
     initSound(&gb, 44100);
 
+
+
+
 }
 
 void retro_deinit(void)
@@ -260,6 +266,8 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 {
     (void)port;
     (void)device;
+
+
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -301,6 +309,9 @@ void retro_set_environment(retro_environment_t cb)
     } else {
         log_cb = fallback_log;
     }
+
+    log_cb = fallback_log;
+
 
     static const struct retro_variable vars[] = {
         // { "crocods_computertype", "Machine Type (Restart); CPC 464|CPC 6128" },
@@ -419,13 +430,13 @@ void retro_key_down(int key)
 
 char framebuf[128];
 
-char Core_Key_Sate[512];
-char Core_old_Key_Sate[512];
-
 int frame=0;
 
 void retro_run(void)
 {
+            frame++;
+
+
 
     static bool updated = false;
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated) {
@@ -447,7 +458,6 @@ void retro_run(void)
 
         environ_cb( RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry );
 
-        frame++;
 
         if ((frame>>5) & 1) {
             video_cb(splash, splashWidth, splashHeight, splashWidth*2);
@@ -490,18 +500,27 @@ void retro_run(void)
             int scanCode=KeySymToCPCKey[i];
 
             if (scanCode!=CPC_NIL) {
-                Core_Key_Sate[i]=input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0,i) ? 0x80 : 0;
 
-                if(Core_Key_Sate[i]) {
+                Core_Key_Sate[i]=input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0,i);
+
+                if (Core_Key_Sate[i]!=0) {
+                    // log_cb(RETRO_LOG_INFO, "hard key down: %d %d %d\n", i, scanCode, Core_Key_Sate[i]);
+
                     CPC_SetScanCode(&gb, scanCode);
                 }
             }
         }
 
         for(i=0; i<sizeof(crocokeymap)/sizeof(struct CrocoKeyMap); i++) {
-            if (input_state_cb(crocokeymap[i].port, RETRO_DEVICE_JOYPAD, 0, crocokeymap[i].index)) {
+            int scanCode=crocokeymap[i].scanCode;
 
-                CPC_SetScanCode(&gb, crocokeymap[i].scanCode);
+            if (scanCode!=CPC_NIL) {
+
+                if (input_state_cb(crocokeymap[i].port, RETRO_DEVICE_JOYPAD, 0, crocokeymap[i].index)) {
+                    log_cb(RETRO_LOG_INFO, "joy key down: %d %d\n", crocokeymap[i].index, crocokeymap[i].scanCode);
+
+                    CPC_SetScanCode(&gb, scanCode);
+                }
             }
         }
 

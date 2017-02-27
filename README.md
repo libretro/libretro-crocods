@@ -27,7 +27,7 @@ make -f Makefile.libretro platform="win" -j2 CC="cc"
 
 Compile for raspberry
 ```
-sudo apt-get install gcc-arm-linux-gnueabi make ncurses-dev g++-arm-linux-gnueabihf
+sudo apt-get install gcc-arm-linux-gnueabihf make
 make -f Makefile.libretro platform="unix" -j2 CC="arm-linux-gnueabihf-gcc"
 ```
 

@@ -12,22 +12,22 @@ git submodule update --init --recursive
 
 Compile for osX
 ``` 
-make -f Makefile.libretro platform="osx" -j2 CC="cc" CXX="c++"
+make -f Makefile.libretro platform="osx" -j2 CC="cc" 
 ```
 
 Compile for linux
 ``` 
-make -f Makefile.libretro platform="linux" -j2 CC="cc" CXX="c++"
+make -f Makefile.libretro platform="linux" -j2 CC="cc" 
 ```
 
 Compile for win
 ``` 
-make -f Makefile.libretro platform="win" -j2 CC="cc" CXX="c++"
+make -f Makefile.libretro platform="win" -j2 CC="cc"
 ```
 
 Compile for raspberry
 ```
-sudo apt-get install gcc-arm-linux-gnueabi make ncurses-dev g++-arm-linux-gnueabi
-make -f Makefile.libretro platform="unix" -j2 CC="arm-linux-gnueabi-gcc" CXX="arm-linux-gnueabi-g++"
+sudo apt-get install gcc-arm-linux-gnueabi make ncurses-dev g++-arm-linux-gnueabihf
+make -f Makefile.libretro platform="unix" -j2 CC="arm-linux-gnueabihf-gcc"
 ```
 

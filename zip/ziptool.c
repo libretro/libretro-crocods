@@ -397,7 +397,9 @@ void pathInit(struct CZipTool *CZ)
 void pathSplit( struct CZipTool *CZ, const char* path, int* y, int* d )
 {
 	*y=-1, *d=-1;
-	for( const char* x=path; *x!='\0'; x++)
+	const char *x;
+
+	for( x=path; *x!='\0'; x++)
 	{
 		if( *x=='\\' || *x=='/' ) *y=x-path,*d=-1;
 		else if( *x=='.' ) *d=x-path;
@@ -836,10 +838,12 @@ void Unshrink( struct CZipTool *CZ, unsigned int usz, unsigned int csz )
 
 void LoadFollowers( struct CZipTool *CZ, unsigned char* Slen, unsigned char followers[][64] )
 {
-	for( int x=255; x>=0; x-- )
+	int x;
+	for( x=255; x>=0; x-- )
 	{
+		int i;
 		Slen[x] = getbits(CZ, 6);
-		for( int i=0; i<Slen[x]; i++ )
+		for( i=0; i<Slen[x]; i++ )
 			followers[x][i] = getbits(CZ, 8);
 	}
 }
@@ -1035,8 +1039,9 @@ void SortLengths( struct CZipTool *CZ, struct sf_tree* tree )
 	{
 		do
 		{
+			int x;
 			noswaps = true;
-			for( int x=0; x<=(tree->entries - 1)-gap; x++ )
+			for( x=0; x<=(tree->entries - 1)-gap; x++ )
 			{
 				a = tree->entry[x].BitLength;
 				b = tree->entry[x + gap].BitLength;
@@ -1101,14 +1106,16 @@ void GenerateTrees( struct CZipTool *CZ, struct sf_tree* tree )
 
 void ReverseBits( struct CZipTool *CZ, struct sf_tree* tree )
 {
-	for( int i=0; i<=tree->entries-1; i++ )
+	int i;
+	for( i=0; i<=tree->entries-1; i++ )
 	{
 		uint16_t o = tree->entry[i].Code,
 		         v = 0,
 		         mask = 0x0001,
 		         revb = 0x8000;
 
-		for( int b=0; b!=16; b++ )
+		int b;
+		for( b=0; b!=16; b++ )
 		{
 			if( (o&mask) != 0 )
 				v = v | revb;

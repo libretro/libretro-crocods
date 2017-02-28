@@ -36,19 +36,19 @@ struct zipdir {
 
 enum ZipMethod
 {
-	Stored,         // 0
-	Shrunk,                 // 1
-	Reduced1,               // 2-5
+	Stored,        		 //  0
+	Shrunk,              //  1
+	Reduced1,            //  2-5
 	Reduced2,
 	Reduced3,
 	Reduced4,
-	Imploded,               // 6
-	Tokenized,              // 7 ( not supported )
-	Deflated,               // 8
-	EnhDeflated,        // 9 ( not supported )
-	DclImploded,        //10 ( not supported )
+	Imploded,            //  6
+	Tokenized,           //  7 ( not supported )
+	Deflated,            //  8
+	EnhDeflated,         //  9 ( not supported )
+	DclImploded,         // 10 ( not supported )
 
-	Err=178             // this value is used by xacrett (^^;
+	Err=178              // this value is used by xacrett
 };
 
 struct sf_entry
@@ -65,46 +65,40 @@ struct  sf_tree
 	int MaxLength;
 };
 
-#define ZIPTOOL_CACHE_SIZE 16384
-
 struct CZipTool
 {
+	int open;
+	int zipnbrc;
+	struct zipdir *zipdirc;
 
-int open;
-int zipnbrc;
-struct zipdir *zipdirc;
+	char zipfile[256];
 
-char zipfile[256];
-
-unsigned char *cached;
-int cached_from;
-int cached_max;
-
+	unsigned char *cached;
+	int cached_from;
+	int cached_max;
 
 // CRC
 
-int szip;
+	int szip;
 
 // VARIABLE
 
-unsigned char* common_buf;
+	unsigned char* common_buf;
 
-char lb[256];
+	char lb[256];
 
-unsigned int wrtcrc;
+	unsigned int wrtcrc;
 
 // bit-reader
-unsigned long bitbuf;
-int bits_left;
-bool bits_eof;
+	unsigned long bitbuf;
+	int bits_left;
+	bool bits_eof;
 
-unsigned int keys[3];
+	unsigned int keys[3];
 
-unsigned char *kzip, *kout;
-int pzip, pout;
-int mzip, mout;
-
-
+	unsigned char *kzip, *kout;
+	int pzip, pout;
+	int mzip, mout;
 };
 
 
@@ -156,7 +150,6 @@ void ReadLengths( struct CZipTool *CZ, struct sf_tree* tree );
 bool read_header( struct CZipTool *CZ, struct ZipLocalHeader* hdr);
 
 bool doHeader( struct CZipTool *CZ, struct ZipLocalHeader* hdr);
-
 
 
 #define XACR_BUFSIZE (0x4000)
@@ -1168,20 +1161,7 @@ int ReadTree( struct CZipTool *CZ, struct sf_tree* tree )
 
 // ----
 
-/*
-   void FS_zipgetFileList(FS_AddFile AddFile, char *zipfile, unsigned char *zipbuf, unsigned int zipsize)
-   {
-   CZipTool *SZ;
-   char file[256];
-   int i;
-   SZ = new CZipTool(zipbuf, zipsize);
-   for(i=0;i<SZ->zipnbrc;i++) {
-    sprintf(file,"%s/%s", zipfile, SZ->zipdirc[i].name);
-    strtolower(file);
-    AddFile(1, file);
-    }
-   }
- */
+
 
 unsigned char *unzip(unsigned char *zipbuf, unsigned int zipsize, char *filename, unsigned int *size)
 {

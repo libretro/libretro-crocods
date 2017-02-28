@@ -2,7 +2,19 @@
 
 Look for .kcr file format to use CrocoDS at its best: https://github.com/redbug26/crocods-core/wiki/kcr
 
-BUILD INSTRUCTIONS:
+## Install on Recalbox
+
+- SSH on your recalbox
+- Type the following command:
+``` 
+curl https://raw.githubusercontent.com/redbug26/libretro-crocods/master/install_recalbox.sh | sh
+``` 
+- Restart your recalbox
+- Choose crocods core in the Amstrad settings in Emulation Station
+
+(Repeat each time you update your recalbox)
+
+## Build instructions on other systems
 
 ``` 
 git clone https://github.com/redbug26/libretro-crocods.git
@@ -25,7 +37,7 @@ Compile for win
 make -f Makefile.libretro platform="win" -j2 CC="cc"
 ```
 
-Compile for raspberry
+Compile for raspberry (from Ubuntu)
 ```
 sudo apt-get install gcc-arm-linux-gnueabihf make
 make -f Makefile.libretro platform="unix" -j2 CC="arm-linux-gnueabihf-gcc"

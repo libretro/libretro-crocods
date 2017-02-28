@@ -21,9 +21,12 @@ extern const unsigned char romdisc_bin[];
 #define maxByCycle 400 // 50 fois par frame
 
 bool loadGame(void);
+void loadDisk(BOOL autoStart);
+void loadSnapshot(void);
+
 void updateFromEnvironnement();
 
-u16 pixels[320*200*8];   // Verifier taille
+u16 pixels[384*288*2];   // Verifier taille
 
 char Core_Key_Sate[512];
 char Core_old_Key_Sate[512];
@@ -290,11 +293,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     info->timing.fps = 50.0;
     info->timing.sample_rate = 44100.0;
 
-    info->geometry.base_width   = 320;
-    info->geometry.base_height  = 200;
+    info->geometry.base_width   = 384*2;
+    info->geometry.base_height  = 288;
 
-    info->geometry.max_width    = 320;
-    info->geometry.max_height   = 200;
+    info->geometry.max_width    = 384*2;
+    info->geometry.max_height   = 288;
     info->geometry.aspect_ratio = 1;
 }
 
@@ -434,8 +437,7 @@ int frame=0;
 
 void retro_run(void)
 {
-            frame++;
-
+    frame++;
 
 
     static bool updated = false;
@@ -446,7 +448,12 @@ void retro_run(void)
     input_poll_cb();
 
     if (splash!=NULL) {
-        static int startPressed=0;
+        static char keyPressed[16] = {0};
+
+        static int selected=0;
+        char *menu[]={"Start", "Load disk", "Do nothing"};
+
+        int i;
 
         struct retro_game_geometry geometry;
 
@@ -459,10 +466,10 @@ void retro_run(void)
         environ_cb( RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry );
 
 
-        if ((frame>>5) & 1) {
-            video_cb(splash, splashWidth, splashHeight, splashWidth*2);
-        } else {
-            char *str = "Start";
+        // if ((frame>>5) & 1) {
+        //     video_cb(splash, splashWidth, splashHeight, splashWidth*2);
+        // } else {
+            char *str = menu[selected];
 
             u16 *buf = (u16*)malloc(splashWidth*splashHeight*2);
             memcpy(buf, splash, splashWidth*splashHeight*2);
@@ -477,14 +484,58 @@ void retro_run(void)
             cpcprint16(buf, splashWidth, x,y, str, 1, multi, 1);
 
             video_cb(buf, splashWidth, splashHeight, splashWidth*2);
+     //   }
 
-        }
+
+        for(i=0; i<16; i++) {
+            if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, i)) {
+                if (keyPressed[i]==0) {
+                    keyPressed[i]=1;
+
+                    if (i==RETRO_DEVICE_ID_JOYPAD_RIGHT) {
+                        selected++;
+                        if (selected==3) {
+                            selected = 0;
+                        }
+                        frame=0; // Force text to be display
+                    }
+
+                    if (i==RETRO_DEVICE_ID_JOYPAD_LEFT) {
+                        selected--;
+                        if (selected==-1) {
+                            selected = 2;
+                        }
+                        frame=0;    // Force text to be display
+                    }
 
 
-        if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START)) {
-            startPressed=1;
-        } else if (startPressed) {
-            splash = NULL;
+                }
+            } else {
+                if (keyPressed[i]==1) {
+                    keyPressed[i]=0;
+
+                    if ((i==RETRO_DEVICE_ID_JOYPAD_START) || (i==RETRO_DEVICE_ID_JOYPAD_A) || (i==RETRO_DEVICE_ID_JOYPAD_B))  {
+                        splash=NULL;
+
+                        log_cb(RETRO_LOG_INFO, "selected: %d\n", selected);
+
+                        if (selected==0) {
+                            loadDisk(false);
+                            loadSnapshot();
+                        }
+
+                        if (selected==1) {
+                            snapshot=NULL;
+                            loadDisk(true);
+                        }
+
+                        if (selected==2) {
+                            loadDisk(false);
+                        }
+
+                    }
+                }
+            }
         }
 
         return;
@@ -504,7 +555,7 @@ void retro_run(void)
                 Core_Key_Sate[i]=input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0,i);
 
                 if (Core_Key_Sate[i]!=0) {
-                    // log_cb(RETRO_LOG_INFO, "hard key down: %d %d %d\n", i, scanCode, Core_Key_Sate[i]);
+                    log_cb(RETRO_LOG_INFO, "hard key down: %d (scan: %d) %d\n", i, scanCode, Core_Key_Sate[i]);
 
                     CPC_SetScanCode(&gb, scanCode);
                 }
@@ -517,7 +568,7 @@ void retro_run(void)
             if (scanCode!=CPC_NIL) {
 
                 if (input_state_cb(crocokeymap[i].port, RETRO_DEVICE_JOYPAD, 0, crocokeymap[i].index)) {
-                    log_cb(RETRO_LOG_INFO, "joy key down: %d %d\n", crocokeymap[i].index, crocokeymap[i].scanCode);
+                    log_cb(RETRO_LOG_INFO, "joy key down: %d (scan: %d)\n", crocokeymap[i].index, crocokeymap[i].scanCode);
 
                     CPC_SetScanCode(&gb, scanCode);
                 }
@@ -572,21 +623,33 @@ void retro_run(void)
             UpdateScreen(&gb);
             nds_ReadKey(&gb);
 
+            int width, height;
+            float ratio;
+
+            width = gb.screenBufferWidth;
+            height = gb.screenBufferHeight;
+
+            ratio = (float)width/(float)height;
+
+            if (gb.lastMode==2) {
+                width = width * 2;
+            }
+
             if (gb.changeFilter!=0) {
 
                 struct retro_game_geometry geometry;
 
-                geometry.base_width = gb.screenBufferWidth;
-                geometry.base_height = gb.screenBufferHeight;
-                geometry.max_width = gb.screenBufferWidth;
-                geometry.max_height = gb.screenBufferHeight;
-                geometry.aspect_ratio = 0.0f;
+                geometry.base_width = width;
+                geometry.base_height = height;
+                geometry.max_width = width;
+                geometry.max_height = height;
+                geometry.aspect_ratio = ratio;
 
                 environ_cb( RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry );
                 gb.changeFilter=0;
             }
 
-            video_cb(pixels, gb.screenBufferWidth, gb.screenBufferHeight, gb.screenBufferWidth*2);
+            video_cb(pixels, width, height, width*2);
 
 
             updateScreenBuffer(&gb, pixels, gb.screenBufferWidth);
@@ -947,7 +1010,7 @@ bool loadGame(void) {
 
     BOOL isOk = false;
 
-    if ( (!memcmp(header, "MV - CPCEMU", 11)) || (!memcmp(header,"EXTENDED", 8)) ) {
+    if ( (!memcmp(header, "MV - CPC", 8)) || (!memcmp(header,"EXTENDED", 8)) ) {
         diskLength = (u32)dsk_size;
 
         disk = (u8*)malloc(diskLength);
@@ -974,6 +1037,8 @@ bool loadGame(void) {
         u8 *gif = unzip(dsk, dsk_size, "capture.gif", &gifLength);
         if (gif!=NULL) {
             ReadBackgroundGifInfo(&splashWidth, &splashHeight, gif, gifLength);
+
+            printf("Splash screen: %dx%d\n", splashWidth, splashHeight);
 
             splash = (u16*)malloc(splashWidth*splashHeight*2);
 
@@ -1051,13 +1116,23 @@ bool loadGame(void) {
 
     // (void)info;
 
+    if (splash==NULL) {
+        loadDisk(true);
+        loadSnapshot();
+    }
 
+    log_cb(RETRO_LOG_INFO, "end of load games\n");
 
-    BOOL autoStart=true;
+    return true;
+}
+
+void loadDisk(BOOL autoStart) {
 
     char autofile[256];
     if (disk!=NULL) {
         LireDiskMem( &gb, disk, diskLength, autofile);
+
+        log_cb(RETRO_LOG_INFO, "Autofile: (%s) - %d\n", autofile, autoStart);
 
 
         if ((autoStart) && (autofile[0]!=0) && (snapshot==NULL)) {
@@ -1069,16 +1144,13 @@ bool loadGame(void) {
         }
 
     }
+}
 
+void loadSnapshot(void) {
 
     if (snapshot!=NULL) {
         LireSnapshotMem(&gb, snapshot);
     }
-
-
-    log_cb(RETRO_LOG_INFO, "end of load games\n");
-
-    return true;
 }
 
 

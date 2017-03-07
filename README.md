@@ -24,22 +24,22 @@ git submodule update --init --recursive
 
 Compile for osX
 ``` 
-make -f Makefile.libretro platform="osx" -j2 CC="cc" 
+make platform="osx" -j2 CC="cc" 
 ```
 
 Compile for linux
 ``` 
-make -f Makefile.libretro platform="linux" -j2 CC="cc" 
+make platform="linux" -j2 CC="cc" 
 ```
 
 Compile for win
 ``` 
-make -f Makefile.libretro platform="win" -j2 CC="cc"
+make platform="win" -j2 CC="cc"
 ```
 
 Compile for raspberry (from Ubuntu)
 ```
 sudo apt-get install gcc-arm-linux-gnueabihf make
-make -f Makefile.libretro platform="unix" -j2 CC="arm-linux-gnueabihf-gcc"
+make platform="unix" -j2 CC="arm-linux-gnueabihf-gcc"
 ```
 

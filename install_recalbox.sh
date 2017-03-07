@@ -13,7 +13,7 @@ CONFIG=/recalbox/share_init/system/.emulationstation/es_systems.cfg
 mount -o remount, rw /
 
 # Copy the crocods core in the libretro folder
-curl https://github.com/redbug26/libretro-crocods/releases/download/version/crocods_libretro.so -o /usr/lib/libretro/crocods_libretro.so
+curl http://www.kyuran.be/wp-content/uploads/2017/02/crocods_libretro.so -o /usr/lib/libretro/crocods_libretro.so
 
 # Add .kcr file extension in emulation station
 xml ed -u "/systemList/system[name='amstradcpc']/extension" -v ".dsk .DSK .zip .ZIP .kcr .KCR" $CONFIG >$CONFIG.new

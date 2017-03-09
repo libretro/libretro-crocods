@@ -32,7 +32,7 @@ Compile for linux
 make platform="linux" -j2 CC="cc" 
 ```
 
-Compile for win
+Compile for win (using mingw)
 ``` 
 make platform="win" -j2 CC="cc"
 ```

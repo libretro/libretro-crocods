@@ -7,7 +7,7 @@ Look for .kcr file format to use CrocoDS at its best: https://github.com/redbug2
 - SSH on your recalbox
 - Type the following command:
 ``` 
-curl https://raw.githubusercontent.com/redbug26/libretro-crocods/master/install_recalbox.sh | sh
+curl https://raw.githubusercontent.com/libretro/libretro-crocods/master/install_recalbox.sh | sh
 ``` 
 - Restart your recalbox
 - Choose crocods core in the Amstrad settings in Emulation Station
@@ -17,7 +17,7 @@ curl https://raw.githubusercontent.com/redbug26/libretro-crocods/master/install_
 ## Build instructions on other systems
 
 ``` 
-git clone https://github.com/redbug26/libretro-crocods.git
+git clone https://github.com/libretro/libretro-crocods.git
 cd libretro-crocods/
 git submodule update --init --recursive
 ``` 

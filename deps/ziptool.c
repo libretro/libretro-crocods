@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "zlib/zlib.h"
+#include "libz/zlib.h"
 #include "ziptool.h"
 
 typedef char bool;

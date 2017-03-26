@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include "zip/ziptool.h"
+#include "deps/ziptool.h"
 
 #include "crocods-core/plateform.h"
 #include "crocods-core/gif.h"

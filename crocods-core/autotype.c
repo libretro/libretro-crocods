@@ -417,7 +417,7 @@ void AutoType_SetString(core_crocods_t *core, const char *sString, BOOL bWaitInp
 	core->AutoType.nCountRemaining = (int)strlen(sString);
 	if (bWaitInput)
 	{
-	    ResetCPC(core);
+	    SoftResetCPC(core);
 
 		/* wait for first keyboard */
 		core->AutoType.nFlags|=AUTOTYPE_WAITING;

@@ -110,19 +110,14 @@
 #include  "plateform.h"
 #include  "rompack.h"
 
-
-#define MASK_14BIT      0x3FFF
-
-
+#define MASK_14BIT 0x3FFF
 
 void VerifyIRQ(core_crocods_t *core);
-
 
 extern pfct tabCB[ 256 ];
 extern pfct tabED[ 256 ];
 extern pfct tabIX[ 256 ];
 extern pfct tabIY[ 256 ];
-
 
 /********************************************************* !NAME! **************
  * Nom : TabDAA
@@ -395,7 +390,6 @@ static USHORT TabDAA[ 2048 ] =
     0x9283, 0x9387, 0x9483, 0x9587, 0x9687, 0x9783, 0x988B, 0x998F
 };
 
-
 /********************************************************* !NAME! **************
  * Nom : Parite
  ********************************************************** !PATHS! *************
@@ -443,7 +437,6 @@ static UBYTE Parite[ 256 ] =
     0x80, 0x84, 0x84, 0x80, 0x84, 0x80, 0x80, 0x84
 };
 
-
 /********************************************************* !NAME! **************
  * Nom : CBIndex
  ********************************************************** !PATHS! *************
@@ -457,7 +450,6 @@ static UBYTE Parite[ 256 ] =
  *
  ********************************************************** !0! ****************/
 static int CBIndex = 0;
-
 
 /********************************************************* !NAME! **************
  * Nom : Peek8Ext
@@ -475,56 +467,22 @@ static int CBIndex = 0;
  * Variables globales modifiées : /
  *
  ********************************************************** !0! ****************/
-UBYTE Peek8Ext( core_crocods_t *core, USHORT adr )
+UBYTE Peek8Ext(core_crocods_t *core, USHORT adr)
 {
     UBYTE val = core->TabPEEK[ adr >> 14 ][ adr & MASK_14BIT ];
-    return( val );
+    return(val);
 }
 
-
-/********************************************************* !NAME! **************
- * Nom : Poke8Ext
- ********************************************************** !PATHS! *************
- * !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
- ********************************************************** !1! *****************
- *
- * Fichier     : !./FPTH\/FLE!, ligne : !./LN!
- *
- * Description : Ecriture d'un octet (8 bits) dans la mémoire du CPC (utilisée
- *               depuis l'extérieur du module)
- *
- * Résultat    : /
- *
- * Variables globales modifiées : /
- *
- ********************************************************** !0! ****************/
-void Poke8Ext( core_crocods_t *core, USHORT adr, UBYTE val )
+void Poke8Ext(core_crocods_t *core, USHORT adr, UBYTE val)
 {
     core->TabPOKE[ adr >> 14 ][ adr & MASK_14BIT ] = val;
 }
 
-
-/********************************************************* !NAME! **************
- * Nom : PEEK8
- ********************************************************** !PATHS! *************
- * !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
- ********************************************************** !1! *****************
- *
- * Fichier     : !./FPTH\/FLE!, ligne : !./LN!
- *
- * Description : Lecture d'un octet (8 bits) depuis la mémoire du CPC
- *
- * Résultat    : La valeur de l'octet a l'adresse désirée
- *
- * Variables globales modifiées : /
- *
- ********************************************************** !0! ****************/
-static u8 PEEK8( core_crocods_t *core, u16 adr )
+static u8 PEEK8(core_crocods_t *core, u16 adr)
 {
     // myprintf("R8: %d", adr);
-    return( core->TabPEEK[ adr >> 14 ][ adr & MASK_14BIT ] );
+    return(core->TabPEEK[ adr >> 14 ][ adr & MASK_14BIT ]);
 }
-
 
 /********************************************************* !NAME! **************
  * Nom : POKE8
@@ -541,7 +499,7 @@ static u8 PEEK8( core_crocods_t *core, u16 adr )
  * Variables globales modifiées : /
  *
  ********************************************************** !0! ****************/
-static void POKE8( core_crocods_t *core, u16 adr, u8 val )
+static void POKE8(core_crocods_t *core, u16 adr, u8 val)
 {
     core->TabPOKE[ adr >> 14 ][ adr & MASK_14BIT ] = val;
 }
@@ -566,14 +524,13 @@ static void POKE8( core_crocods_t *core, u16 adr, u8 val )
  * Variables globales modifiées : /
  *
  ********************************************************** !0! ****************/
-static u16 PEEK16( core_crocods_t *core, u16 adr )
+static u16 PEEK16(core_crocods_t *core, u16 adr)
 {
     // myprintf("R16: %d", adr);
     u16 p = adr & MASK_14BIT;
     u16 q = adr >> 14;
-    return( ( USHORT )( core->TabPEEK[ q ][ p ] | ( core->TabPEEK[ q ][ p + 1 ] << 8 ) ) );
+    return( (USHORT)(core->TabPEEK[ q ][ p ] | (core->TabPEEK[ q ][ p + 1 ] << 8) ) );
 }
-
 
 /********************************************************* !NAME! **************
  * Nom : POKE16
@@ -590,14 +547,13 @@ static u16 PEEK16( core_crocods_t *core, u16 adr )
  * Variables globales modifiées : /
  *
  ********************************************************** !0! ****************/
-static void POKE16( core_crocods_t *core, u16 adr, u16 val )
+static void POKE16(core_crocods_t *core, u16 adr, u16 val)
 {
     u16 p = adr & MASK_14BIT;
     u16 q = adr >> 14;
-    core->TabPOKE[ q ][ p ] = ( UBYTE )val;
-    core->TabPOKE[ q ][ p + 1 ] = ( UBYTE )( val >> 8 );
+    core->TabPOKE[ q ][ p ] = (UBYTE)val;
+    core->TabPOKE[ q ][ p + 1 ] = (UBYTE)(val >> 8);
 }
-
 
 /********************************************************* !NAME! **************
  * Nom : ADD_R8
@@ -614,19 +570,18 @@ static void POKE16( core_crocods_t *core, u16 adr, u16 val )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void ADD_R8( core_crocods_t *core, int v )
+static void ADD_R8(core_crocods_t *core, int v)
 {
     int t = RegA + v;
-    
-    FLAGS = ( UBYTE )( ( ~( RegA ^ v ) & ( v ^ t ) & 0x80 ? FLAG_V : 0 )
-                      | ( t >> 8 )
-                      | ( t & FLAG_S )
-                      | ( ( t & 0xFF ) ? 0 : FLAG_Z )
-                      | ( ( RegA ^ v ^ t ) & FLAG_H )
-                      );
-    RegA = ( UBYTE )t;
-}
 
+    FLAGS = (UBYTE)( (~(RegA ^ v) & (v ^ t) & 0x80 ? FLAG_V : 0)
+                     | (t >> 8)
+                     | (t & FLAG_S)
+                     | ( (t & 0xFF) ? 0 : FLAG_Z)
+                     | ( (RegA ^ v ^ t) & FLAG_H)
+                     );
+    RegA = (UBYTE)t;
+}
 
 /********************************************************* !NAME! **************
  * Nom : SUB_R8
@@ -643,20 +598,19 @@ static void ADD_R8( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void SUB_R8( core_crocods_t *core, int v )
+static void SUB_R8(core_crocods_t *core, int v)
 {
     int t = RegA - v;
-    
-    FLAGS = ( UBYTE )( ( ( RegA ^ v ) & ( RegA ^ t ) & 0x80 ? FLAG_V : 0 )
-                      | FLAG_N
-                      | - ( t >> 8 )
-                      | ( t & FLAG_S )
-                      | ( ( t & 0xFF ) ? 0 : FLAG_Z )
-                      | ( ( RegA ^ v ^ t ) & FLAG_H )
-                      );
-    RegA = ( UBYTE )t;
-}
 
+    FLAGS = (UBYTE)( ( (RegA ^ v) & (RegA ^ t) & 0x80 ? FLAG_V : 0)
+                     | FLAG_N
+                     | -(t >> 8)
+                     | (t & FLAG_S)
+                     | ( (t & 0xFF) ? 0 : FLAG_Z)
+                     | ( (RegA ^ v ^ t) & FLAG_H)
+                     );
+    RegA = (UBYTE)t;
+}
 
 /********************************************************* !NAME! **************
  * Nom : ADC_R8
@@ -673,19 +627,18 @@ static void SUB_R8( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void ADC_R8( core_crocods_t *core, int v )
+static void ADC_R8(core_crocods_t *core, int v)
 {
-    int t = RegA + v + ( FLAGS & FLAG_C );
-    
-    FLAGS = ( UBYTE )( ( ~( RegA ^ v ) & ( v ^ t ) & 0x80 ? FLAG_V : 0 )
-                      | ( t >> 8 )
-                      | ( t & FLAG_S )
-                      | ( ( t & 0xFF ) ? 0 : FLAG_Z )
-                      | ( ( RegA ^ v ^ t ) & FLAG_H )
-                      );
-    RegA = ( UBYTE )t;
-}
+    int t = RegA + v + (FLAGS & FLAG_C);
 
+    FLAGS = (UBYTE)( (~(RegA ^ v) & (v ^ t) & 0x80 ? FLAG_V : 0)
+                     | (t >> 8)
+                     | (t & FLAG_S)
+                     | ( (t & 0xFF) ? 0 : FLAG_Z)
+                     | ( (RegA ^ v ^ t) & FLAG_H)
+                     );
+    RegA = (UBYTE)t;
+}
 
 /********************************************************* !NAME! **************
  * Nom : SBC_R8
@@ -702,20 +655,19 @@ static void ADC_R8( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void SBC_R8( core_crocods_t *core, int v )
+static void SBC_R8(core_crocods_t *core, int v)
 {
-    int t = RegA - v - ( FLAGS & FLAG_C );
-    
-    FLAGS = ( UBYTE )( ( ( RegA ^ v ) & ( RegA ^ t ) & 0x80 ? FLAG_V : 0 )
-                      | FLAG_N
-                      | - ( t >> 8 )
-                      | ( t & FLAG_S )
-                      | ( ( t & 0xFF ) ? 0 : FLAG_Z )
-                      | ( ( RegA ^ v ^ t ) & FLAG_H )
-                      );
-    RegA = ( UBYTE )t;
-}
+    int t = RegA - v - (FLAGS & FLAG_C);
 
+    FLAGS = (UBYTE)( ( (RegA ^ v) & (RegA ^ t) & 0x80 ? FLAG_V : 0)
+                     | FLAG_N
+                     | -(t >> 8)
+                     | (t & FLAG_S)
+                     | ( (t & 0xFF) ? 0 : FLAG_Z)
+                     | ( (RegA ^ v ^ t) & FLAG_H)
+                     );
+    RegA = (UBYTE)t;
+}
 
 /********************************************************* !NAME! **************
  * Nom : CP_R8
@@ -732,19 +684,18 @@ static void SBC_R8( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void CP_R8( core_crocods_t *core, int v )
+static void CP_R8(core_crocods_t *core, int v)
 {
     int t = RegA - v;
-    
-    FLAGS = ( UBYTE )( ( ( RegA ^ v ) & ( RegA ^ t ) & 0x80 ? FLAG_V : 0 )
-                      | FLAG_N
-                      | - ( t >> 8 )
-                      | ( t & FLAG_S )
-                      | ( ( t & 0xFF ) ? 0 : FLAG_Z )
-                      | ( ( RegA ^ v ^ t ) & FLAG_H )
-                      );
-}
 
+    FLAGS = (UBYTE)( ( (RegA ^ v) & (RegA ^ t) & 0x80 ? FLAG_V : 0)
+                     | FLAG_N
+                     | -(t >> 8)
+                     | (t & FLAG_S)
+                     | ( (t & 0xFF) ? 0 : FLAG_Z)
+                     | ( (RegA ^ v ^ t) & FLAG_H)
+                     );
+}
 
 /********************************************************* !NAME! **************
  * Nom : FLAG_INC
@@ -761,16 +712,15 @@ static void CP_R8( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void FLAG_INC( core_crocods_t *core, int reg )
+static void FLAG_INC(core_crocods_t *core, int reg)
 {
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C )
-                      | ( reg & FLAG_S )
-                      | ( reg == 0x80 ? FLAG_V : 0 )
-                      | ( ( reg & 0x0F ) == 0 ? FLAG_H : 0 )
-                      | ( reg ? 0 : FLAG_Z )
-                      );
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C)
+                     | (reg & FLAG_S)
+                     | (reg == 0x80 ? FLAG_V : 0)
+                     | ( (reg & 0x0F) == 0 ? FLAG_H : 0)
+                     | (reg ? 0 : FLAG_Z)
+                     );
 }
-
 
 /********************************************************* !NAME! **************
  * Nom : FLAG_DEC
@@ -787,17 +737,16 @@ static void FLAG_INC( core_crocods_t *core, int reg )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void FLAG_DEC( core_crocods_t *core, int reg )
+static void FLAG_DEC(core_crocods_t *core, int reg)
 {
-    FLAGS = ( UBYTE )( FLAG_N
-                      | ( FLAGS & FLAG_C )
-                      | ( reg == 0x7F ? FLAG_V : 0 )
-                      | ( ( reg & 0x0F ) == 0x0F ? FLAG_H : 0 )
-                      | ( reg & FLAG_S )
-                      | ( reg ? 0 : FLAG_Z )
-                      );
+    FLAGS = (UBYTE)(FLAG_N
+                    | (FLAGS & FLAG_C)
+                    | (reg == 0x7F ? FLAG_V : 0)
+                    | ( (reg & 0x0F) == 0x0F ? FLAG_H : 0)
+                    | (reg & FLAG_S)
+                    | (reg ? 0 : FLAG_Z)
+                    );
 }
-
 
 /********************************************************* !NAME! **************
  * Nom : ADD_R16
@@ -814,19 +763,16 @@ static void FLAG_DEC( core_crocods_t *core, int reg )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void ADD_R16( core_crocods_t *core, USHORT * Reg, int v )
+static void ADD_R16(core_crocods_t *core, USHORT *Reg, int v)
 {
-    int tmp = * Reg;
-    * Reg = ( USHORT )( * Reg + v );
-    
-    FLAGS = ( UBYTE )( FLAGS & ( FLAG_S | FLAG_Z | FLAG_V ) );
-    if ( tmp > * Reg )
-        FLAGS |= FLAG_C;
-    
-    if ( ( tmp ^ v ^ * Reg ) & 0x1000 )
-        FLAGS |= FLAG_H;
-}
+    int tmp = *Reg;
+    *Reg = (USHORT)(*Reg + v);
 
+    FLAGS = (UBYTE)(FLAGS & (FLAG_S | FLAG_Z | FLAG_V) );
+    if (tmp > *Reg) FLAGS |= FLAG_C;
+
+    if ( (tmp ^ v ^ *Reg) & 0x1000) FLAGS |= FLAG_H;
+}
 
 /********************************************************* !NAME! **************
  * Nom : ADC_R16
@@ -843,19 +789,18 @@ static void ADD_R16( core_crocods_t *core, USHORT * Reg, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void ADC_R16( core_crocods_t *core, int v )
+static void ADC_R16(core_crocods_t *core, int v)
 {
-    int t = RegHL + v + ( FLAGS & FLAG_C );
-    
-    FLAGS = ( UBYTE )( ( t & 0x10000 ? FLAG_C : 0 )
-                      | ( ~ ( RegHL ^ v ) & ( v ^ t ) & 0x8000 ? FLAG_V : 0 )
-                      | ( ( RegHL ^ v ^ t ) & 0x1000 ? FLAG_H : 0 )
-                      | ( t & 0xFFFF ? 0 : FLAG_Z )
-                      | ( ( t >> 8 ) & FLAG_S )
-                      );
-    RegHL = ( USHORT )t;
-}
+    int t = RegHL + v + (FLAGS & FLAG_C);
 
+    FLAGS = (UBYTE)( (t & 0x10000 ? FLAG_C : 0)
+                     | (~(RegHL ^ v) & (v ^ t) & 0x8000 ? FLAG_V : 0)
+                     | ( (RegHL ^ v ^ t) & 0x1000 ? FLAG_H : 0)
+                     | (t & 0xFFFF ? 0 : FLAG_Z)
+                     | ( (t >> 8) & FLAG_S)
+                     );
+    RegHL = (USHORT)t;
+}
 
 /********************************************************* !NAME! **************
  * Nom : SBC_R16
@@ -872,20 +817,19 @@ static void ADC_R16( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void SBC_R16( core_crocods_t *core, int v )
+static void SBC_R16(core_crocods_t *core, int v)
 {
-    int t = RegHL - v - ( FLAGS & FLAG_C );
-    
-    FLAGS = ( UBYTE )( FLAG_N
-                      | ( t & 0x10000 ? FLAG_C : 0 )
-                      | ( ( RegHL ^ v ) & ( RegHL ^ t ) & 0x8000 ? FLAG_V : 0 )
-                      | ( ( RegHL ^ v ^ t ) & 0x1000 ? FLAG_H : 0 )
-                      | ( t & 0xFFFF ? 0 : FLAG_Z )
-                      | ( (  t >> 8  ) & FLAG_S )
-                      );
-    RegHL = ( USHORT )t;
-}
+    int t = RegHL - v - (FLAGS & FLAG_C);
 
+    FLAGS = (UBYTE)(FLAG_N
+                    | (t & 0x10000 ? FLAG_C : 0)
+                    | ( (RegHL ^ v) & (RegHL ^ t) & 0x8000 ? FLAG_V : 0)
+                    | ( (RegHL ^ v ^ t) & 0x1000 ? FLAG_H : 0)
+                    | (t & 0xFFFF ? 0 : FLAG_Z)
+                    | ( (t >> 8) & FLAG_S)
+                    );
+    RegHL = (USHORT)t;
+}
 
 /********************************************************* !NAME! **************
  * Nom : Bit
@@ -902,2117 +846,1802 @@ static void SBC_R16( core_crocods_t *core, int v )
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-static void Bit( core_crocods_t *core, UBYTE r, UBYTE Bit )
+static void Bit(core_crocods_t *core, UBYTE r, UBYTE Bit)
 {
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | FLAG_H | Parite[ r & Bit ] );
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | FLAG_H | Parite[ r & Bit ]);
 }
-
 
 /************
  * OPCODE CB *
  ************/
 
-
-static int CB_00( core_crocods_t *core )   /* RLC B */
+static int CB_00(core_crocods_t *core)     /* RLC B */
 {
-    FLAGS = ( UBYTE )( RegB >> 7 );
-    RegB = ( UBYTE )( ( RegB << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegB >> 7);
+    RegB = (UBYTE)( (RegB << 1) | FLAGS);
     FLAGS |= Parite[ RegB ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_01( core_crocods_t *core )   /* RLC C */
+static int CB_01(core_crocods_t *core)     /* RLC C */
 {
-    FLAGS = ( UBYTE )( RegC >> 7 );
-    RegC = ( UBYTE )( ( RegC << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegC >> 7);
+    RegC = (UBYTE)( (RegC << 1) | FLAGS);
     FLAGS |= Parite[ RegC ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_02( core_crocods_t *core )   /* RLC D */
+static int CB_02(core_crocods_t *core)     /* RLC D */
 {
-    FLAGS = ( UBYTE )( RegD >> 7 );
-    RegD = ( UBYTE )( ( RegD << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegD >> 7);
+    RegD = (UBYTE)( (RegD << 1) | FLAGS);
     FLAGS |= Parite[ RegD ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_03( core_crocods_t *core )   /* RLC E */
+static int CB_03(core_crocods_t *core)     /* RLC E */
 {
-    FLAGS = ( UBYTE )( RegE >> 7 );
-    RegE = ( UBYTE )( ( RegE << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegE >> 7);
+    RegE = (UBYTE)( (RegE << 1) | FLAGS);
     FLAGS |= Parite[ RegE ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_04( core_crocods_t *core )   /* RLC H */
+static int CB_04(core_crocods_t *core)     /* RLC H */
 {
-    FLAGS = ( UBYTE )( RegH >> 7 );
-    RegH = ( UBYTE )( ( RegH << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegH >> 7);
+    RegH = (UBYTE)( (RegH << 1) | FLAGS);
     FLAGS |= Parite[ RegH ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_05( core_crocods_t *core )   /* RLC L */
+static int CB_05(core_crocods_t *core)     /* RLC L */
 {
-    FLAGS = ( UBYTE )( RegL >> 7 );
-    RegL = ( UBYTE )( ( RegL << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegL >> 7);
+    RegL = (UBYTE)( (RegL << 1) | FLAGS);
     FLAGS |= Parite[ RegL ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_06( core_crocods_t *core )   /* RLC (HL) */
+static int CB_06(core_crocods_t *core)     /* RLC (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( hl >> 7 );
-    POKE8( core, RegHL , ( UBYTE )( hl = ( ( hl << 1 ) | FLAGS ) ) );
+    int hl = PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(hl >> 7);
+    POKE8(core, RegHL, (UBYTE)(hl = ( (hl << 1) | FLAGS) ) );
     FLAGS |= Parite[ hl ];
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_07( core_crocods_t *core )   /* RLC A */
+static int CB_07(core_crocods_t *core)     /* RLC A */
 {
-    FLAGS = ( UBYTE )( RegA >> 7 );
-    RegA = ( UBYTE )( ( RegA << 1 ) | FLAGS );
+    FLAGS = (UBYTE)(RegA >> 7);
+    RegA = (UBYTE)( (RegA << 1) | FLAGS);
     FLAGS |= Parite[ RegA ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_08( core_crocods_t *core )   /* RRC B */
+static int CB_08(core_crocods_t *core)     /* RRC B */
 {
-    FLAGS = ( UBYTE )( RegB & FLAG_C );
-    RegB = ( UBYTE )( ( RegB >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegB & FLAG_C);
+    RegB = (UBYTE)( (RegB >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegB ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_09( core_crocods_t *core )   /* RRC C */
+static int CB_09(core_crocods_t *core)     /* RRC C */
 {
-    FLAGS = ( UBYTE )( RegC & FLAG_C );
-    RegC = ( UBYTE )( ( RegC >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegC & FLAG_C);
+    RegC = (UBYTE)( (RegC >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegC ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_0A( core_crocods_t *core )   /* RRC D */
+static int CB_0A(core_crocods_t *core)     /* RRC D */
 {
-    FLAGS = ( UBYTE )( RegD & FLAG_C );
-    RegD = ( UBYTE )( ( RegD >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegD & FLAG_C);
+    RegD = (UBYTE)( (RegD >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegD ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_0B( core_crocods_t *core )   /* RRC E */
+static int CB_0B(core_crocods_t *core)     /* RRC E */
 {
-    FLAGS = ( UBYTE )( RegE & FLAG_C );
-    RegE = ( UBYTE )( ( RegE >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegE & FLAG_C);
+    RegE = (UBYTE)( (RegE >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegE ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_0C( core_crocods_t *core )   /* RRC H */
+static int CB_0C(core_crocods_t *core)     /* RRC H */
 {
-    FLAGS = ( UBYTE )( RegH & FLAG_C );
-    RegH = ( UBYTE )( ( RegH >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegH & FLAG_C);
+    RegH = (UBYTE)( (RegH >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegH ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_0D( core_crocods_t *core )   /* RRC L */
+static int CB_0D(core_crocods_t *core)     /* RRC L */
 {
-    FLAGS = ( UBYTE )( RegL & FLAG_C );
-    RegL = ( UBYTE )( ( RegL >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegL & FLAG_C);
+    RegL = (UBYTE)( (RegL >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegL ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_0E( core_crocods_t *core )   /* RRC (HL) */
+static int CB_0E(core_crocods_t *core)     /* RRC (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( hl & FLAG_C );
-    POKE8( core, RegHL, ( UBYTE )( hl = ( hl >> 1 ) | ( FLAGS << 7 ) ) );
+    int hl = PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(hl & FLAG_C);
+    POKE8(core, RegHL, (UBYTE)(hl = (hl >> 1) | (FLAGS << 7) ) );
     FLAGS |= Parite[ hl ];
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_0F( core_crocods_t *core )   /* RRC A */
+static int CB_0F(core_crocods_t *core)     /* RRC A */
 {
-    FLAGS = ( UBYTE )( RegA & FLAG_C );
-    RegA = ( UBYTE )( ( RegA >> 1 ) | ( FLAGS << 7 ) );
+    FLAGS = (UBYTE)(RegA & FLAG_C);
+    RegA = (UBYTE)( (RegA >> 1) | (FLAGS << 7) );
     FLAGS |= Parite[ RegA ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_10( core_crocods_t *core )   /* RL B */
+static int CB_10(core_crocods_t *core)     /* RL B */
 {
     int i = RegB << 1;
-    RegB = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ RegB ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    RegB = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegB ]);
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_11( core_crocods_t *core )   /* RL C */
+static int CB_11(core_crocods_t *core)     /* RL C */
 {
     int i = RegC << 1;
-    RegC = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ RegC ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    RegC = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegC ]);
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_12( core_crocods_t *core )   /* RL D */
+static int CB_12(core_crocods_t *core)     /* RL D */
 {
     int i = RegD << 1;
-    RegD = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ RegD ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    RegD = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegD ]);
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_13( core_crocods_t *core )   /* RL E */
+static int CB_13(core_crocods_t *core)     /* RL E */
 {
     int i = RegE << 1;
-    RegE = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ RegE ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    RegE = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegE ]);
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_14( core_crocods_t *core )   /* RL H */
+static int CB_14(core_crocods_t *core)     /* RL H */
 {
     int i = RegH << 1;
-    RegH = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) |Parite[ RegH ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    RegH = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegH ]);
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_15( core_crocods_t *core )   /* RL L */
+static int CB_15(core_crocods_t *core)     /* RL L */
 {
     int i = RegL << 1;
-    RegL = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ RegL ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    RegL = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegL ]);
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_16( core_crocods_t *core )   /* RL (HL) */
+static int CB_16(core_crocods_t *core)     /* RL (HL) */
 {
-    int hl = PEEK8( core, RegHL );
+    int hl = PEEK8(core, RegHL);
     int i = hl << 1;
-    POKE8( core, RegHL, ( UBYTE )( hl = i | ( FLAGS & FLAG_C ) ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ hl & 0xFF ] );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(hl = i | (FLAGS & FLAG_C) ) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ hl & 0xFF ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_17( core_crocods_t *core )   /* RL A */
+static int CB_17(core_crocods_t *core)     /* RL A */
 {
     int i = RegA << 1;
-    RegA = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( i >> 8 ) | Parite[ RegA ] );
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    RegA = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (i >> 8) | Parite[ RegA ]);
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_18( core_crocods_t *core )   /* RR B */
+static int CB_18(core_crocods_t *core)     /* RR B */
 {
-    UBYTE i = ( UBYTE )( ( RegB >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegB & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegB >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegB & FLAG_C) | Parite[ i ]);
     RegB = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_19( core_crocods_t *core )   /* RR C */
+static int CB_19(core_crocods_t *core)     /* RR C */
 {
-    UBYTE i = ( UBYTE )( ( RegC >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegC & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegC >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegC & FLAG_C) | Parite[ i ]);
     RegC = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_1A( core_crocods_t *core )   /* RR D */
+static int CB_1A(core_crocods_t *core)     /* RR D */
 {
-    UBYTE i = ( UBYTE )( ( RegD >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegD & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegD >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegD & FLAG_C) | Parite[ i ]);
     RegD = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_1B( core_crocods_t *core )   /* RR E */
+static int CB_1B(core_crocods_t *core)     /* RR E */
 {
-    UBYTE i = ( UBYTE )( ( RegE >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegE & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegE >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegE & FLAG_C) | Parite[ i ]);
     RegE = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_1C( core_crocods_t *core )   /* RR H */
+static int CB_1C(core_crocods_t *core)     /* RR H */
 {
-    UBYTE i = ( UBYTE )( ( RegH >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegH & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegH >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegH & FLAG_C) | Parite[ i ]);
     RegH = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_1D( core_crocods_t *core )   /* RR L */
+static int CB_1D(core_crocods_t *core)     /* RR L */
 {
-    UBYTE i = ( UBYTE )( ( RegL >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegL & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegL >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegL & FLAG_C) | Parite[ i ]);
     RegL = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_1E( core_crocods_t *core )   /* RR (HL) */
+static int CB_1E(core_crocods_t *core)     /* RR (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    UBYTE i = ( UBYTE )( ( hl >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( hl & FLAG_C ) | Parite[ i ] );
-    POKE8( core, RegHL, ( UBYTE )i );
-    return( 4 /* 4 NOPs */ );
+    int hl = PEEK8(core, RegHL);
+    UBYTE i = (UBYTE)( (hl >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (hl & FLAG_C) | Parite[ i ]);
+    POKE8(core, RegHL, (UBYTE)i);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_1F( core_crocods_t *core )   /* RR A */
+static int CB_1F(core_crocods_t *core)     /* RR A */
 {
-    UBYTE i = ( UBYTE )( ( RegA >> 1 ) | ( FLAGS << 7 ) );
-    FLAGS = ( UBYTE )( ( RegA & FLAG_C ) | Parite[ i ] );
+    UBYTE i = (UBYTE)( (RegA >> 1) | (FLAGS << 7) );
+    FLAGS = (UBYTE)( (RegA & FLAG_C) | Parite[ i ]);
     RegA = i;
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_20( core_crocods_t *core )   /* SLA B */
+static int CB_20(core_crocods_t *core)     /* SLA B */
 {
-    FLAGS = ( UBYTE )( RegB >> 7 );
-    RegB = ( UBYTE )( RegB << 1 );
+    FLAGS = (UBYTE)(RegB >> 7);
+    RegB = (UBYTE)(RegB << 1);
     FLAGS |= Parite[ RegB ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_21( core_crocods_t *core )   /* SLA C */
+static int CB_21(core_crocods_t *core)     /* SLA C */
 {
-    FLAGS = ( UBYTE )( RegC >> 7 );
-    RegC = ( UBYTE )( RegC << 1 );
+    FLAGS = (UBYTE)(RegC >> 7);
+    RegC = (UBYTE)(RegC << 1);
     FLAGS |= Parite[ RegC ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_22( core_crocods_t *core )   /* SLA D */
+static int CB_22(core_crocods_t *core)     /* SLA D */
 {
-    FLAGS = ( UBYTE )( RegD >> 7 );
-    RegD = ( UBYTE )( RegD << 1 );
+    FLAGS = (UBYTE)(RegD >> 7);
+    RegD = (UBYTE)(RegD << 1);
     FLAGS |= Parite[ RegD ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_23( core_crocods_t *core )   /* SLA E */
+static int CB_23(core_crocods_t *core)     /* SLA E */
 {
-    FLAGS = ( UBYTE )( RegE >> 7 );
-    RegE = ( UBYTE )( RegE << 1 );
+    FLAGS = (UBYTE)(RegE >> 7);
+    RegE = (UBYTE)(RegE << 1);
     FLAGS |= Parite[ RegE ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_24( core_crocods_t *core )   /* SLA H */
+static int CB_24(core_crocods_t *core)     /* SLA H */
 {
-    FLAGS = ( UBYTE )( RegH >> 7 );
-    RegH = ( UBYTE )( RegH << 1 );
+    FLAGS = (UBYTE)(RegH >> 7);
+    RegH = (UBYTE)(RegH << 1);
     FLAGS |= Parite[ RegH ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_25( core_crocods_t *core )   /* SLA L */
+static int CB_25(core_crocods_t *core)     /* SLA L */
 {
-    FLAGS = ( UBYTE )( RegL >> 7 );
-    RegL = ( UBYTE )( RegL << 1 );
+    FLAGS = (UBYTE)(RegL >> 7);
+    RegL = (UBYTE)(RegL << 1);
     FLAGS |= Parite[ RegL ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_26( core_crocods_t *core )   /* SLA (HL) */
+static int CB_26(core_crocods_t *core)     /* SLA (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( hl >> 7 );
-    POKE8( core, RegHL, ( UBYTE )( hl = hl << 1 ) );
+    int hl = PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(hl >> 7);
+    POKE8(core, RegHL, (UBYTE)(hl = hl << 1) );
     FLAGS |= Parite[ hl ];
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_27( core_crocods_t *core )   /* SLA A */
+static int CB_27(core_crocods_t *core)     /* SLA A */
 {
-    FLAGS = ( UBYTE )( RegA >> 7 );
-    RegA = ( UBYTE )( RegA << 1 );
+    FLAGS = (UBYTE)(RegA >> 7);
+    RegA = (UBYTE)(RegA << 1);
     FLAGS |= Parite[ RegA ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_28( core_crocods_t *core )   /* SRA B */
+static int CB_28(core_crocods_t *core)     /* SRA B */
 {
-    FLAGS = ( UBYTE )( RegB & FLAG_C );
-    RegB = ( UBYTE )( ( RegB >> 1 ) | ( RegB & FLAG_S ) );
+    FLAGS = (UBYTE)(RegB & FLAG_C);
+    RegB = (UBYTE)( (RegB >> 1) | (RegB & FLAG_S) );
     FLAGS |= Parite[ RegB ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_29( core_crocods_t *core )   /* SRA C */
+static int CB_29(core_crocods_t *core)     /* SRA C */
 {
-    FLAGS = ( UBYTE )( RegC & FLAG_C );
-    RegC = ( UBYTE )( ( RegC >> 1 ) | ( RegC & FLAG_S ) );
+    FLAGS = (UBYTE)(RegC & FLAG_C);
+    RegC = (UBYTE)( (RegC >> 1) | (RegC & FLAG_S) );
     FLAGS |= Parite[ RegC ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_2A( core_crocods_t *core )   /* SRA D */
+static int CB_2A(core_crocods_t *core)     /* SRA D */
 {
-    FLAGS = ( UBYTE )( RegD & FLAG_C );
-    RegD = ( UBYTE )( ( RegD >> 1 ) | ( RegD & FLAG_S ) );
+    FLAGS = (UBYTE)(RegD & FLAG_C);
+    RegD = (UBYTE)( (RegD >> 1) | (RegD & FLAG_S) );
     FLAGS |= Parite[ RegD ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_2B( core_crocods_t *core )   /* SRA E */
+static int CB_2B(core_crocods_t *core)     /* SRA E */
 {
-    FLAGS = ( UBYTE )( RegE & FLAG_C );
-    RegE = ( UBYTE )( ( RegE >> 1 ) | ( RegE & FLAG_S ) );
+    FLAGS = (UBYTE)(RegE & FLAG_C);
+    RegE = (UBYTE)( (RegE >> 1) | (RegE & FLAG_S) );
     FLAGS |= Parite[ RegE ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_2C( core_crocods_t *core )   /* SRA H */
+static int CB_2C(core_crocods_t *core)     /* SRA H */
 {
-    FLAGS = ( UBYTE )( RegH & FLAG_C );
-    RegH = ( UBYTE )( ( RegH >> 1 ) | ( RegH & FLAG_S ) );
+    FLAGS = (UBYTE)(RegH & FLAG_C);
+    RegH = (UBYTE)( (RegH >> 1) | (RegH & FLAG_S) );
     FLAGS |= Parite[ RegH ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_2D( core_crocods_t *core )   /* SRA L */
+static int CB_2D(core_crocods_t *core)     /* SRA L */
 {
-    FLAGS = ( UBYTE )( RegL & FLAG_C );
-    RegL = ( UBYTE )( ( RegL >> 1 ) | ( RegL & FLAG_S ) );
+    FLAGS = (UBYTE)(RegL & FLAG_C);
+    RegL = (UBYTE)( (RegL >> 1) | (RegL & FLAG_S) );
     FLAGS |= Parite[ RegL ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_2E( core_crocods_t *core )   /* SRA (HL) */
+static int CB_2E(core_crocods_t *core)     /* SRA (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( hl & FLAG_C );
-    POKE8( core, RegHL, ( UBYTE )( hl = ( hl >> 1 ) | ( hl & FLAG_S ) ) );
+    int hl = PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(hl & FLAG_C);
+    POKE8(core, RegHL, (UBYTE)(hl = (hl >> 1) | (hl & FLAG_S) ) );
     FLAGS |= Parite[ hl ];
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_2F( core_crocods_t *core )   /* SRA A */
+static int CB_2F(core_crocods_t *core)     /* SRA A */
 {
-    FLAGS = ( UBYTE )( RegA & FLAG_C );
-    RegA = ( UBYTE )( ( RegA >> 1 ) | ( RegA & FLAG_S ) );
+    FLAGS = (UBYTE)(RegA & FLAG_C);
+    RegA = (UBYTE)( (RegA >> 1) | (RegA & FLAG_S) );
     FLAGS |= Parite[ RegA ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_30( core_crocods_t *core )   /* SLL B */
+static int CB_30(core_crocods_t *core)     /* SLL B */
 {
-    FLAGS = ( UBYTE )( RegB >> 7 );
-    RegB = ( UBYTE )( ( RegB << 1 ) | 1 );
+    FLAGS = (UBYTE)(RegB >> 7);
+    RegB = (UBYTE)( (RegB << 1) | 1);
     FLAGS |= Parite[ RegB ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_31( core_crocods_t *core )   /* SLL C */
+static int CB_31(core_crocods_t *core)     /* SLL C */
 {
-    FLAGS = ( UBYTE )( RegC >> 7 );
-    RegC = ( UBYTE )( ( RegC << 1 ) | 1 );
+    FLAGS = (UBYTE)(RegC >> 7);
+    RegC = (UBYTE)( (RegC << 1) | 1);
     FLAGS |= Parite[ RegC ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_32( core_crocods_t *core )   /* SLL D */
+static int CB_32(core_crocods_t *core)     /* SLL D */
 {
-    FLAGS = ( UBYTE )( RegD >> 7 );
-    RegD = ( UBYTE )( ( RegD << 1 ) | 1 );
+    FLAGS = (UBYTE)(RegD >> 7);
+    RegD = (UBYTE)( (RegD << 1) | 1);
     FLAGS |= Parite[ RegD ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_33( core_crocods_t *core )   /* SLL E */
+static int CB_33(core_crocods_t *core)     /* SLL E */
 {
-    FLAGS = ( UBYTE )( RegE >> 7 );
-    RegE = ( UBYTE )( ( RegE << 1 ) | 1 );
+    FLAGS = (UBYTE)(RegE >> 7);
+    RegE = (UBYTE)( (RegE << 1) | 1);
     FLAGS |= Parite[ RegE ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_34( core_crocods_t *core )   /* SLL H */
+static int CB_34(core_crocods_t *core)     /* SLL H */
 {
-    FLAGS = ( UBYTE )( RegH >> 7 );
-    RegH = ( UBYTE )( ( RegH << 1 ) | 1 );
+    FLAGS = (UBYTE)(RegH >> 7);
+    RegH = (UBYTE)( (RegH << 1) | 1);
     FLAGS |= Parite[ RegH ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_35( core_crocods_t *core )   /* SLL L */
+static int CB_35(core_crocods_t *core)     /* SLL L */
 {
-    FLAGS = ( UBYTE )( RegL >> 7 );
-    RegL = ( UBYTE )( ( RegL << 1 ) | 1 );
+    FLAGS = (UBYTE)(RegL >> 7);
+    RegL = (UBYTE)( (RegL << 1) | 1);
     FLAGS |= Parite[ RegL ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_36( core_crocods_t *core )   /* SLL (HL) */
+static int CB_36(core_crocods_t *core)     /* SLL (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( hl >> 7 );
-    POKE8( core, RegHL, ( UBYTE )( ( hl = hl << 1 ) | 1 ) );
+    int hl = PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(hl >> 7);
+    POKE8(core, RegHL, (UBYTE)( (hl = hl << 1) | 1) );
     FLAGS |= Parite[ hl ];
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_37( core_crocods_t *core )   /* SLL A */
+static int CB_37(core_crocods_t *core)     /* SLL A */
 {
-    FLAGS = ( UBYTE )( RegA >> 7 );
-    RegA = ( UBYTE )( ( RegA << 1 ) | 1);
+    FLAGS = (UBYTE)(RegA >> 7);
+    RegA = (UBYTE)( (RegA << 1) | 1);
     FLAGS |= Parite[ RegA ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegA);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_38( core_crocods_t *core )   /* SRL B */
+static int CB_38(core_crocods_t *core)     /* SRL B */
 {
-    FLAGS = ( UBYTE )( RegB & FLAG_C );
-    RegB = ( UBYTE )( RegB >> 1 );
+    FLAGS = (UBYTE)(RegB & FLAG_C);
+    RegB = (UBYTE)(RegB >> 1);
     FLAGS |= Parite[ RegB ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegB );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegB);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_39( core_crocods_t *core )   /* SRL C */
+static int CB_39(core_crocods_t *core)     /* SRL C */
 {
-    FLAGS = ( UBYTE )( RegC & FLAG_C );
-    RegC = ( UBYTE )( RegC >> 1 );
+    FLAGS = (UBYTE)(RegC & FLAG_C);
+    RegC = (UBYTE)(RegC >> 1);
     FLAGS |= Parite[ RegC ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegC );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegC);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_3A( core_crocods_t *core )   /* SRL D */
+static int CB_3A(core_crocods_t *core)     /* SRL D */
 {
-    FLAGS = ( UBYTE )( RegD & FLAG_C );
-    RegD = ( UBYTE )( RegD >> 1 );
+    FLAGS = (UBYTE)(RegD & FLAG_C);
+    RegD = (UBYTE)(RegD >> 1);
     FLAGS |= Parite[ RegD ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegD );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegD);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_3B( core_crocods_t *core )   /* SRL E */
+static int CB_3B(core_crocods_t *core)     /* SRL E */
 {
-    FLAGS = ( UBYTE )( RegE & FLAG_C );
-    RegE = ( UBYTE )( RegE >> 1 );
+    FLAGS = (UBYTE)(RegE & FLAG_C);
+    RegE = (UBYTE)(RegE >> 1);
     FLAGS |= Parite[ RegE ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegE );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegE);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_3C( core_crocods_t *core )   /* SRL H */
+static int CB_3C(core_crocods_t *core)     /* SRL H */
 {
-    FLAGS = ( UBYTE )( RegH & FLAG_C );
-    RegH = ( UBYTE )( RegH >> 1 );
+    FLAGS = (UBYTE)(RegH & FLAG_C);
+    RegH = (UBYTE)(RegH >> 1);
     FLAGS |= Parite[ RegH ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegH );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegH);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_3D( core_crocods_t *core )   /* SRL L */
+static int CB_3D(core_crocods_t *core)     /* SRL L */
 {
-    FLAGS = ( UBYTE )( RegL & FLAG_C );
-    RegL = ( UBYTE )( RegL >> 1 );
+    FLAGS = (UBYTE)(RegL & FLAG_C);
+    RegL = (UBYTE)(RegL >> 1);
     FLAGS |= Parite[ RegL ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegL );
-    
-    return( 2 /* 2 NOPs */ );
+    if (CBIndex) POKE8(core, RegHL, RegL);
+
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_3E( core_crocods_t *core )   /* SRL (HL) */
+static int CB_3E(core_crocods_t *core)     /* SRL (HL) */
 {
-    int hl = PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( hl & FLAG_C );
-    POKE8( core, RegHL, ( UBYTE )( hl = hl >> 1 ) );
+    int hl = PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(hl & FLAG_C);
+    POKE8(core, RegHL, (UBYTE)(hl = hl >> 1) );
     FLAGS |= Parite[ hl ];
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_3F( core_crocods_t *core )   /* SRL A */
+static int CB_3F(core_crocods_t *core)     /* SRL A */
 {
-    FLAGS = ( UBYTE )( RegA & FLAG_C );
-    RegA = ( UBYTE )( RegA >> 1 );
+    FLAGS = (UBYTE)(RegA & FLAG_C);
+    RegA = (UBYTE)(RegA >> 1);
     FLAGS |= Parite[ RegA ];
-    if ( CBIndex )
-        POKE8( core, RegHL, RegA );
-    
-    return( 2 /* 2 NOPs */ );
-}
+    if (CBIndex) POKE8(core, RegHL, RegA);
 
+    return(2 /* 2 NOPs */);
+}
 
-static int CB_40( core_crocods_t *core )      /* BIT 0, B */
+static int CB_40(core_crocods_t *core)        /* BIT 0, B */
 {
-    Bit( core, RegB, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT0);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_41( core_crocods_t *core )      /* BIT 0, C */
+static int CB_41(core_crocods_t *core)        /* BIT 0, C */
 {
-    Bit( core, RegC, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT0);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_42( core_crocods_t *core )      /* BIT 0, D */
+static int CB_42(core_crocods_t *core)        /* BIT 0, D */
 {
-    Bit( core, RegD, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT0);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_43( core_crocods_t *core )      /* BIT 0, E */
+static int CB_43(core_crocods_t *core)        /* BIT 0, E */
 {
-    Bit( core, RegE, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT0);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_44( core_crocods_t *core )      /* BIT 0, H */
+static int CB_44(core_crocods_t *core)        /* BIT 0, H */
 {
-    Bit( core, RegH, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT0);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_45( core_crocods_t *core )      /* BIT 0, L */
+static int CB_45(core_crocods_t *core)        /* BIT 0, L */
 {
-    Bit( core, RegL, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT0);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_46( core_crocods_t *core )      /* BIT 0, (HL) */
+static int CB_46(core_crocods_t *core)        /* BIT 0, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT0 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT0);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_47( core_crocods_t *core )      /* BIT 0, A */
+static int CB_47(core_crocods_t *core)        /* BIT 0, A */
 {
-    Bit( core, RegA, BIT0 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT0);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_48( core_crocods_t *core )      /* BIT 1, B */
+static int CB_48(core_crocods_t *core)        /* BIT 1, B */
 {
-    Bit( core, RegB, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT1);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_49( core_crocods_t *core )      /* BIT 1, C */
+static int CB_49(core_crocods_t *core)        /* BIT 1, C */
 {
-    Bit( core, RegC, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT1);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_4A( core_crocods_t *core )      /* BIT 1, D */
+static int CB_4A(core_crocods_t *core)        /* BIT 1, D */
 {
-    Bit( core, RegD, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT1);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_4B( core_crocods_t *core )      /* BIT 1, E */
+static int CB_4B(core_crocods_t *core)        /* BIT 1, E */
 {
-    Bit( core, RegE, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT1);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_4C( core_crocods_t *core )      /* BIT 1, H */
+static int CB_4C(core_crocods_t *core)        /* BIT 1, H */
 {
-    Bit( core, RegH, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT1);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_4D( core_crocods_t *core )      /* BIT 1, L */
+static int CB_4D(core_crocods_t *core)        /* BIT 1, L */
 {
-    Bit( core, RegL, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT1);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_4E( core_crocods_t *core )      /* BIT 1, (HL) */
+static int CB_4E(core_crocods_t *core)        /* BIT 1, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT1 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT1);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_4F( core_crocods_t *core )      /* BIT 1, A */
+static int CB_4F(core_crocods_t *core)        /* BIT 1, A */
 {
-    Bit( core, RegA, BIT1 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT1);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_50( core_crocods_t *core )      /* BIT 2, B */
+static int CB_50(core_crocods_t *core)        /* BIT 2, B */
 {
-    Bit( core, RegB, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT2);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_51( core_crocods_t *core )      /* BIT 2, C */
+static int CB_51(core_crocods_t *core)        /* BIT 2, C */
 {
-    Bit( core, RegC, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT2);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_52( core_crocods_t *core )      /* BIT 2, D */
+static int CB_52(core_crocods_t *core)        /* BIT 2, D */
 {
-    Bit( core, RegD, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT2);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_53( core_crocods_t *core )      /* BIT 2, E */
+static int CB_53(core_crocods_t *core)        /* BIT 2, E */
 {
-    Bit( core, RegE, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT2);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_54( core_crocods_t *core )      /* BIT 2, H */
+static int CB_54(core_crocods_t *core)        /* BIT 2, H */
 {
-    Bit( core, RegH, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT2);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_55( core_crocods_t *core )      /* BIT 2, L */
+static int CB_55(core_crocods_t *core)        /* BIT 2, L */
 {
-    Bit( core, RegL, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT2);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_56( core_crocods_t *core )      /* BIT 2, (HL) */
+static int CB_56(core_crocods_t *core)        /* BIT 2, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT2 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT2);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_57( core_crocods_t *core )      /* BIT 2, A */
+static int CB_57(core_crocods_t *core)        /* BIT 2, A */
 {
-    Bit( core, RegA, BIT2 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT2);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_58( core_crocods_t *core )      /* BIT 3, B */
+static int CB_58(core_crocods_t *core)        /* BIT 3, B */
 {
-    Bit( core, RegB, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT3);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_59( core_crocods_t *core )      /* BIT 3, C */
+static int CB_59(core_crocods_t *core)        /* BIT 3, C */
 {
-    Bit( core, RegC, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT3);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_5A( core_crocods_t *core )      /* BIT 3, D */
+static int CB_5A(core_crocods_t *core)        /* BIT 3, D */
 {
-    Bit( core, RegD, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT3);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_5B( core_crocods_t *core )      /* BIT 3, E */
+static int CB_5B(core_crocods_t *core)        /* BIT 3, E */
 {
-    Bit( core, RegE, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT3);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_5C( core_crocods_t *core )      /* BIT 3, H */
+static int CB_5C(core_crocods_t *core)        /* BIT 3, H */
 {
-    Bit( core, RegH, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT3);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_5D( core_crocods_t *core )      /* BIT 3, L */
+static int CB_5D(core_crocods_t *core)        /* BIT 3, L */
 {
-    Bit( core, RegL, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT3);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_5E( core_crocods_t *core )      /* BIT 3, (HL) */
+static int CB_5E(core_crocods_t *core)        /* BIT 3, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT3 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT3);
+    return(3 /* 3 NOPs */);
 }
-
 
-static int CB_5F( core_crocods_t *core )      /* BIT 3, A */
+static int CB_5F(core_crocods_t *core)        /* BIT 3, A */
 {
-    Bit( core, RegA, BIT3 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT3);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_60( core_crocods_t *core )      /* BIT 4, B */
+static int CB_60(core_crocods_t *core)        /* BIT 4, B */
 {
-    Bit( core, RegB, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT4);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_61( core_crocods_t *core )      /* BIT 4, C */
+static int CB_61(core_crocods_t *core)        /* BIT 4, C */
 {
-    Bit( core, RegC, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT4);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_62( core_crocods_t *core )      /* BIT 4, D */
+static int CB_62(core_crocods_t *core)        /* BIT 4, D */
 {
-    Bit( core, RegD, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT4);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_63( core_crocods_t *core )      /* BIT 4, E */
+static int CB_63(core_crocods_t *core)        /* BIT 4, E */
 {
-    Bit( core, RegE, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT4);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_64( core_crocods_t *core )      /* BIT 4, H */
+static int CB_64(core_crocods_t *core)        /* BIT 4, H */
 {
-    Bit( core, RegH, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT4);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_65( core_crocods_t *core )      /* BIT 4, L */
+static int CB_65(core_crocods_t *core)        /* BIT 4, L */
 {
-    Bit( core, RegL, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT4);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_66( core_crocods_t *core )      /* BIT 4, (HL) */
+static int CB_66(core_crocods_t *core)        /* BIT 4, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT4 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT4);
+    return(3 /* 3 NOPs */);
 }
-
 
-static int CB_67( core_crocods_t *core )      /* BIT 4, A */
+static int CB_67(core_crocods_t *core)        /* BIT 4, A */
 {
-    Bit( core, RegA, BIT4 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT4);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_68( core_crocods_t *core )      /* BIT 5, B */
+static int CB_68(core_crocods_t *core)        /* BIT 5, B */
 {
-    Bit( core, RegB, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT5);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_69( core_crocods_t *core )      /* BIT 5, C */
+static int CB_69(core_crocods_t *core)        /* BIT 5, C */
 {
-    Bit( core, RegC, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT5);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_6A( core_crocods_t *core )      /* BIT 5, D */
+static int CB_6A(core_crocods_t *core)        /* BIT 5, D */
 {
-    Bit( core, RegD, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT5);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_6B( core_crocods_t *core )      /* BIT 5, E */
+static int CB_6B(core_crocods_t *core)        /* BIT 5, E */
 {
-    Bit( core, RegE, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT5);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_6C( core_crocods_t *core )      /* BIT 5, H */
+static int CB_6C(core_crocods_t *core)        /* BIT 5, H */
 {
-    Bit( core, RegH, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT5);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_6D( core_crocods_t *core )      /* BIT 5, L */
+static int CB_6D(core_crocods_t *core)        /* BIT 5, L */
 {
-    Bit( core, RegL, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT5);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_6E( core_crocods_t *core )      /* BIT 5, (HL) */
+static int CB_6E(core_crocods_t *core)        /* BIT 5, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT5 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT5);
+    return(3 /* 3 NOPs */);
 }
-
 
-static int CB_6F( core_crocods_t *core )      /* BIT 5, A */
+static int CB_6F(core_crocods_t *core)        /* BIT 5, A */
 {
-    Bit( core, RegA, BIT5 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT5);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_70( core_crocods_t *core )      /* BIT 6, B */
+static int CB_70(core_crocods_t *core)        /* BIT 6, B */
 {
-    Bit( core, RegB, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT6);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_71( core_crocods_t *core )      /* BIT 6, C */
+static int CB_71(core_crocods_t *core)        /* BIT 6, C */
 {
-    Bit( core, RegC, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT6);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_72( core_crocods_t *core )      /* BIT 6, D */
+static int CB_72(core_crocods_t *core)        /* BIT 6, D */
 {
-    Bit( core, RegD, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT6);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_73( core_crocods_t *core )      /* BIT 6, E */
+static int CB_73(core_crocods_t *core)        /* BIT 6, E */
 {
-    Bit( core, RegE, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT6);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_74( core_crocods_t *core )      /* BIT 6, H */
+static int CB_74(core_crocods_t *core)        /* BIT 6, H */
 {
-    Bit( core, RegH, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT6);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_75( core_crocods_t *core )      /* BIT 6, L */
+static int CB_75(core_crocods_t *core)        /* BIT 6, L */
 {
-    Bit( core, RegL, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT6);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_76( core_crocods_t *core )      /* BIT 6, (HL) */
+static int CB_76(core_crocods_t *core)        /* BIT 6, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT6 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT6);
+    return(3 /* 3 NOPs */);
 }
-
 
-static int CB_77( core_crocods_t *core )      /* BIT 6, A */
+static int CB_77(core_crocods_t *core)        /* BIT 6, A */
 {
-    Bit( core, RegA, BIT6 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT6);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_78( core_crocods_t *core )      /* BIT 7, B */
+static int CB_78(core_crocods_t *core)        /* BIT 7, B */
 {
-    Bit( core, RegB, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegB, BIT7);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_79( core_crocods_t *core )      /* BIT 7, C */
+static int CB_79(core_crocods_t *core)        /* BIT 7, C */
 {
-    Bit( core, RegC, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegC, BIT7);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_7A( core_crocods_t *core )      /* BIT 7, D */
+static int CB_7A(core_crocods_t *core)        /* BIT 7, D */
 {
-    Bit( core, RegD, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegD, BIT7);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_7B( core_crocods_t *core )      /* BIT 7, E */
+static int CB_7B(core_crocods_t *core)        /* BIT 7, E */
 {
-    Bit( core, RegE, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegE, BIT7);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_7C( core_crocods_t *core )      /* BIT 7, H */
+static int CB_7C(core_crocods_t *core)        /* BIT 7, H */
 {
-    Bit( core, RegH, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegH, BIT7);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_7D( core_crocods_t *core )      /* BIT 7, L */
+static int CB_7D(core_crocods_t *core)        /* BIT 7, L */
 {
-    Bit( core, RegL, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegL, BIT7);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_7E( core_crocods_t *core )      /* BIT 7, (HL) */
+static int CB_7E(core_crocods_t *core)        /* BIT 7, (HL) */
 {
-    Bit( core, ( UBYTE )PEEK8( core, RegHL ), BIT7 );
-    return( 3 /* 3 NOPs */ );
+    Bit(core, (UBYTE)PEEK8(core, RegHL), BIT7);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_7F( core_crocods_t *core )      /* BIT 7, A */
+static int CB_7F(core_crocods_t *core)        /* BIT 7, A */
 {
-    Bit( core, RegA, BIT7 );
-    return( 2 /* 2 NOPs */ );
+    Bit(core, RegA, BIT7);
+    return(2 /* 2 NOPs */);
 }
-
 
-static int CB_80( core_crocods_t *core )      /* RES 0, B */
+static int CB_80(core_crocods_t *core)        /* RES 0, B */
 {
     RegB &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_81( core_crocods_t *core )      /* RES 0, C */
+static int CB_81(core_crocods_t *core)        /* RES 0, C */
 {
     RegC &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_82( core_crocods_t *core )      /* RES 0, D */
+static int CB_82(core_crocods_t *core)        /* RES 0, D */
 {
     RegD &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_83( core_crocods_t *core )      /* RES 0, E */
+static int CB_83(core_crocods_t *core)        /* RES 0, E */
 {
     RegE &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_84( core_crocods_t *core )      /* RES 0, H */
+static int CB_84(core_crocods_t *core)        /* RES 0, H */
 {
     RegH &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_85( core_crocods_t *core )      /* RES 0, L */
+static int CB_85(core_crocods_t *core)        /* RES 0, L */
 {
     RegL &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_86( core_crocods_t *core )      /* RES 0, ( HL ) */
+static int CB_86(core_crocods_t *core)        /* RES 0, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT0 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT0) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_87( core_crocods_t *core )      /* RES 0, A */
+static int CB_87(core_crocods_t *core)        /* RES 0, A */
 {
     RegA &= ~BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_88( core_crocods_t *core )      /* RES 1, B */
+static int CB_88(core_crocods_t *core)        /* RES 1, B */
 {
     RegB &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_89( core_crocods_t *core )      /* RES 1, C */
+static int CB_89(core_crocods_t *core)        /* RES 1, C */
 {
     RegC &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_8A( core_crocods_t *core )      /* RES 1, D */
+static int CB_8A(core_crocods_t *core)        /* RES 1, D */
 {
     RegD &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_8B( core_crocods_t *core )      /* RES 1, E */
+static int CB_8B(core_crocods_t *core)        /* RES 1, E */
 {
     RegE &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_8C( core_crocods_t *core )      /* RES 1, H */
+static int CB_8C(core_crocods_t *core)        /* RES 1, H */
 {
     RegH &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_8D( core_crocods_t *core )      /* RES 1, L */
+static int CB_8D(core_crocods_t *core)        /* RES 1, L */
 {
     RegL &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_8E( core_crocods_t *core )      /* RES 1, ( HL ) */
+static int CB_8E(core_crocods_t *core)        /* RES 1, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT1 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT1) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_8F( core_crocods_t *core )      /* RES 1, A */
+static int CB_8F(core_crocods_t *core)        /* RES 1, A */
 {
     RegA &= ~BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_90( core_crocods_t *core )      /* RES 2, B */
+static int CB_90(core_crocods_t *core)        /* RES 2, B */
 {
     RegB &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_91( core_crocods_t *core )      /* RES 2, C */
+static int CB_91(core_crocods_t *core)        /* RES 2, C */
 {
     RegC &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_92( core_crocods_t *core )      /* RES 2, D */
+static int CB_92(core_crocods_t *core)        /* RES 2, D */
 {
     RegD &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_93( core_crocods_t *core )      /* RES 2, E */
+static int CB_93(core_crocods_t *core)        /* RES 2, E */
 {
     RegE &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_94( core_crocods_t *core )      /* RES 2, H */
+static int CB_94(core_crocods_t *core)        /* RES 2, H */
 {
     RegH &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_95( core_crocods_t *core )      /* RES 2, L */
+static int CB_95(core_crocods_t *core)        /* RES 2, L */
 {
     RegL &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_96( core_crocods_t *core )      /* RES 2, ( HL ) */
+static int CB_96(core_crocods_t *core)        /* RES 2, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT2 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT2) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_97( core_crocods_t *core )      /* RES 2, A */
+static int CB_97(core_crocods_t *core)        /* RES 2, A */
 {
     RegA &= ~BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_98( core_crocods_t *core )      /* RES 3, B */
+static int CB_98(core_crocods_t *core)        /* RES 3, B */
 {
     RegB &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_99( core_crocods_t *core )      /* RES 3, C */
+static int CB_99(core_crocods_t *core)        /* RES 3, C */
 {
     RegC &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_9A( core_crocods_t *core )      /* RES 3, D */
+static int CB_9A(core_crocods_t *core)        /* RES 3, D */
 {
     RegD &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_9B( core_crocods_t *core )      /* RES 3, E */
+static int CB_9B(core_crocods_t *core)        /* RES 3, E */
 {
     RegE &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_9C( core_crocods_t *core )      /* RES 3, H */
+static int CB_9C(core_crocods_t *core)        /* RES 3, H */
 {
     RegH &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_9D( core_crocods_t *core )      /* RES 3, L */
+static int CB_9D(core_crocods_t *core)        /* RES 3, L */
 {
     RegL &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_9E( core_crocods_t *core )      /* RES 3, ( HL ) */
+static int CB_9E(core_crocods_t *core)        /* RES 3, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT3 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT3) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_9F( core_crocods_t *core )      /* RES 3, A */
+static int CB_9F(core_crocods_t *core)        /* RES 3, A */
 {
     RegA &= ~BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A0( core_crocods_t *core )      /* RES 4, B */
+static int CB_A0(core_crocods_t *core)        /* RES 4, B */
 {
     RegB &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A1( core_crocods_t *core )      /* RES 4, C */
+static int CB_A1(core_crocods_t *core)        /* RES 4, C */
 {
     RegC &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A2( core_crocods_t *core )      /* RES 4, D */
+static int CB_A2(core_crocods_t *core)        /* RES 4, D */
 {
     RegD &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A3( core_crocods_t *core )      /* RES 4, E */
+static int CB_A3(core_crocods_t *core)        /* RES 4, E */
 {
     RegE &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A4( core_crocods_t *core )      /* RES 4, H */
+static int CB_A4(core_crocods_t *core)        /* RES 4, H */
 {
     RegH &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A5( core_crocods_t *core )      /* RES 4, L */
+static int CB_A5(core_crocods_t *core)        /* RES 4, L */
 {
     RegL &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A6( core_crocods_t *core )      /* RES 4, ( HL ) */
+static int CB_A6(core_crocods_t *core)        /* RES 4, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT4 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT4) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_A7( core_crocods_t *core )      /* RES 4, A */
+static int CB_A7(core_crocods_t *core)        /* RES 4, A */
 {
     RegA &= ~BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A8( core_crocods_t *core )      /* RES 5, B */
+static int CB_A8(core_crocods_t *core)        /* RES 5, B */
 {
     RegB &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_A9( core_crocods_t *core )      /* RES 5, C */
+static int CB_A9(core_crocods_t *core)        /* RES 5, C */
 {
     RegC &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_AA( core_crocods_t *core )      /* RES 5, D */
+static int CB_AA(core_crocods_t *core)        /* RES 5, D */
 {
     RegD &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_AB( core_crocods_t *core )      /* RES 5, E */
+static int CB_AB(core_crocods_t *core)        /* RES 5, E */
 {
     RegE &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_AC( core_crocods_t *core )      /* RES 5, H */
+static int CB_AC(core_crocods_t *core)        /* RES 5, H */
 {
     RegH &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_AD( core_crocods_t *core )      /* RES 5, L */
+static int CB_AD(core_crocods_t *core)        /* RES 5, L */
 {
     RegL &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_AE( core_crocods_t *core )      /* RES 5, ( HL ) */
+static int CB_AE(core_crocods_t *core)        /* RES 5, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT5 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT5) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_AF( core_crocods_t *core )      /* RES 5, A */
+static int CB_AF(core_crocods_t *core)        /* RES 5, A */
 {
     RegA &= ~BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B0( core_crocods_t *core )      /* RES 6, B */
+static int CB_B0(core_crocods_t *core)        /* RES 6, B */
 {
     RegB &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B1( core_crocods_t *core )      /* RES 6, C */
+static int CB_B1(core_crocods_t *core)        /* RES 6, C */
 {
     RegC &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B2( core_crocods_t *core )      /* RES 6, D */
+static int CB_B2(core_crocods_t *core)        /* RES 6, D */
 {
     RegD &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B3( core_crocods_t *core )      /* RES 6, E */
+static int CB_B3(core_crocods_t *core)        /* RES 6, E */
 {
     RegE &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B4( core_crocods_t *core )      /* RES 6, H */
+static int CB_B4(core_crocods_t *core)        /* RES 6, H */
 {
     RegH &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B5( core_crocods_t *core )      /* RES 6, L */
+static int CB_B5(core_crocods_t *core)        /* RES 6, L */
 {
     RegL &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B6( core_crocods_t *core )      /* RES 6, ( HL ) */
+static int CB_B6(core_crocods_t *core)        /* RES 6, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT6 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT6) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_B7( core_crocods_t *core )      /* RES 6, A */
+static int CB_B7(core_crocods_t *core)        /* RES 6, A */
 {
     RegA &= ~BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B8( core_crocods_t *core )      /* RES 7, B */
+static int CB_B8(core_crocods_t *core)        /* RES 7, B */
 {
     RegB &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_B9( core_crocods_t *core )      /* RES 7, C */
+static int CB_B9(core_crocods_t *core)        /* RES 7, C */
 {
     RegC &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_BA( core_crocods_t *core )      /* RES 7, D */
+static int CB_BA(core_crocods_t *core)        /* RES 7, D */
 {
     RegD &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_BB( core_crocods_t *core )      /* RES 7, E */
+static int CB_BB(core_crocods_t *core)        /* RES 7, E */
 {
     RegE &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_BC( core_crocods_t *core )      /* RES 7, H */
+static int CB_BC(core_crocods_t *core)        /* RES 7, H */
 {
     RegH &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_BD( core_crocods_t *core )      /* RES 7, L */
+static int CB_BD(core_crocods_t *core)        /* RES 7, L */
 {
     RegL &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_BE( core_crocods_t *core )      /* RES 7, ( HL ) */
+static int CB_BE(core_crocods_t *core)        /* RES 7, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) & ~BIT7 ) );
-    return( 4 /* 4 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) & ~BIT7) );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int CB_BF( core_crocods_t *core )      /* RES 7, A */
+static int CB_BF(core_crocods_t *core)        /* RES 7, A */
 {
     RegA &= ~BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C0( core_crocods_t *core )      /* SET 0, B */
+static int CB_C0(core_crocods_t *core)        /* SET 0, B */
 {
     RegB |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C1( core_crocods_t *core )      /* SET 0, C */
+static int CB_C1(core_crocods_t *core)        /* SET 0, C */
 {
     RegC |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C2( core_crocods_t *core )      /* SET 0, D */
+static int CB_C2(core_crocods_t *core)        /* SET 0, D */
 {
     RegD |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C3( core_crocods_t *core )      /* SET 0, E */
+static int CB_C3(core_crocods_t *core)        /* SET 0, E */
 {
     RegE |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C4( core_crocods_t *core )      /* SET 0, H */
+static int CB_C4(core_crocods_t *core)        /* SET 0, H */
 {
     RegH |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C5( core_crocods_t *core )      /* SET 0, L */
+static int CB_C5(core_crocods_t *core)        /* SET 0, L */
 {
     RegL |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C6( core_crocods_t *core )      /* SET 0, ( HL ) */
+static int CB_C6(core_crocods_t *core)        /* SET 0, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT0 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT0) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_C7( core_crocods_t *core )      /* SET 0, A */
+static int CB_C7(core_crocods_t *core)        /* SET 0, A */
 {
     RegA |= BIT0;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C8( core_crocods_t *core )      /* SET 1, B */
+static int CB_C8(core_crocods_t *core)        /* SET 1, B */
 {
     RegB |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_C9( core_crocods_t *core )      /* SET 1, C */
+static int CB_C9(core_crocods_t *core)        /* SET 1, C */
 {
     RegC |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_CA( core_crocods_t *core )      /* SET 1, D */
+static int CB_CA(core_crocods_t *core)        /* SET 1, D */
 {
     RegD |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_CB( core_crocods_t *core )      /* SET 1, E */
+static int CB_CB(core_crocods_t *core)        /* SET 1, E */
 {
     RegE |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_CC( core_crocods_t *core )      /* SET 1, H */
+static int CB_CC(core_crocods_t *core)        /* SET 1, H */
 {
     RegH |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_CD( core_crocods_t *core )      /* SET 1, L */
+static int CB_CD(core_crocods_t *core)        /* SET 1, L */
 {
     RegL |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_CE( core_crocods_t *core )      /* SET 1, ( HL ) */
+static int CB_CE(core_crocods_t *core)        /* SET 1, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT1 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT1) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_CF( core_crocods_t *core )      /* SET 1, A */
+static int CB_CF(core_crocods_t *core)        /* SET 1, A */
 {
     RegA |= BIT1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D0( core_crocods_t *core )      /* SET 2, B */
+static int CB_D0(core_crocods_t *core)        /* SET 2, B */
 {
     RegB |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D1( core_crocods_t *core )      /* SET 2, C */
+static int CB_D1(core_crocods_t *core)        /* SET 2, C */
 {
     RegC |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D2( core_crocods_t *core )      /* SET 2, D */
+static int CB_D2(core_crocods_t *core)        /* SET 2, D */
 {
     RegD |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D3( core_crocods_t *core )      /* SET 2, E */
+static int CB_D3(core_crocods_t *core)        /* SET 2, E */
 {
     RegE |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D4( core_crocods_t *core )      /* SET 2, H */
+static int CB_D4(core_crocods_t *core)        /* SET 2, H */
 {
     RegH |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D5( core_crocods_t *core )      /* SET 2, L */
+static int CB_D5(core_crocods_t *core)        /* SET 2, L */
 {
     RegL |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D6( core_crocods_t *core )      /* SET 2, ( HL ) */
+static int CB_D6(core_crocods_t *core)        /* SET 2, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT2 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT2) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_D7( core_crocods_t *core )      /* SET 2, A */
+static int CB_D7(core_crocods_t *core)        /* SET 2, A */
 {
     RegA |= BIT2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D8( core_crocods_t *core )      /* SET 3, B */
+static int CB_D8(core_crocods_t *core)        /* SET 3, B */
 {
     RegB |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_D9( core_crocods_t *core )      /* SET 3, C */
+static int CB_D9(core_crocods_t *core)        /* SET 3, C */
 {
     RegC |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_DA( core_crocods_t *core )      /* SET 3, D */
+static int CB_DA(core_crocods_t *core)        /* SET 3, D */
 {
     RegD |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_DB( core_crocods_t *core )      /* SET 3, E */
+static int CB_DB(core_crocods_t *core)        /* SET 3, E */
 {
     RegE |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_DC( core_crocods_t *core )      /* SET 3, H */
+static int CB_DC(core_crocods_t *core)        /* SET 3, H */
 {
     RegH |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_DD( core_crocods_t *core )      /* SET 3, L */
+static int CB_DD(core_crocods_t *core)        /* SET 3, L */
 {
     RegL |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_DE( core_crocods_t *core )      /* SET 3, ( HL ) */
+static int CB_DE(core_crocods_t *core)        /* SET 3, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT3 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT3) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_DF( core_crocods_t *core )      /* SET 3, A */
+static int CB_DF(core_crocods_t *core)        /* SET 3, A */
 {
     RegA |= BIT3;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E0( core_crocods_t *core )      /* SET 4, B */
+static int CB_E0(core_crocods_t *core)        /* SET 4, B */
 {
     RegB |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E1( core_crocods_t *core )      /* SET 4, C */
+static int CB_E1(core_crocods_t *core)        /* SET 4, C */
 {
     RegC |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E2( core_crocods_t *core )      /* SET 4, D */
+static int CB_E2(core_crocods_t *core)        /* SET 4, D */
 {
     RegD |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E3( core_crocods_t *core )      /* SET 4, E */
+static int CB_E3(core_crocods_t *core)        /* SET 4, E */
 {
     RegE |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E4( core_crocods_t *core )      /* SET 4, H */
+static int CB_E4(core_crocods_t *core)        /* SET 4, H */
 {
     RegH |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E5( core_crocods_t *core )      /* SET 4, L */
+static int CB_E5(core_crocods_t *core)        /* SET 4, L */
 {
     RegL |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E6( core_crocods_t *core )      /* SET 4, ( HL ) */
+static int CB_E6(core_crocods_t *core)        /* SET 4, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT4 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT4) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_E7( core_crocods_t *core )      /* SET 4, A */
+static int CB_E7(core_crocods_t *core)        /* SET 4, A */
 {
     RegA |= BIT4;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E8( core_crocods_t *core )      /* SET 5, B */
+static int CB_E8(core_crocods_t *core)        /* SET 5, B */
 {
     RegB |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_E9( core_crocods_t *core )      /* SET 5, C */
+static int CB_E9(core_crocods_t *core)        /* SET 5, C */
 {
     RegC |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_EA( core_crocods_t *core )      /* SET 5, D */
+static int CB_EA(core_crocods_t *core)        /* SET 5, D */
 {
     RegD |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_EB( core_crocods_t *core )      /* SET 5, E */
+static int CB_EB(core_crocods_t *core)        /* SET 5, E */
 {
     RegE |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_EC( core_crocods_t *core )      /* SET 5, H */
+static int CB_EC(core_crocods_t *core)        /* SET 5, H */
 {
     RegH |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_ED( core_crocods_t *core )      /* SET 5, L */
+static int CB_ED(core_crocods_t *core)        /* SET 5, L */
 {
     RegL |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_EE( core_crocods_t *core )      /* SET 5, ( HL ) */
+static int CB_EE(core_crocods_t *core)        /* SET 5, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT5 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT5) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_EF( core_crocods_t *core )      /* SET 5, A */
+static int CB_EF(core_crocods_t *core)        /* SET 5, A */
 {
     RegA |= BIT5;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F0( core_crocods_t *core )      /* SET 6, B */
+static int CB_F0(core_crocods_t *core)        /* SET 6, B */
 {
     RegB |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F1( core_crocods_t *core )      /* SET 6, C */
+static int CB_F1(core_crocods_t *core)        /* SET 6, C */
 {
     RegC |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F2( core_crocods_t *core )      /* SET 6, D */
+static int CB_F2(core_crocods_t *core)        /* SET 6, D */
 {
     RegD |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F3( core_crocods_t *core )      /* SET 6, E */
+static int CB_F3(core_crocods_t *core)        /* SET 6, E */
 {
     RegE |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F4( core_crocods_t *core )      /* SET 6, H */
+static int CB_F4(core_crocods_t *core)        /* SET 6, H */
 {
     RegH |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F5( core_crocods_t *core )      /* SET 6, L */
+static int CB_F5(core_crocods_t *core)        /* SET 6, L */
 {
     RegL |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F6( core_crocods_t *core )      /* SET 6, ( HL ) */
+static int CB_F6(core_crocods_t *core)        /* SET 6, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT6 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT6) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_F7( core_crocods_t *core )      /* SET 6, A */
+static int CB_F7(core_crocods_t *core)        /* SET 6, A */
 {
     RegA |= BIT6;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F8( core_crocods_t *core )      /* SET 7, B */
+static int CB_F8(core_crocods_t *core)        /* SET 7, B */
 {
     RegB |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_F9( core_crocods_t *core )      /* SET 7, C */
+static int CB_F9(core_crocods_t *core)        /* SET 7, C */
 {
     RegC |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_FA( core_crocods_t *core )      /* SET 7, D */
+static int CB_FA(core_crocods_t *core)        /* SET 7, D */
 {
     RegD |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_FB( core_crocods_t *core )      /* SET 7, E */
+static int CB_FB(core_crocods_t *core)        /* SET 7, E */
 {
     RegE |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_FC( core_crocods_t *core )      /* SET 7, H */
+static int CB_FC(core_crocods_t *core)        /* SET 7, H */
 {
     RegH |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_FD( core_crocods_t *core )      /* SET 7, L */
+static int CB_FD(core_crocods_t *core)        /* SET 7, L */
 {
     RegL |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int CB_FE( core_crocods_t *core )      /* SET 7, ( HL ) */
+static int CB_FE(core_crocods_t *core)        /* SET 7, ( HL ) */
 {
-    POKE8( core, RegHL, ( UBYTE )( PEEK8( core, RegHL ) | BIT7 ) );
-    return( 3 /* 3 NOPs */ );
+    POKE8(core, RegHL, (UBYTE)(PEEK8(core, RegHL) | BIT7) );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int CB_FF( core_crocods_t *core )      /* SET 7, A */
+static int CB_FF(core_crocods_t *core)        /* SET 7, A */
 {
     RegA |= BIT7;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
-
 
 /************
  * OPCODE ED *
  ************/
-
 
 /********************************************************* !NAME! **************
  * Nom : ed___
@@ -3027,615 +2656,541 @@ static int CB_FF( core_crocods_t *core )      /* SET 7, A */
  * Résultat    : 0
  *
  ********************************************************** !0! ****************/
-static int ed___( core_crocods_t *core )
+static int ed___(core_crocods_t *core)
 {
-    printf(  "Instruction ED%02X a l'adresse %04X rencontree."
-           , PEEK8( core, ( USHORT )( RegPC - 1 ) )
+    printf("Instruction ED%02X a l'adresse %04X rencontree."
+           , PEEK8(core, (USHORT)(RegPC - 1) )
            , RegPC - 2
            );
-    
-    return( 2 );
+
+    return(2);
 }
 
-
-static int ED_40( core_crocods_t *core ) /* IN B, ( C ) */
+static int ED_40(core_crocods_t *core)   /* IN B, ( C ) */
 {
-    
-    RegB = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegB ] );
-    return( 4 /* 4 NOPs */ );
+    RegB = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegB ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_41( core_crocods_t *core ) /* OUT ( C ), B */
+static int ED_41(core_crocods_t *core)   /* OUT ( C ), B */
 {
-    WritePort( core, RegBC, RegB );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegB);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_42( core_crocods_t *core ) /* SBC HL, BC */
+static int ED_42(core_crocods_t *core)   /* SBC HL, BC */
 {
-    SBC_R16( core, RegBC );
-    return( 4 /* 4 NOPs */ );
+    SBC_R16(core, RegBC);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_43( core_crocods_t *core ) /* LD ( nnnn ), BC */
+static int ED_43(core_crocods_t *core)   /* LD ( nnnn ), BC */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegBC );
+    POKE16(core, PEEK16(core, RegPC), RegBC);
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_44( core_crocods_t *core ) /* NEG */
+static int ED_44(core_crocods_t *core)   /* NEG */
 {
-    int t = - RegA;
-    
-    FLAGS = ( UBYTE )( ( RegA & t & 0x80 ? FLAG_V : 0 )
-                      | FLAG_N
-                      | - ( t >> 8 )
-                      | ( t & FLAG_S )
-                      | ( ( t & 0xFF ) ? 0 : FLAG_Z )
-                      | ( ( RegA ^ t ) & FLAG_H )
-                      );
-    RegA = ( UBYTE )t;
-    return( 2 /* 2 NOPs */ );
+    int t = -RegA;
+
+    FLAGS = (UBYTE)( (RegA & t & 0x80 ? FLAG_V : 0)
+                     | FLAG_N
+                     | -(t >> 8)
+                     | (t & FLAG_S)
+                     | ( (t & 0xFF) ? 0 : FLAG_Z)
+                     | ( (RegA ^ t) & FLAG_H)
+                     );
+    RegA = (UBYTE)t;
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ED_45( core_crocods_t *core ) /* RETN */
+static int ED_45(core_crocods_t *core)   /* RETN */
 {
     core->Z80.IFF1 = core->Z80.IFF2;
 #ifdef HACK_IRQ
     VerifyIRQ(core);
 #endif
-    
-    RegPC = PEEK16( core, RegSP );
+
+    RegPC = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_46( core_crocods_t *core ) /* IM 0 */
+static int ED_46(core_crocods_t *core)   /* IM 0 */
 {
     core->Z80.InterruptMode = 0;
     ed___(core);
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ED_47( core_crocods_t *core ) /* LD I, A */
+static int ED_47(core_crocods_t *core)   /* LD I, A */
 {
     RegI = RegA;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ED_48( core_crocods_t *core ) /* IN C, ( C ) */
+static int ED_48(core_crocods_t *core)   /* IN C, ( C ) */
 {
-    RegC = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegC ] );
-    return( 4 /* 4 NOPs */ );
+    RegC = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegC ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_49( core_crocods_t *core ) /* OUT ( C ), C */
+static int ED_49(core_crocods_t *core)   /* OUT ( C ), C */
 {
-    WritePort( core, RegBC, RegC );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegC);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_4A( core_crocods_t *core ) /* ADC HL, BC */
+static int ED_4A(core_crocods_t *core)   /* ADC HL, BC */
 {
-    ADC_R16( core, RegBC );
-    return( 5 /* 5 NOPs */ );
+    ADC_R16(core, RegBC);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_4B( core_crocods_t *core ) /* LD BC, ( nnnn ) */
+static int ED_4B(core_crocods_t *core)   /* LD BC, ( nnnn ) */
 {
-    RegBC = PEEK16( core, PEEK16( core, RegPC ) );
+    RegBC = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_4D( core_crocods_t *core ) /* RETI */
+static int ED_4D(core_crocods_t *core)   /* RETI */
 {
     core->Z80.IFF1 = core->Z80.IFF2;
 #ifdef HACK_IRQ
     VerifyIRQ(core);
 #endif
-    RegPC = PEEK16( core, RegSP );
+    RegPC = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_4F( core_crocods_t *core ) /* LD R, A */
+static int ED_4F(core_crocods_t *core)   /* LD R, A */
 {
     RegR = RegA;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ED_50( core_crocods_t *core ) /* IN D, ( C ) */
+static int ED_50(core_crocods_t *core)   /* IN D, ( C ) */
 {
-    RegD = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegD ] );
-    return( 4 /* 4 NOPs */ );
+    RegD = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegD ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_51( core_crocods_t *core ) /* OUT ( C ), D */
+static int ED_51(core_crocods_t *core)   /* OUT ( C ), D */
 {
-    WritePort( core, RegBC, RegD );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegD);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_52( core_crocods_t *core ) /* SBC HL, DE */
+static int ED_52(core_crocods_t *core)   /* SBC HL, DE */
 {
-    SBC_R16( core, RegDE );
-    return( 4 /* 4 NOPs */ );
+    SBC_R16(core, RegDE);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_53( core_crocods_t *core ) /* LD ( nnnn ), DE */
+static int ED_53(core_crocods_t *core)   /* LD ( nnnn ), DE */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegDE );
+    POKE16(core, PEEK16(core, RegPC), RegDE);
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_56( core_crocods_t *core ) /* IM 1 */
+static int ED_56(core_crocods_t *core)   /* IM 1 */
 {
     core->Z80.InterruptMode = 1;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ED_57( core_crocods_t *core ) /* LD A, I */
+static int ED_57(core_crocods_t *core)   /* LD A, I */
 {
     RegA = RegI;
     FLAGS =  (UBYTE)((FLAGS & FLAG_C)
                      | (RegA ? (RegA & FLAG_S) : FLAG_Z)
-                     | (RegA & (BIT5|BIT3))
+                     | (RegA & (BIT5 | BIT3))
                      | (core->Z80.IFF2 & 1 ? FLAG_V : 0)
                      );
-    
-    return( 3 /* 3 NOPs */ );
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ED_58( core_crocods_t *core ) /* IN E, ( C ) */
+static int ED_58(core_crocods_t *core)   /* IN E, ( C ) */
 {
-    RegE = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegE ] );
-    return( 4 /* 4 NOPs */ );
+    RegE = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegE ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_59( core_crocods_t *core ) /* OUT ( C ), E */
+static int ED_59(core_crocods_t *core)   /* OUT ( C ), E */
 {
-    WritePort( core, RegBC, RegE );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegE);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_5A( core_crocods_t *core ) /* ADC HL, DE */
+static int ED_5A(core_crocods_t *core)   /* ADC HL, DE */
 {
-    ADC_R16( core, RegDE );
-    return( 4 /* 4 NOPs */ );
+    ADC_R16(core, RegDE);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_5B( core_crocods_t *core ) /* LD DE, ( nnnn ) */
+static int ED_5B(core_crocods_t *core)   /* LD DE, ( nnnn ) */
 {
-    RegDE = PEEK16( core, PEEK16( core, RegPC ) );
+    RegDE = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_5E( core_crocods_t *core ) /* IM 2 */
+static int ED_5E(core_crocods_t *core)   /* IM 2 */
 {
     core->Z80.InterruptMode = 2;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ED_5F( core_crocods_t *core ) /* LD A, R */
+static int ED_5F(core_crocods_t *core)   /* LD A, R */
 {
     RegA = RegR;
     FLAGS =  (UBYTE)((FLAGS & FLAG_C)
                      | (RegA ? (RegA & FLAG_S) : FLAG_Z)
-                     | (RegA & (BIT5|BIT3))
+                     | (RegA & (BIT5 | BIT3))
                      | (core->Z80.IFF2 & 1 ? FLAG_V : 0)
                      );
-    
-    return( 3 /* 3 NOPs */ );
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ED_60( core_crocods_t *core ) /* IN H, ( C ) */
+static int ED_60(core_crocods_t *core)   /* IN H, ( C ) */
 {
-    RegH = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegH ] );
-    return( 4 /* 4 NOPs */ );
+    RegH = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegH ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_61( core_crocods_t *core ) /* OUT ( C ), H */
+static int ED_61(core_crocods_t *core)   /* OUT ( C ), H */
 {
-    WritePort( core, RegBC, RegH );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegH);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_62( core_crocods_t *core ) /* SBC HL, HL */
+static int ED_62(core_crocods_t *core)   /* SBC HL, HL */
 {
-    SBC_R16( core, RegHL );
-    return( 4 /* 4 NOPs */ );
+    SBC_R16(core, RegHL);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_63( core_crocods_t *core ) /* LD ( nnnn ), HL */
+static int ED_63(core_crocods_t *core)   /* LD ( nnnn ), HL */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegHL );
+    POKE16(core, PEEK16(core, RegPC), RegHL);
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_67( core_crocods_t *core ) /* RRD */
+static int ED_67(core_crocods_t *core)   /* RRD */
 {
     int a = RegA;
-    int hl = PEEK8( core, RegHL );
-    
-    RegA = ( UBYTE )( ( a & 0xF0 ) | ( hl & 0xF ) );
-    POKE8( core, RegHL, ( UBYTE )( ( hl >> 4 ) | ( a << 4 ) ) );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegA ] );
-    return( 5 /* 5 NOPs */ );
+    int hl = PEEK8(core, RegHL);
+
+    RegA = (UBYTE)( (a & 0xF0) | (hl & 0xF) );
+    POKE8(core, RegHL, (UBYTE)( (hl >> 4) | (a << 4) ) );
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegA ]);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_68( core_crocods_t *core ) /* IN L, ( C ) */
+static int ED_68(core_crocods_t *core)   /* IN L, ( C ) */
 {
-    RegL = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegL ] );
-    return( 4 /* 4 NOPs */ );
+    RegL = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegL ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_69( core_crocods_t *core ) /* OUT ( C ), L */
+static int ED_69(core_crocods_t *core)   /* OUT ( C ), L */
 {
-    WritePort( core, RegBC, RegL );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegL);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_6A( core_crocods_t *core ) /* ADC HL, HL */
+static int ED_6A(core_crocods_t *core)   /* ADC HL, HL */
 {
-    ADC_R16( core, RegHL );
-    return( 4 /* 4 NOPs */ );
+    ADC_R16(core, RegHL);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_6B( core_crocods_t *core ) /* LD HL, ( nnnn ) */
+static int ED_6B(core_crocods_t *core)   /* LD HL, ( nnnn ) */
 {
-    RegHL = PEEK16( core, PEEK16( core, RegPC ) );
+    RegHL = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_6F( core_crocods_t *core ) /* RLD */
+static int ED_6F(core_crocods_t *core)   /* RLD */
 {
     int a = RegA;
-    int hl = PEEK8( core, RegHL );
-    
-    RegA = ( UBYTE )( ( a & 0xF0 ) | ( hl >> 4 ) );
-    POKE8( core, RegHL, ( UBYTE )( ( hl << 4 ) | ( a & 0xF ) ) );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegA ] );
-    return( 5 /* 5 NOPs */ );
+    int hl = PEEK8(core, RegHL);
+
+    RegA = (UBYTE)( (a & 0xF0) | (hl >> 4) );
+    POKE8(core, RegHL, (UBYTE)( (hl << 4) | (a & 0xF) ) );
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegA ]);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_70( core_crocods_t *core ) /* IN F, ( C ) */
+static int ED_70(core_crocods_t *core)   /* IN F, ( C ) */
 {
-    ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegL ] );
+    ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegL ]);
     ed___(core);
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_71( core_crocods_t *core ) /* OUT ( C ), 0 */
+static int ED_71(core_crocods_t *core)   /* OUT ( C ), 0 */
 {
-    WritePort( core, RegBC, 0 );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, 0);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_72( core_crocods_t *core ) /* SBC HL, SP */
+static int ED_72(core_crocods_t *core)   /* SBC HL, SP */
 {
-    SBC_R16( core, RegSP );
-    return( 4 /* 4 NOPs */ );
+    SBC_R16(core, RegSP);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_73( core_crocods_t *core ) /* LD ( nnnn ), SP */
+static int ED_73(core_crocods_t *core)   /* LD ( nnnn ), SP */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegSP );
+    POKE16(core, PEEK16(core, RegPC), RegSP);
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_78( core_crocods_t *core ) /* IN A, ( C ) */
+static int ED_78(core_crocods_t *core)   /* IN A, ( C ) */
 {
-    RegA = ( UBYTE )ReadPort( core, RegBC );
-    FLAGS = ( UBYTE )( ( FLAGS & FLAG_C ) | Parite[ RegA ] );
-    return( 4 /* 4 NOPs */ );
+    RegA = (UBYTE)ReadPort(core, RegBC);
+    FLAGS = (UBYTE)( (FLAGS & FLAG_C) | Parite[ RegA ]);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_79( core_crocods_t *core ) /* OUT ( C ), A */
+static int ED_79(core_crocods_t *core)   /* OUT ( C ), A */
 {
-    WritePort( core, RegBC, RegA );
-    return( 4 /* 4 NOPs */ );
+    WritePort(core, RegBC, RegA);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_7A( core_crocods_t *core ) /* ADC HL, SP */
+static int ED_7A(core_crocods_t *core)   /* ADC HL, SP */
 {
-    ADC_R16( core, RegSP );
-    return( 4 /* 4 NOPs */ );
+    ADC_R16(core, RegSP);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ED_7B( core_crocods_t *core ) /* LD SP, ( nnnn ) */
+static int ED_7B(core_crocods_t *core)   /* LD SP, ( nnnn ) */
 {
-    RegSP = PEEK16( core, PEEK16( core, RegPC ) );
+    RegSP = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ED_A0( core_crocods_t *core ) /* LDI */
+static int ED_A0(core_crocods_t *core)   /* LDI */
 {
-    POKE8( core, RegDE++, ( UBYTE )PEEK8( core, RegHL++ ) );
+    POKE8(core, RegDE++, (UBYTE)PEEK8(core, RegHL++) );
     FLAGS &= ~FLAG_H & ~FLAG_V & ~FLAG_N;
-    if ( --RegBC )
-        FLAGS |= FLAG_V;
-    
-    return( 5 /* 5 NOPs */ );
+    if (--RegBC) FLAGS |= FLAG_V;
+
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_A1( core_crocods_t *core ) /* CPI */
+static int ED_A1(core_crocods_t *core)   /* CPI */
 {
     FLAGS &= ~FLAG_Z & ~FLAG_V;
-    
-    if ( RegA == PEEK8( core, RegHL++ ) )
-        FLAGS |= FLAG_Z;
-    
-    if ( --RegBC )
-        FLAGS |= FLAG_V;
-    
+
+    if (RegA == PEEK8(core, RegHL++) ) FLAGS |= FLAG_Z;
+
+    if (--RegBC) FLAGS |= FLAG_V;
+
     FLAGS |= FLAG_N;
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_A2( core_crocods_t *core ) /* INI */
+static int ED_A2(core_crocods_t *core)   /* INI */
 {
-    POKE8( core, RegHL++, ( UBYTE )ReadPort( core, RegBC ) );
+    POKE8(core, RegHL++, (UBYTE)ReadPort(core, RegBC) );
     /* #### A vérifier : flags #### */
     FLAGS = FLAG_N;
-    if ( --RegB )
-        FLAGS &= ~FLAG_Z;
-    else
-        FLAGS |= FLAG_Z;
-    
-    return( 5 /* 5 NOPs */ );
+    if (--RegB) FLAGS &= ~FLAG_Z;
+    else FLAGS |= FLAG_Z;
+
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_A3( core_crocods_t *core ) /* OUTI */
+static int ED_A3(core_crocods_t *core)   /* OUTI */
 {
     FLAGS = FLAG_N;
     /* #### A vérifier : flags #### */
-    if ( --RegB )
-        FLAGS &= ~FLAG_Z;
-    else
-        FLAGS |= FLAG_Z;
-    
-    WritePort( core, RegBC, PEEK8( core, RegHL++ ) );
-    return( 5 /* 5 NOPs */ );
+    if (--RegB) FLAGS &= ~FLAG_Z;
+    else FLAGS |= FLAG_Z;
+
+    WritePort(core, RegBC, PEEK8(core, RegHL++) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_A8( core_crocods_t *core ) /* LDD */
+static int ED_A8(core_crocods_t *core)   /* LDD */
 {
-    POKE8( core, RegDE--, ( UBYTE )PEEK8( core, RegHL-- ) );
+    POKE8(core, RegDE--, (UBYTE)PEEK8(core, RegHL--) );
     FLAGS &= ~FLAG_H & ~FLAG_V & ~FLAG_N;
-    if ( --RegBC )
-        FLAGS |= FLAG_V;
-    
-    return( 5 /* 5 NOPs */ );
+    if (--RegBC) FLAGS |= FLAG_V;
+
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_A9( core_crocods_t *core ) /* CPD */
+static int ED_A9(core_crocods_t *core)   /* CPD */
 {
     FLAGS &= ~FLAG_Z & ~FLAG_V;
-    
-    if ( RegA == PEEK8( core, RegHL-- ) )
-        FLAGS |= FLAG_Z;
-    
-    if ( --RegBC )
-        FLAGS |= FLAG_V;
-    
+
+    if (RegA == PEEK8(core, RegHL--) ) FLAGS |= FLAG_Z;
+
+    if (--RegBC) FLAGS |= FLAG_V;
+
     FLAGS |= FLAG_N;
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_AA( core_crocods_t *core ) /* IND */
+static int ED_AA(core_crocods_t *core)   /* IND */
 {
     FLAGS = FLAG_N;
-    POKE8( core, RegHL--, ( UBYTE )ReadPort( core, RegBC ) );
+    POKE8(core, RegHL--, (UBYTE)ReadPort(core, RegBC) );
     /* #### A vérifier : flags #### */
-    if ( --RegB )
-        FLAGS &= ~FLAG_Z;
-    else
-        FLAGS |= FLAG_Z;
-    
-    return( 5 /* 5 NOPs */ );
+    if (--RegB) FLAGS &= ~FLAG_Z;
+    else FLAGS |= FLAG_Z;
+
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ED_AB( core_crocods_t *core ) /* OUTD */
+static int ED_AB(core_crocods_t *core)   /* OUTD */
 {
     /* #### A vérifier : flags #### */
     FLAGS = FLAG_N;
-    if ( --RegB )
-        FLAGS &= ~FLAG_Z;
-    else
-        FLAGS |= FLAG_Z;
-    
-    WritePort( core, RegBC, PEEK8( core, RegHL-- ) );
-    return( 5 /* 5 NOPs */ );
-}
+    if (--RegB) FLAGS &= ~FLAG_Z;
+    else FLAGS |= FLAG_Z;
 
+    WritePort(core, RegBC, PEEK8(core, RegHL--) );
+    return(5 /* 5 NOPs */);
+}
 
 #ifdef HACK_LDIR
-static int ED_B0( core_crocods_t *core ) /* LDIR */
+static int ED_B0(core_crocods_t *core)   /* LDIR */
 {
     int r = 5;
-    r+=RegBC;
-    
+    r += RegBC;
+
     do {
-        POKEPEEK8( RegDE++, RegHL++ );
+        POKEPEEK8(RegDE++, RegHL++);
         FLAGS &= ~FLAG_H & ~FLAG_V & ~FLAG_N;
         RegBC--;
-    } while (RegBC!=0);
-    
-    return( r );
+    } while (RegBC != 0);
+
+    return(r);
 }
+
 #else
-static int ED_B0( core_crocods_t *core ) /* LDIR */
+static int ED_B0(core_crocods_t *core)   /* LDIR */
 {
     int r = 5;
-    
-    POKE8( core, RegDE++, ( UBYTE )PEEK8( core, RegHL++ ) );
+
+    POKE8(core, RegDE++, (UBYTE)PEEK8(core, RegHL++) );
     FLAGS &= ~FLAG_H & ~FLAG_V & ~FLAG_N;
     if (--RegBC) {
         RegPC -= 2;
         FLAGS |= FLAG_V;
         r++;
     }
-    
-    return( r );
+
+    return(r);
 }
+
 #endif
 
-
-static int ED_B1( core_crocods_t *core ) /* CPIR */
+static int ED_B1(core_crocods_t *core)   /* CPIR */
 {
     int r = 5;
-    UBYTE i = ( UBYTE )PEEK8( core, RegHL++ );
-    UBYTE tmp = ( UBYTE )( RegA - i );
+    UBYTE i = (UBYTE)PEEK8(core, RegHL++);
+    UBYTE tmp = (UBYTE)(RegA - i);
     RegBC--;
-    FLAGS = ( UBYTE )( FLAG_N
-                      | ( FLAGS & FLAG_C )
-                      | ( tmp & FLAG_S )
-                      | ( tmp ? 0 : FLAG_Z )
-                      | ( ( RegA ^ i ^ tmp ) &FLAG_H )
-                      | ( RegBC ? FLAG_V : 0 )
-                      );
-    if ( RegBC && tmp )
-    {
+    FLAGS = (UBYTE)(FLAG_N
+                    | (FLAGS & FLAG_C)
+                    | (tmp & FLAG_S)
+                    | (tmp ? 0 : FLAG_Z)
+                    | ( (RegA ^ i ^ tmp) & FLAG_H)
+                    | (RegBC ? FLAG_V : 0)
+                    );
+    if (RegBC && tmp) {
         r++;
         RegPC -= 2;
-        
     }
-    return( r );
+    return(r);
 }
 
-
-static int ED_B2( core_crocods_t *core ) /* INIR */
+static int ED_B2(core_crocods_t *core)   /* INIR */
 {
-    return( ed___(core) );
+    return(ed___(core) );
 }
 
-
-static int ED_B3( core_crocods_t *core ) /* OTIR */
+static int ED_B3(core_crocods_t *core)   /* OTIR */
 {
-    return( ed___(core) );
+    return(ed___(core) );
 }
 
-
-static int ED_B8( core_crocods_t *core ) /* LDDR */
+static int ED_B8(core_crocods_t *core)   /* LDDR */
 {
     int r = 5;
-    POKE8( core, RegDE--, ( UBYTE )PEEK8( core, RegHL-- ) );
+    POKE8(core, RegDE--, (UBYTE)PEEK8(core, RegHL--) );
     FLAGS &= ~FLAG_H & ~FLAG_V & ~FLAG_N;
-    if ( --RegBC )
-    {
+    if (--RegBC) {
         FLAGS |= FLAG_V;
         r++;
         RegPC -= 2;
     }
-    return( r );
+    return(r);
 }
 
-
-static int ED_B9( core_crocods_t *core ) /* CPDR */
+static int ED_B9(core_crocods_t *core)   /* CPDR */
 {
     int r = 5;
-    UBYTE i = ( UBYTE )PEEK8( core, RegHL-- );
-    UBYTE tmp = ( UBYTE )( RegA - i );
+    UBYTE i = (UBYTE)PEEK8(core, RegHL--);
+    UBYTE tmp = (UBYTE)(RegA - i);
     RegBC--;
-    FLAGS = ( UBYTE )( FLAG_N
-                      | ( FLAGS & FLAG_C )
-                      | ( tmp & FLAG_S )
-                      | ( tmp ? 0 : FLAG_Z )
-                      | ( ( RegA ^ i ^ tmp ) &FLAG_H )
-                      | ( RegBC ? FLAG_V : 0 )
-                      );
-    if ( RegBC && tmp )
-    {
+    FLAGS = (UBYTE)(FLAG_N
+                    | (FLAGS & FLAG_C)
+                    | (tmp & FLAG_S)
+                    | (tmp ? 0 : FLAG_Z)
+                    | ( (RegA ^ i ^ tmp) & FLAG_H)
+                    | (RegBC ? FLAG_V : 0)
+                    );
+    if (RegBC && tmp) {
         r++;
         RegPC -= 2;
-        
     }
-    return( r );
+    return(r);
 }
 
-
-static int ED_BA( core_crocods_t *core ) /* INDR */
+static int ED_BA(core_crocods_t *core)   /* INDR */
 {
-    return( ed___(core) );
+    return(ed___(core) );
 }
 
-
-static int ED_BB( core_crocods_t *core ) /* OTDR */
+static int ED_BB(core_crocods_t *core)   /* OTDR */
 {
-    return( ed___(core) );
+    return(ed___(core) );
 }
 
+static int ED_FF(core_crocods_t *core)   /* LDDR */
+{
+    // printf("Breakpoint");
+    return(2);
+}
 
 /************
  * OPCODE DD *
  ************/
-
 
 /********************************************************* !NAME! **************
  * Nom : dd___
@@ -3650,656 +3205,567 @@ static int ED_BB( core_crocods_t *core ) /* OTDR */
  * Résultat    : 0
  *
  ********************************************************** !0! ****************/
-static int dd___( core_crocods_t *core )
+static int dd___(core_crocods_t *core)
 {
-    printf(  "Instruction DD%02X a l'adresse %04X rencontree."
-           , PEEK8( core, ( USHORT )( RegPC - 1 ) )
+    printf("Instruction DD%02X a l'adresse %04X rencontree."
+           , PEEK8(core, (USHORT)(RegPC - 1) )
            , RegPC - 2
            );
-    
+
     RegPC++;
-    return( 2 );
+    return(2);
 }
 
-
-static USHORT GetIXdd( core_crocods_t *core )
+static USHORT GetIXdd(core_crocods_t *core)
 {
-    return( USHORT )( RegIX + ( signed char )PEEK8( core, RegPC++ ) );
+    return (USHORT)(RegIX + (signed char)PEEK8(core, RegPC++) );
 }
 
-
-static int DD_09( core_crocods_t *core ) /* ADD IX, BC */
+static int DD_09(core_crocods_t *core)   /* ADD IX, BC */
 {
-    ADD_R16( core, &RegIX, RegBC );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIX, RegBC);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int DD_19( core_crocods_t *core ) /* ADD IX, DE */
+static int DD_19(core_crocods_t *core)   /* ADD IX, DE */
 {
-    ADD_R16( core, &RegIX, RegDE );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIX, RegDE);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int DD_21( core_crocods_t *core ) /* LD IX, nnnn */
+static int DD_21(core_crocods_t *core)   /* LD IX, nnnn */
 {
-    RegIX = PEEK16( core, RegPC );
+    RegIX = PEEK16(core, RegPC);
     RegPC += 2;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int DD_22( core_crocods_t *core ) /* LD ( nnnn ), IX */
+static int DD_22(core_crocods_t *core)   /* LD ( nnnn ), IX */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegIX );
+    POKE16(core, PEEK16(core, RegPC), RegIX);
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int DD_23( core_crocods_t *core ) /* INC IX */
+static int DD_23(core_crocods_t *core)   /* INC IX */
 {
     ++RegIX;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int DD_24( core_crocods_t *core ) /* INC IXh */
+static int DD_24(core_crocods_t *core)   /* INC IXh */
 {
-    FLAG_INC( core, ++RegIXH );
-    return( 2 /* 2 NOPs */ );
+    FLAG_INC(core, ++RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_25( core_crocods_t *core ) /* DEC IXh */
+static int DD_25(core_crocods_t *core)   /* DEC IXh */
 {
-    FLAG_DEC( core, --RegIXH );
-    return( 2 /* 2 NOPs */ );
+    FLAG_DEC(core, --RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_26( core_crocods_t *core ) /* LD IXh, n */
+static int DD_26(core_crocods_t *core)   /* LD IXh, n */
 {
-    RegIXH = ( UBYTE )PEEK8( core, RegPC );
+    RegIXH = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int DD_29( core_crocods_t *core ) /* ADD IX, IX */
+static int DD_29(core_crocods_t *core)   /* ADD IX, IX */
 {
-    ADD_R16( core, &RegIX, RegIX );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIX, RegIX);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int DD_2A( core_crocods_t *core ) /* LD IX, ( nnnn ) */
+static int DD_2A(core_crocods_t *core)   /* LD IX, ( nnnn ) */
 {
-    RegIX = PEEK16( core, PEEK16( core, RegPC ) );
+    RegIX = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int DD_2B( core_crocods_t *core ) /* DEC IX */
+static int DD_2B(core_crocods_t *core)   /* DEC IX */
 {
     --RegIX;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int DD_2C( core_crocods_t *core ) /* INC IXl */
+static int DD_2C(core_crocods_t *core)   /* INC IXl */
 {
-    FLAG_INC( core, ++RegIXL );
-    return( 2 /* 2 NOPs */ );
+    FLAG_INC(core, ++RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_2D( core_crocods_t *core ) /* DEC IXl */
+static int DD_2D(core_crocods_t *core)   /* DEC IXl */
 {
-    FLAG_DEC( core, --RegIXL );
-    return( 2 /* 2 NOPs */ );
+    FLAG_DEC(core, --RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_2E( core_crocods_t *core ) /* LD IXl, n */
+static int DD_2E(core_crocods_t *core)   /* LD IXl, n */
 {
-    RegIXL = ( UBYTE )PEEK8( core, RegPC );
+    RegIXL = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int DD_34( core_crocods_t *core ) /* INC (IX+n) */
+static int DD_34(core_crocods_t *core)   /* INC (IX+n) */
 {
     USHORT ofs = GetIXdd(core);
-    UBYTE r = ( UBYTE )PEEK8( core, ofs );
-    FLAG_INC( core, ++r );
-    POKE8( core, ofs, r );
-    return( 6 /* 6 NOPs */ );
+    UBYTE r = (UBYTE)PEEK8(core, ofs);
+    FLAG_INC(core, ++r);
+    POKE8(core, ofs, r);
+    return(6 /* 6 NOPs */);
 }
 
-
-static int DD_35( core_crocods_t *core ) /* DEC (IX+n) */
+static int DD_35(core_crocods_t *core)   /* DEC (IX+n) */
 {
     USHORT ofs = GetIXdd(core);
-    UBYTE r = ( UBYTE )PEEK8( core, ofs );
-    FLAG_DEC( core, --r );
-    POKE8( core, ofs, r );
-    return( 6 /* 6 NOPs */ );
+    UBYTE r = (UBYTE)PEEK8(core, ofs);
+    FLAG_DEC(core, --r);
+    POKE8(core, ofs, r);
+    return(6 /* 6 NOPs */);
 }
 
-
-static int DD_36( core_crocods_t *core ) /* LD (IX+d), n */
+static int DD_36(core_crocods_t *core)   /* LD (IX+d), n */
 {
     USHORT ofs = GetIXdd(core);
-    POKE8( core, ofs, ( UBYTE )PEEK8( core, RegPC ) );
+    POKE8(core, ofs, (UBYTE)PEEK8(core, RegPC) );
     RegPC++;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int DD_39( core_crocods_t *core ) /* ADD IX, SP */
+static int DD_39(core_crocods_t *core)   /* ADD IX, SP */
 {
-    ADD_R16( core, &RegIX, RegSP );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIX, RegSP);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int DD_44( core_crocods_t *core ) /* LD B, IXh */
+static int DD_44(core_crocods_t *core)   /* LD B, IXh */
 {
     RegB = RegIXH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_45( core_crocods_t *core ) /* LD B, IXl */
+static int DD_45(core_crocods_t *core)   /* LD B, IXl */
 {
     RegB = RegIXL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_46( core_crocods_t *core ) /* LD B, (IX+d) */
+static int DD_46(core_crocods_t *core)   /* LD B, (IX+d) */
 {
-    RegB = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegB = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_4C( core_crocods_t *core ) /* LD C, IXh */
+static int DD_4C(core_crocods_t *core)   /* LD C, IXh */
 {
     RegC = RegIXH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_4D( core_crocods_t *core ) /* LD C, IXl */
+static int DD_4D(core_crocods_t *core)   /* LD C, IXl */
 {
     RegC = RegIXL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_4E( core_crocods_t *core ) /* LD C, (IX+d) */
+static int DD_4E(core_crocods_t *core)   /* LD C, (IX+d) */
 {
-    RegC = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegC = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_54( core_crocods_t *core ) /* LD D, IXh */
+static int DD_54(core_crocods_t *core)   /* LD D, IXh */
 {
     RegD = RegIXH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_55( core_crocods_t *core ) /* LD D, IXl */
+static int DD_55(core_crocods_t *core)   /* LD D, IXl */
 {
     RegD = RegIXL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_56( core_crocods_t *core ) /* LD D, (IX+d) */
+static int DD_56(core_crocods_t *core)   /* LD D, (IX+d) */
 {
-    RegD = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegD = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_5C( core_crocods_t *core ) /* LD E, IXh */
+static int DD_5C(core_crocods_t *core)   /* LD E, IXh */
 {
     RegE = RegIXH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_5D( core_crocods_t *core ) /* LD E, IXl */
+static int DD_5D(core_crocods_t *core)   /* LD E, IXl */
 {
     RegE = RegIXL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_5E( core_crocods_t *core ) /* LD E, (IX+d) */
+static int DD_5E(core_crocods_t *core)   /* LD E, (IX+d) */
 {
-    RegE = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegE = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_60( core_crocods_t *core ) /* LD IXh, B */
+static int DD_60(core_crocods_t *core)   /* LD IXh, B */
 {
     RegIXH = RegB;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_61( core_crocods_t *core ) /* LD IXh, C */
+static int DD_61(core_crocods_t *core)   /* LD IXh, C */
 {
     RegIXH = RegC;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_62( core_crocods_t *core ) /* LD IXh, D */
+static int DD_62(core_crocods_t *core)   /* LD IXh, D */
 {
     RegIXH = RegD;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_63( core_crocods_t *core ) /* LD IXh, E */
+static int DD_63(core_crocods_t *core)   /* LD IXh, E */
 {
     RegIXH = RegE;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_65( core_crocods_t *core ) /* LD IXh, IXl */
+static int DD_65(core_crocods_t *core)   /* LD IXh, IXl */
 {
     RegIXH = RegIXL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_66( core_crocods_t *core ) /* LD H, (IX+d) */
+static int DD_66(core_crocods_t *core)   /* LD H, (IX+d) */
 {
-    RegH = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegH = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_67( core_crocods_t *core ) /* LD IXh, A */
+static int DD_67(core_crocods_t *core)   /* LD IXh, A */
 {
     RegIXH = RegA;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_68( core_crocods_t *core ) /* LD IXl, B */
+static int DD_68(core_crocods_t *core)   /* LD IXl, B */
 {
     RegIXL = RegB;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_69( core_crocods_t *core ) /* LD IXl, C */
+static int DD_69(core_crocods_t *core)   /* LD IXl, C */
 {
     RegIXL = RegC;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_6A( core_crocods_t *core ) /* LD IXl, D */
+static int DD_6A(core_crocods_t *core)   /* LD IXl, D */
 {
     RegIXL = RegD;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_6B( core_crocods_t *core ) /* LD IXl, E */
+static int DD_6B(core_crocods_t *core)   /* LD IXl, E */
 {
     RegIXL = RegE;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_6C( core_crocods_t *core ) /* LD IXl, IXH */
+static int DD_6C(core_crocods_t *core)   /* LD IXl, IXH */
 {
     RegIXL = RegIXH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_6E( core_crocods_t *core ) /* LD L, (IX+d) */
+static int DD_6E(core_crocods_t *core)   /* LD L, (IX+d) */
 {
-    RegL = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegL = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_6F( core_crocods_t *core ) /* LD IXl, A */
+static int DD_6F(core_crocods_t *core)   /* LD IXl, A */
 {
     RegIXL = RegA;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_70( core_crocods_t *core ) /* LD (IX+d), B */
+static int DD_70(core_crocods_t *core)   /* LD (IX+d), B */
 {
-    POKE8( core, GetIXdd(core), RegB );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegB);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_71( core_crocods_t *core ) /* LD (IX+d), C */
+static int DD_71(core_crocods_t *core)   /* LD (IX+d), C */
 {
-    POKE8( core, GetIXdd(core), RegC );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegC);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_72( core_crocods_t *core ) /* LD (IX+d), D */
+static int DD_72(core_crocods_t *core)   /* LD (IX+d), D */
 {
-    POKE8( core, GetIXdd(core), RegD );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegD);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_73( core_crocods_t *core ) /* LD (IX+d), E */
+static int DD_73(core_crocods_t *core)   /* LD (IX+d), E */
 {
-    POKE8( core, GetIXdd(core), RegE );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegE);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_74( core_crocods_t *core ) /* LD (IX+d), H */
+static int DD_74(core_crocods_t *core)   /* LD (IX+d), H */
 {
-    POKE8( core, GetIXdd(core), RegH );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegH);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_75( core_crocods_t *core ) /* LD (IX+d), L */
+static int DD_75(core_crocods_t *core)   /* LD (IX+d), L */
 {
-    POKE8( core, GetIXdd(core), RegL );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegL);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_77( core_crocods_t *core ) /* LD (IX+d), A */
+static int DD_77(core_crocods_t *core)   /* LD (IX+d), A */
 {
-    POKE8( core, GetIXdd(core), RegA );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIXdd(core), RegA);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_7C( core_crocods_t *core ) /* LD A, IXh */
+static int DD_7C(core_crocods_t *core)   /* LD A, IXh */
 {
     RegA = RegIXH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_7D( core_crocods_t *core ) /* LD A, IXl */
+static int DD_7D(core_crocods_t *core)   /* LD A, IXl */
 {
     RegA = RegIXL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_7E( core_crocods_t *core ) /* LD A, (IX+d) */
+static int DD_7E(core_crocods_t *core)   /* LD A, (IX+d) */
 {
-    RegA = ( UBYTE )PEEK8( core, GetIXdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegA = (UBYTE)PEEK8(core, GetIXdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_84( core_crocods_t *core ) /* ADD A, IXh */
+static int DD_84(core_crocods_t *core)   /* ADD A, IXh */
 {
-    ADD_R8( core, RegIXH );
-    return( 2 /* 2 NOPs */ );
+    ADD_R8(core, RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_85( core_crocods_t *core ) /* ADD A, IXl */
+static int DD_85(core_crocods_t *core)   /* ADD A, IXl */
 {
-    ADD_R8( core, RegIXL );
-    return( 2 /* 2 NOPs */ );
+    ADD_R8(core, RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_86( core_crocods_t *core ) /* ADD A, (IX+n) */
+static int DD_86(core_crocods_t *core)   /* ADD A, (IX+n) */
 {
-    ADD_R8( core, PEEK8( core, GetIXdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    ADD_R8(core, PEEK8(core, GetIXdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_8C( core_crocods_t *core ) /* ADC A, IXh */
+static int DD_8C(core_crocods_t *core)   /* ADC A, IXh */
 {
-    ADC_R8( core, RegIXH );
-    return( 2 /* 2 NOPs */ );
+    ADC_R8(core, RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_8D( core_crocods_t *core ) /* ADC A, IXl */
+static int DD_8D(core_crocods_t *core)   /* ADC A, IXl */
 {
-    ADC_R8( core, RegIXL );
-    return( 2 /* 2 NOPs */ );
+    ADC_R8(core, RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_8E( core_crocods_t *core ) /* ADC A, (IX+n) */
+static int DD_8E(core_crocods_t *core)   /* ADC A, (IX+n) */
 {
-    ADC_R8( core, PEEK8( core, GetIXdd(core)  ) );
-    return( 5 /* 5 NOPs */ );
+    ADC_R8(core, PEEK8(core, GetIXdd(core)  ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_94( core_crocods_t *core ) /* SUB IXh */
+static int DD_94(core_crocods_t *core)   /* SUB IXh */
 {
-    SUB_R8( core, RegIXH );
-    return( 2 /* 2 NOPs */ );
+    SUB_R8(core, RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_95( core_crocods_t *core ) /* SUB IXl */
+static int DD_95(core_crocods_t *core)   /* SUB IXl */
 {
-    SUB_R8( core, RegIXL );
-    return( 2 /* 2 NOPs */ );
+    SUB_R8(core, RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_96( core_crocods_t *core ) /* SUB (IX+n) */
+static int DD_96(core_crocods_t *core)   /* SUB (IX+n) */
 {
-    SUB_R8( core, PEEK8( core, GetIXdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    SUB_R8(core, PEEK8(core, GetIXdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_9C( core_crocods_t *core ) /* SBC A, IXh */
+static int DD_9C(core_crocods_t *core)   /* SBC A, IXh */
 {
-    SBC_R8( core, RegIXH );
-    return( 2 /* 2 NOPs */ );
+    SBC_R8(core, RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_9D( core_crocods_t *core ) /* SBC A, IXl */
+static int DD_9D(core_crocods_t *core)   /* SBC A, IXl */
 {
-    SBC_R8( core, RegIXL );
-    return( 2 /* 2 NOPs */ );
+    SBC_R8(core, RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_9E( core_crocods_t *core ) /* SBC A, (IX+n) */
+static int DD_9E(core_crocods_t *core)   /* SBC A, (IX+n) */
 {
-    SBC_R8( core, PEEK8( core, GetIXdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    SBC_R8(core, PEEK8(core, GetIXdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_A4( core_crocods_t *core ) /* AND IXh */
+static int DD_A4(core_crocods_t *core)   /* AND IXh */
 {
     RegA &= RegIXH;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 2 /* 2 NOPs */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_A5( core_crocods_t *core ) /* AND IXl */
+static int DD_A5(core_crocods_t *core)   /* AND IXl */
 {
     RegA &= RegIXL;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 2 /* 2 NOPs */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_A6( core_crocods_t *core ) /* AND (IX+n) */
+static int DD_A6(core_crocods_t *core)   /* AND (IX+n) */
 {
-    RegA &= PEEK8( core, GetIXdd(core) );
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 5 /* 5 NOPs */ );
+    RegA &= PEEK8(core, GetIXdd(core) );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_AC( core_crocods_t *core ) /* XOR IXh */
+static int DD_AC(core_crocods_t *core)   /* XOR IXh */
 {
     RegA ^= RegIXH;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_AD( core_crocods_t *core ) /* XOR IXl */
+static int DD_AD(core_crocods_t *core)   /* XOR IXl */
 {
     RegA ^= RegIXL;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_AE( core_crocods_t *core ) /* XOR (IX+n) */
+static int DD_AE(core_crocods_t *core)   /* XOR (IX+n) */
 {
-    RegA ^= PEEK8( core, GetIXdd(core) );
+    RegA ^= PEEK8(core, GetIXdd(core) );
     FLAGS = Parite[ RegA ];
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_B4( core_crocods_t *core ) /* OR IXh */
+static int DD_B4(core_crocods_t *core)   /* OR IXh */
 {
     RegA |= RegIXH;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_B5( core_crocods_t *core ) /* OR IXl */
+static int DD_B5(core_crocods_t *core)   /* OR IXl */
 {
     RegA |= RegIXL;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_B6( core_crocods_t *core ) /* OR (IX+n) */
+static int DD_B6(core_crocods_t *core)   /* OR (IX+n) */
 {
-    RegA |= PEEK8( core, GetIXdd(core) );
+    RegA |= PEEK8(core, GetIXdd(core) );
     FLAGS = Parite[ RegA ];
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_BC( core_crocods_t *core ) /* CP IXh */
+static int DD_BC(core_crocods_t *core)   /* CP IXh */
 {
-    CP_R8( core, RegIXH );
-    return( 2 /* 2 NOPs */ );
+    CP_R8(core, RegIXH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_BD( core_crocods_t *core ) /* CP IXl */
+static int DD_BD(core_crocods_t *core)   /* CP IXl */
 {
-    CP_R8( core, RegIXL );
-    return( 2 /* 2 NOPs */ );
+    CP_R8(core, RegIXL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_BE( core_crocods_t *core ) /* CP (IX+n) */
+static int DD_BE(core_crocods_t *core)   /* CP (IX+n) */
 {
-    CP_R8( core, PEEK8( core, GetIXdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    CP_R8(core, PEEK8(core, GetIXdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_CB( core_crocods_t *core ) /* special code CB */
+static int DD_CB(core_crocods_t *core)   /* special code CB */
 {
     int r, tmp = RegHL;
-    RegHL = ( USHORT )GetIXdd(core);
+    RegHL = (USHORT)GetIXdd(core);
     CBIndex = 1;
-    r = tabCB[ PEEK8( core, RegPC++ ) ](core);
+    r = tabCB[ PEEK8(core, RegPC++) ](core);
     CBIndex = 0;
-    RegHL = ( USHORT )tmp;
-    return( r + 4 ); // ### a vérifier...
+    RegHL = (USHORT)tmp;
+    return(r + 4);   // ### a vérifier...
 }
 
-
-static int DD_E1( core_crocods_t *core ) /* POP IX */
+static int DD_E1(core_crocods_t *core)   /* POP IX */
 {
-    RegIX = PEEK16( core, RegSP );
+    RegIX = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_E3( core_crocods_t *core ) /* EX (SP), IX */
+static int DD_E3(core_crocods_t *core)   /* EX (SP), IX */
 {
-    USHORT a = PEEK16( core, RegSP );
-    POKE16( core, RegSP, RegIX );
+    USHORT a = PEEK16(core, RegSP);
+    POKE16(core, RegSP, RegIX);
     RegIX = a;
-    return( 7 /* 7 NOPs */ );
+    return(7 /* 7 NOPs */);
 }
 
-
-static int DD_E5( core_crocods_t *core ) /* PUSH IX */
+static int DD_E5(core_crocods_t *core)   /* PUSH IX */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegIX );
-    return( 5 /* 5 NOPs */ );
+    POKE16(core, RegSP, RegIX);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int DD_E9( core_crocods_t *core ) /* JP (IX) */
+static int DD_E9(core_crocods_t *core)   /* JP (IX) */
 {
     RegPC = RegIX;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int DD_F9( core_crocods_t *core ) /* LD SP, IX */
+static int DD_F9(core_crocods_t *core)   /* LD SP, IX */
 {
     RegSP = RegIX;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int DD_FD( core_crocods_t *core ) /* special DD_FD */
+static int DD_FD(core_crocods_t *core)   /* special DD_FD */
 {
     // Se comporte commme un simple FD
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) );
-    return( 1 + tabIY[ PEEK8( core, RegPC++ ) ](core) ); // ### A vérifier
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+    return(1 + tabIY[ PEEK8(core, RegPC++) ](core) );    // ### A vérifier
 }
-
-
 
 /************
  * OPCODE FD *
  ************/
-
 
 /********************************************************* !NAME! **************
  * Nom : fd___
@@ -4314,2739 +3780,2324 @@ static int DD_FD( core_crocods_t *core ) /* special DD_FD */
  * Résultat    : 0
  *
  ********************************************************** !0! ****************/
-static int fd___( core_crocods_t *core )
+static int fd___(core_crocods_t *core)
 {
-    printf( "Instruction FD%02X a l'adresse %04X rencontree.\n"
-           , PEEK8( core, ( USHORT )( RegPC - 1 ) )
+    printf("Instruction FD%02X a l'adresse %04X rencontree.\n"
+           , PEEK8(core, (USHORT)(RegPC - 1) )
            , RegPC - 2
            );
-    
+
     RegPC++;
-    return( 2 );
+    return(2);
 }
 
-
-static USHORT GetIYdd( core_crocods_t *core )
+static USHORT GetIYdd(core_crocods_t *core)
 {
-    return( USHORT )( RegIY + ( signed char )PEEK8( core, RegPC++ ) );
+    return (USHORT)(RegIY + (signed char)PEEK8(core, RegPC++) );
 }
 
-
-static int FD_09( core_crocods_t *core ) /* ADD IY, BC */
+static int FD_09(core_crocods_t *core)   /* ADD IY, BC */
 {
-    ADD_R16( core, &RegIY, RegBC );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIY, RegBC);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int FD_19( core_crocods_t *core ) /* ADD IY, DE */
+static int FD_19(core_crocods_t *core)   /* ADD IY, DE */
 {
-    ADD_R16( core, &RegIY, RegDE );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIY, RegDE);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int FD_21( core_crocods_t *core ) /* LD IY, nnnn */
+static int FD_21(core_crocods_t *core)   /* LD IY, nnnn */
 {
-    RegIY = PEEK16( core, RegPC );
+    RegIY = PEEK16(core, RegPC);
     RegPC += 2;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int FD_22( core_crocods_t *core ) /* LD ( nnnn ), IY */
+static int FD_22(core_crocods_t *core)   /* LD ( nnnn ), IY */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegIY );
+    POKE16(core, PEEK16(core, RegPC), RegIY);
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int FD_23( core_crocods_t *core ) /* INC IY */
+static int FD_23(core_crocods_t *core)   /* INC IY */
 {
     ++RegIY;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int FD_24( core_crocods_t *core ) /* INC IYh */
+static int FD_24(core_crocods_t *core)   /* INC IYh */
 {
-    FLAG_INC( core, ++RegIYH );
-    return( 2 /* 2 NOPs */ );
+    FLAG_INC(core, ++RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_25( core_crocods_t *core ) /* DEC IYh */
+static int FD_25(core_crocods_t *core)   /* DEC IYh */
 {
-    FLAG_DEC( core, --RegIYH );
-    return( 2 /* 2 NOPs */ );
+    FLAG_DEC(core, --RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_26( core_crocods_t *core ) /* LD IYh, n */
+static int FD_26(core_crocods_t *core)   /* LD IYh, n */
 {
-    RegIYH = ( UBYTE )PEEK8( core, RegPC );
+    RegIYH = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int FD_29( core_crocods_t *core ) /* ADD IY, IY */
+static int FD_29(core_crocods_t *core)   /* ADD IY, IY */
 {
-    ADD_R16( core, &RegIY, RegIY );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIY, RegIY);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int FD_2A( core_crocods_t *core ) /* LD IY, ( nnnn ) */
+static int FD_2A(core_crocods_t *core)   /* LD IY, ( nnnn ) */
 {
-    RegIY = PEEK16( core, PEEK16( core, RegPC ) );
+    RegIY = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int FD_2B( core_crocods_t *core ) /* DEC IY */
+static int FD_2B(core_crocods_t *core)   /* DEC IY */
 {
     --RegIY;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int FD_2C( core_crocods_t *core ) /* INC IYl */
+static int FD_2C(core_crocods_t *core)   /* INC IYl */
 {
-    FLAG_INC( core, ++RegIYL );
-    return( 2 /* 2 NOPs */ );
+    FLAG_INC(core, ++RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_2D( core_crocods_t *core ) /* DEC IYl */
+static int FD_2D(core_crocods_t *core)   /* DEC IYl */
 {
-    FLAG_DEC( core, --RegIYL );
-    return( 2 /* 2 NOPs */ );
+    FLAG_DEC(core, --RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_2E( core_crocods_t *core ) /* LD IYl, n */
+static int FD_2E(core_crocods_t *core)   /* LD IYl, n */
 {
-    RegIYL = ( UBYTE )PEEK8( core, RegPC );
+    RegIYL = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int FD_34( core_crocods_t *core ) /* INC (IY+n) */
+static int FD_34(core_crocods_t *core)   /* INC (IY+n) */
 {
     USHORT ofs = GetIYdd(core);
-    UBYTE r = ( UBYTE )PEEK8( core, ofs );
-    FLAG_INC( core, ++r );
-    POKE8( core, ofs, r );
-    return( 6 /* 6 NOPs */ );
+    UBYTE r = (UBYTE)PEEK8(core, ofs);
+    FLAG_INC(core, ++r);
+    POKE8(core, ofs, r);
+    return(6 /* 6 NOPs */);
 }
 
-
-static int FD_35( core_crocods_t *core ) /* DEC (IY+n) */
+static int FD_35(core_crocods_t *core)   /* DEC (IY+n) */
 {
     USHORT ofs = GetIYdd(core);
-    UBYTE r = ( UBYTE )PEEK8( core, ofs );
-    FLAG_DEC( core, --r );
-    POKE8( core, ofs, r );
-    return( 6 /* 6 NOPs */ );
+    UBYTE r = (UBYTE)PEEK8(core, ofs);
+    FLAG_DEC(core, --r);
+    POKE8(core, ofs, r);
+    return(6 /* 6 NOPs */);
 }
 
-
-static int FD_36( core_crocods_t *core ) /* LD (IY+d), n */
+static int FD_36(core_crocods_t *core)   /* LD (IY+d), n */
 {
     USHORT ofs = GetIYdd(core);
-    POKE8( core, ofs, ( UBYTE )PEEK8( core, RegPC ) );
+    POKE8(core, ofs, (UBYTE)PEEK8(core, RegPC) );
     RegPC++;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int FD_39( core_crocods_t *core ) /* ADD IY, SP */
+static int FD_39(core_crocods_t *core)   /* ADD IY, SP */
 {
-    ADD_R16( core, &RegIY, RegSP );
-    return( 4 /* 4 NOPs */ );
+    ADD_R16(core, &RegIY, RegSP);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int FD_44( core_crocods_t *core ) /* LD B, IYh */
+static int FD_44(core_crocods_t *core)   /* LD B, IYh */
 {
     RegB = RegIYH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_45( core_crocods_t *core ) /* LD B, IYl */
+static int FD_45(core_crocods_t *core)   /* LD B, IYl */
 {
     RegB = RegIYL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_46( core_crocods_t *core ) /* LD B, (IY+d) */
+static int FD_46(core_crocods_t *core)   /* LD B, (IY+d) */
 {
-    RegB = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegB = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_4C( core_crocods_t *core ) /* LD C, IYh */
+static int FD_4C(core_crocods_t *core)   /* LD C, IYh */
 {
     RegC = RegIYH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_4D( core_crocods_t *core ) /* LD C, IYl */
+static int FD_4D(core_crocods_t *core)   /* LD C, IYl */
 {
     RegC = RegIYL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_4E( core_crocods_t *core ) /* LD C, (IY+d) */
+static int FD_4E(core_crocods_t *core)   /* LD C, (IY+d) */
 {
-    RegC = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegC = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_54( core_crocods_t *core ) /* LD D, IYh */
+static int FD_54(core_crocods_t *core)   /* LD D, IYh */
 {
     RegD = RegIYH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_55( core_crocods_t *core ) /* LD D, IYl */
+static int FD_55(core_crocods_t *core)   /* LD D, IYl */
 {
     RegD = RegIYL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_56( core_crocods_t *core ) /* LD D, (IY+d) */
+static int FD_56(core_crocods_t *core)   /* LD D, (IY+d) */
 {
-    RegD = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegD = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_5C( core_crocods_t *core ) /* LD E, IYh */
+static int FD_5C(core_crocods_t *core)   /* LD E, IYh */
 {
     RegE = RegIYH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_5D( core_crocods_t *core ) /* LD E, IYl */
+static int FD_5D(core_crocods_t *core)   /* LD E, IYl */
 {
     RegE = RegIYL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_5E( core_crocods_t *core ) /* LD E, (IY+d) */
+static int FD_5E(core_crocods_t *core)   /* LD E, (IY+d) */
 {
-    RegE = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegE = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_60( core_crocods_t *core ) /* LD IYh, B */
+static int FD_60(core_crocods_t *core)   /* LD IYh, B */
 {
     RegIYH = RegB;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_61( core_crocods_t *core ) /* LD IYh, C */
+static int FD_61(core_crocods_t *core)   /* LD IYh, C */
 {
     RegIYH = RegC;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_62( core_crocods_t *core ) /* LD IYh, D */
+static int FD_62(core_crocods_t *core)   /* LD IYh, D */
 {
     RegIYH = RegD;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_63( core_crocods_t *core ) /* LD IYh, E */
+static int FD_63(core_crocods_t *core)   /* LD IYh, E */
 {
     RegIYH = RegE;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_65( core_crocods_t *core ) /* LD IYh, IYl */
+static int FD_65(core_crocods_t *core)   /* LD IYh, IYl */
 {
     RegIYH = RegIYL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_66( core_crocods_t *core ) /* LD H, (IY+d) */
+static int FD_66(core_crocods_t *core)   /* LD H, (IY+d) */
 {
-    RegH = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegH = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_67( core_crocods_t *core ) /* LD IYh, A */
+static int FD_67(core_crocods_t *core)   /* LD IYh, A */
 {
     RegIYH = RegA;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_68( core_crocods_t *core ) /* LD IYl, B */
+static int FD_68(core_crocods_t *core)   /* LD IYl, B */
 {
     RegIYL = RegB;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_69( core_crocods_t *core ) /* LD IYl, C */
+static int FD_69(core_crocods_t *core)   /* LD IYl, C */
 {
     RegIYL = RegC;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_6A( core_crocods_t *core ) /* LD IYl, D */
+static int FD_6A(core_crocods_t *core)   /* LD IYl, D */
 {
     RegIYL = RegD;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_6B( core_crocods_t *core ) /* LD IYl, E */
+static int FD_6B(core_crocods_t *core)   /* LD IYl, E */
 {
     RegIYL = RegE;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_6C( core_crocods_t *core ) /* LD IYl, IYH */
+static int FD_6C(core_crocods_t *core)   /* LD IYl, IYH */
 {
     RegIYL = RegIYH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_6E( core_crocods_t *core ) /* LD L, (IY+d) */
+static int FD_6E(core_crocods_t *core)   /* LD L, (IY+d) */
 {
-    RegL = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegL = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_6F( core_crocods_t *core ) /* LD IYl, A */
+static int FD_6F(core_crocods_t *core)   /* LD IYl, A */
 {
     RegIYL = RegA;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_70( core_crocods_t *core ) /* LD (IY+d), B */
+static int FD_70(core_crocods_t *core)   /* LD (IY+d), B */
 {
-    POKE8( core, GetIYdd(core), RegB );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegB);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_71( core_crocods_t *core ) /* LD (IY+d), C */
+static int FD_71(core_crocods_t *core)   /* LD (IY+d), C */
 {
-    POKE8( core, GetIYdd(core), RegC );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegC);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_72( core_crocods_t *core ) /* LD (IY+d), D */
+static int FD_72(core_crocods_t *core)   /* LD (IY+d), D */
 {
-    POKE8( core, GetIYdd(core), RegD );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegD);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_73( core_crocods_t *core ) /* LD (IY+d), E */
+static int FD_73(core_crocods_t *core)   /* LD (IY+d), E */
 {
-    POKE8( core, GetIYdd(core), RegE );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegE);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_74( core_crocods_t *core ) /* LD (IY+d), H */
+static int FD_74(core_crocods_t *core)   /* LD (IY+d), H */
 {
-    POKE8( core, GetIYdd(core), RegH );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegH);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_75( core_crocods_t *core ) /* LD (IY+d), L */
+static int FD_75(core_crocods_t *core)   /* LD (IY+d), L */
 {
-    POKE8( core, GetIYdd(core), RegL );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegL);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_77( core_crocods_t *core ) /* LD (IY+d), A */
+static int FD_77(core_crocods_t *core)   /* LD (IY+d), A */
 {
-    POKE8( core, GetIYdd(core), RegA );
-    return( 5 /* 5 NOPs */ );
+    POKE8(core, GetIYdd(core), RegA);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_7C( core_crocods_t *core ) /* LD A, IYh */
+static int FD_7C(core_crocods_t *core)   /* LD A, IYh */
 {
     RegA = RegIYH;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_7D( core_crocods_t *core ) /* LD A, IYl */
+static int FD_7D(core_crocods_t *core)   /* LD A, IYl */
 {
     RegA = RegIYL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_7E( core_crocods_t *core ) /* LD A, (IY+d) */
+static int FD_7E(core_crocods_t *core)   /* LD A, (IY+d) */
 {
-    RegA = ( UBYTE )PEEK8( core, GetIYdd(core) );
-    return( 5 /* 5 NOPs */ );
+    RegA = (UBYTE)PEEK8(core, GetIYdd(core) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_84( core_crocods_t *core ) /* ADD A, IYh */
+static int FD_84(core_crocods_t *core)   /* ADD A, IYh */
 {
-    ADD_R8( core, RegIYH );
-    return( 2 /* 2 NOPs */ );
+    ADD_R8(core, RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_85( core_crocods_t *core ) /* ADD A, IYl */
+static int FD_85(core_crocods_t *core)   /* ADD A, IYl */
 {
-    ADD_R8( core, RegIYL );
-    return( 2 /* 2 NOPs */ );
+    ADD_R8(core, RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_86( core_crocods_t *core ) /* ADD A, (IY+n) */
+static int FD_86(core_crocods_t *core)   /* ADD A, (IY+n) */
 {
-    ADD_R8( core, PEEK8( core, GetIYdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    ADD_R8(core, PEEK8(core, GetIYdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_8C( core_crocods_t *core ) /* ADC A, IYh */
+static int FD_8C(core_crocods_t *core)   /* ADC A, IYh */
 {
-    ADC_R8( core, RegIYH );
-    return( 2 /* 2 NOPs */ );
+    ADC_R8(core, RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_8D( core_crocods_t *core ) /* ADC A, IYl */
+static int FD_8D(core_crocods_t *core)   /* ADC A, IYl */
 {
-    ADC_R8( core, RegIYL );
-    return( 2 /* 2 NOPs */ );
+    ADC_R8(core, RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_8E( core_crocods_t *core ) /* ADC A, (IY+n) */
+static int FD_8E(core_crocods_t *core)   /* ADC A, (IY+n) */
 {
-    ADC_R8( core, PEEK8( core, GetIYdd(core)  ) );
-    return( 5 /* 5 NOPs */ );
+    ADC_R8(core, PEEK8(core, GetIYdd(core)  ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_94( core_crocods_t *core ) /* SUB IYh */
+static int FD_94(core_crocods_t *core)   /* SUB IYh */
 {
-    SUB_R8( core, RegIYH );
-    return( 2 /* 2 NOPs */ );
+    SUB_R8(core, RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_95( core_crocods_t *core ) /* SUB IYl */
+static int FD_95(core_crocods_t *core)   /* SUB IYl */
 {
-    SUB_R8( core, RegIYL );
-    return( 2 /* 2 NOPs */ );
+    SUB_R8(core, RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_96( core_crocods_t *core ) /* SUB (IY+n) */
+static int FD_96(core_crocods_t *core)   /* SUB (IY+n) */
 {
-    SUB_R8( core, PEEK8( core, GetIYdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    SUB_R8(core, PEEK8(core, GetIYdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_9C( core_crocods_t *core ) /* SBC A, IYh */
+static int FD_9C(core_crocods_t *core)   /* SBC A, IYh */
 {
-    SBC_R8( core, RegIYH );
-    return( 2 /* 2 NOPs */ );
+    SBC_R8(core, RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_9D( core_crocods_t *core ) /* SBC A, IYl */
+static int FD_9D(core_crocods_t *core)   /* SBC A, IYl */
 {
-    SBC_R8( core, RegIYL );
-    return( 2 /* 2 NOPs */ );
+    SBC_R8(core, RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_9E( core_crocods_t *core ) /* SBC A, (IY+n) */
+static int FD_9E(core_crocods_t *core)   /* SBC A, (IY+n) */
 {
-    SBC_R8( core, PEEK8( core, GetIYdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    SBC_R8(core, PEEK8(core, GetIYdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_A4( core_crocods_t *core ) /* AND IYh */
+static int FD_A4(core_crocods_t *core)   /* AND IYh */
 {
     RegA &= RegIYH;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 2 /* 2 NOPs */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_A5( core_crocods_t *core ) /* AND IYl */
+static int FD_A5(core_crocods_t *core)   /* AND IYl */
 {
     RegA &= RegIYL;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 2 /* 2 NOPs */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_A6( core_crocods_t *core ) /* AND (IY+n) */
+static int FD_A6(core_crocods_t *core)   /* AND (IY+n) */
 {
-    RegA &= PEEK8( core, GetIYdd(core) );
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 5 /* 5 NOPs */ );
+    RegA &= PEEK8(core, GetIYdd(core) );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_AC( core_crocods_t *core ) /* XOR IYh */
+static int FD_AC(core_crocods_t *core)   /* XOR IYh */
 {
     RegA ^= RegIYH;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_AD( core_crocods_t *core ) /* XOR IYl */
+static int FD_AD(core_crocods_t *core)   /* XOR IYl */
 {
     RegA ^= RegIYL;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_AE( core_crocods_t *core ) /* XOR (IY+n) */
+static int FD_AE(core_crocods_t *core)   /* XOR (IY+n) */
 {
-    RegA ^= PEEK8( core, GetIYdd(core) );
+    RegA ^= PEEK8(core, GetIYdd(core) );
     FLAGS = Parite[ RegA ];
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_B4( core_crocods_t *core ) /* OR IYh */
+static int FD_B4(core_crocods_t *core)   /* OR IYh */
 {
     RegA |= RegIYH;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_B5( core_crocods_t *core ) /* OR IYl */
+static int FD_B5(core_crocods_t *core)   /* OR IYl */
 {
     RegA |= RegIYL;
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_B6( core_crocods_t *core ) /* OR (IY+n) */
+static int FD_B6(core_crocods_t *core)   /* OR (IY+n) */
 {
-    RegA |= PEEK8( core, GetIYdd(core) );
+    RegA |= PEEK8(core, GetIYdd(core) );
     FLAGS = Parite[ RegA ];
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_BC( core_crocods_t *core ) /* CP IYh */
+static int FD_BC(core_crocods_t *core)   /* CP IYh */
 {
-    CP_R8( core, RegIYH );
-    return( 2 /* 2 NOPs */ );
+    CP_R8(core, RegIYH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_BD( core_crocods_t *core ) /* CP IYl */
+static int FD_BD(core_crocods_t *core)   /* CP IYl */
 {
-    CP_R8( core, RegIYL );
-    return( 2 /* 2 NOPs */ );
+    CP_R8(core, RegIYL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_BE( core_crocods_t *core ) /* CP (IY+n) */
+static int FD_BE(core_crocods_t *core)   /* CP (IY+n) */
 {
-    CP_R8( core, PEEK8( core, GetIYdd(core) ) );
-    return( 5 /* 5 NOPs */ );
+    CP_R8(core, PEEK8(core, GetIYdd(core) ) );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_CB( core_crocods_t *core ) /* special code CB */
+static int FD_CB(core_crocods_t *core)   /* special code CB */
 {
     int r, tmp = RegHL;
-    RegHL = ( USHORT )GetIYdd(core);
+    RegHL = (USHORT)GetIYdd(core);
     CBIndex = 1;
-    r = tabCB[ PEEK8( core, RegPC++ ) ](core);
+    r = tabCB[ PEEK8(core, RegPC++) ](core);
     CBIndex = 0;
-    RegHL = ( USHORT )tmp;
-    return( r + 4 ); // ### a vérifier...
+    RegHL = (USHORT)tmp;
+    return(r + 4);   // ### a vérifier...
 }
 
-
-static int FD_DD( core_crocods_t *core ) /* special FD_DD */
+static int FD_DD(core_crocods_t *core)   /* special FD_DD */
 {
     // Se comporte comme un simple DD
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) );
-    return( 1 + tabIX[ PEEK8( core, RegPC++ ) ](core) ); // ### A vérifier
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+    return(1 + tabIX[ PEEK8(core, RegPC++) ](core) );    // ### A vérifier
 }
 
-
-static int FD_E1( core_crocods_t *core ) /* POP IY */
+static int FD_E1(core_crocods_t *core)   /* POP IY */
 {
-    RegIY = PEEK16( core, RegSP );
+    RegIY = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_E3( core_crocods_t *core ) /* EX (SP), IY */
+static int FD_E3(core_crocods_t *core)   /* EX (SP), IY */
 {
-    USHORT a = PEEK16( core, RegSP );
-    POKE16( core, RegSP, RegIY );
+    USHORT a = PEEK16(core, RegSP);
+    POKE16(core, RegSP, RegIY);
     RegIY = a;
-    return( 7 /* 7 NOPs */ );
+    return(7 /* 7 NOPs */);
 }
 
-
-static int FD_E5( core_crocods_t *core ) /* PUSH IY */
+static int FD_E5(core_crocods_t *core)   /* PUSH IY */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegIY );
-    return( 5 /* 5 NOPs */ );
+    POKE16(core, RegSP, RegIY);
+    return(5 /* 5 NOPs */);
 }
 
-
-static int FD_E9( core_crocods_t *core ) /* JP (IY) */
+static int FD_E9(core_crocods_t *core)   /* JP (IY) */
 {
     RegPC = RegIY;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int FD_F9( core_crocods_t *core ) /* LD SP, IY */
+static int FD_F9(core_crocods_t *core)   /* LD SP, IY */
 {
     RegSP = RegIY;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
-
 
 /*******************
  * OPCODE Standards *
  *******************/
 
-
-static int NO_OP( core_crocods_t *core )
+static int NO_OP(core_crocods_t *core)
 {
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___01( core_crocods_t *core ) /* LD BC, nnnn */
+static int ___01(core_crocods_t *core)   /* LD BC, nnnn */
 {
-    RegBC = PEEK16( core, RegPC );
+    RegBC = PEEK16(core, RegPC);
     RegPC += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___02( core_crocods_t *core ) /* LD ( BC ), A */
+static int ___02(core_crocods_t *core)   /* LD ( BC ), A */
 {
-    POKE8( core, RegBC, RegA );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegBC, RegA);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___03( core_crocods_t *core ) /* INC BC */
+static int ___03(core_crocods_t *core)   /* INC BC */
 {
     RegBC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___04( core_crocods_t *core ) /* INC B */
+static int ___04(core_crocods_t *core)   /* INC B */
 {
-    FLAG_INC( core, ++RegB );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___05( core_crocods_t *core ) /* DEC B */
+static int ___05(core_crocods_t *core)   /* DEC B */
 {
-    FLAG_DEC( core, --RegB );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___06( core_crocods_t *core ) /* LD B, n */
+static int ___06(core_crocods_t *core)   /* LD B, n */
 {
-    RegB = ( UBYTE )PEEK8( core, RegPC );
+    RegB = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___07( core_crocods_t *core ) /* RLCA */
+static int ___07(core_crocods_t *core)   /* RLCA */
 {
-    FLAGS = ( UBYTE )( ( FLAGS & ( ~FLAG_C & ~FLAG_N & ~FLAG_H ) )
-                      | ( RegA >> 7 )
-                      );
-    RegA = ( UBYTE )( ( RegA << 1 ) | ( FLAGS & FLAG_C ) );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)( (FLAGS & (~FLAG_C & ~FLAG_N & ~FLAG_H) )
+                     | (RegA >> 7)
+                     );
+    RegA = (UBYTE)( (RegA << 1) | (FLAGS & FLAG_C) );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___08( core_crocods_t *core ) /* EX AF, AF' */
+static int ___08(core_crocods_t *core)   /* EX AF, AF' */
 {
     USHORT tmp = RegAF;
     RegAF = Reg_AF;
     Reg_AF = tmp;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___09( core_crocods_t *core ) /* ADD HL, BC */
+static int ___09(core_crocods_t *core)   /* ADD HL, BC */
 {
-    ADD_R16( core, &RegHL, RegBC );
-    return( 3 /* 3 NOPs */ );
+    ADD_R16(core, &RegHL, RegBC);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___0A( core_crocods_t *core ) /* LD A, ( BC ) */
+static int ___0A(core_crocods_t *core)   /* LD A, ( BC ) */
 {
-    RegA = ( UBYTE )PEEK8( core, RegBC );
-    return( 2 /* 2 NOPs */ );
+    RegA = (UBYTE)PEEK8(core, RegBC);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___0B( core_crocods_t *core ) /* DEC BC */
+static int ___0B(core_crocods_t *core)   /* DEC BC */
 {
     RegBC--;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___0C( core_crocods_t *core ) /* INC C */
+static int ___0C(core_crocods_t *core)   /* INC C */
 {
-    FLAG_INC( core, ++RegC );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___0D( core_crocods_t *core ) /* DEC C */
+static int ___0D(core_crocods_t *core)   /* DEC C */
 {
-    FLAG_DEC( core, --RegC );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___0E( core_crocods_t *core ) /* LD C, n */
+static int ___0E(core_crocods_t *core)   /* LD C, n */
 {
-    RegC = ( UBYTE )PEEK8( core, RegPC );
+    RegC = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___0F( core_crocods_t *core ) /* RRCA */
+static int ___0F(core_crocods_t *core)   /* RRCA */
 {
-    FLAGS = ( UBYTE )( ( FLAGS & ( ~FLAG_C & ~FLAG_N & ~FLAG_H ) )
-                      | ( RegA & FLAG_C )
-                      );
-    RegA = ( UBYTE )( ( RegA >> 1 ) | ( FLAGS << 7 ) );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)( (FLAGS & (~FLAG_C & ~FLAG_N & ~FLAG_H) )
+                     | (RegA & FLAG_C)
+                     );
+    RegA = (UBYTE)( (RegA >> 1) | (FLAGS << 7) );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___10( core_crocods_t *core ) /* DJNZ e */
+static int ___10(core_crocods_t *core)   /* DJNZ e */
 {
     int r = 3;
-    if ( --RegB )
-    {
-        RegPC = ( USHORT )( RegPC + ( signed char )PEEK8( core, RegPC ) );
+    if (--RegB) {
+        RegPC = (USHORT)(RegPC + (signed char)PEEK8(core, RegPC) );
         r++;
     }
     RegPC++;
-    return( r );
+    return(r);
 }
 
-
-static int ___11( core_crocods_t *core ) /* LD DE, nnnn */
+static int ___11(core_crocods_t *core)   /* LD DE, nnnn */
 {
-    RegDE = PEEK16( core, RegPC );
+    RegDE = PEEK16(core, RegPC);
     RegPC += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___12( core_crocods_t *core ) /* LD ( DE ), A */
+static int ___12(core_crocods_t *core)   /* LD ( DE ), A */
 {
-    POKE8( core, RegDE, RegA );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegDE, RegA);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___13( core_crocods_t *core ) /* INC DE */
+static int ___13(core_crocods_t *core)   /* INC DE */
 {
     RegDE++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___14( core_crocods_t *core ) /* INC D */
+static int ___14(core_crocods_t *core)   /* INC D */
 {
-    FLAG_INC( core, ++RegD );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___15( core_crocods_t *core ) /* DEC D */
+static int ___15(core_crocods_t *core)   /* DEC D */
 {
-    FLAG_DEC( core, --RegD );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___16( core_crocods_t *core ) /* LD D, n */
+static int ___16(core_crocods_t *core)   /* LD D, n */
 {
-    RegD = ( UBYTE )PEEK8( core, RegPC );
+    RegD = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___17( core_crocods_t *core ) /* RLA */
+static int ___17(core_crocods_t *core)   /* RLA */
 {
     int i = RegA << 1;
-    RegA = ( UBYTE )( i | ( FLAGS & FLAG_C ) );
-    FLAGS = ( UBYTE )( ( FLAGS & ( ~FLAG_C & ~FLAG_N & ~FLAG_H ) )
-                      | ( i >> 8 )
-                      );
-    return( 1 /* 1 NOP */ );
+    RegA = (UBYTE)(i | (FLAGS & FLAG_C) );
+    FLAGS = (UBYTE)( (FLAGS & (~FLAG_C & ~FLAG_N & ~FLAG_H) )
+                     | (i >> 8)
+                     );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___18( core_crocods_t *core ) /* JR e */
+static int ___18(core_crocods_t *core)   /* JR e */
 {
-    RegPC = ( USHORT )( RegPC + ( signed char )PEEK8( core, RegPC ) );
+    RegPC = (USHORT)(RegPC + (signed char)PEEK8(core, RegPC) );
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___19( core_crocods_t *core ) /* ADD HL, DE */
+static int ___19(core_crocods_t *core)   /* ADD HL, DE */
 {
-    ADD_R16( core, &RegHL, RegDE );
-    return( 3 /* 3 NOPs */ );
+    ADD_R16(core, &RegHL, RegDE);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___1A( core_crocods_t *core ) /* LD A, ( DE ) */
+static int ___1A(core_crocods_t *core)   /* LD A, ( DE ) */
 {
-    RegA = ( UBYTE )PEEK8( core, RegDE );
-    return( 2 /* 2 NOPs */ );
+    RegA = (UBYTE)PEEK8(core, RegDE);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___1B( core_crocods_t *core ) /* DEC DE */
+static int ___1B(core_crocods_t *core)   /* DEC DE */
 {
     RegDE--;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___1C( core_crocods_t *core ) /* INC E */
+static int ___1C(core_crocods_t *core)   /* INC E */
 {
-    FLAG_INC( core, ++RegE );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___1D( core_crocods_t *core ) /* DEC E */
+static int ___1D(core_crocods_t *core)   /* DEC E */
 {
-    FLAG_DEC( core, --RegE );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___1E( core_crocods_t *core ) /* LD E, n */
+static int ___1E(core_crocods_t *core)   /* LD E, n */
 {
-    RegE = ( UBYTE )PEEK8( core, RegPC );
+    RegE = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___1F( core_crocods_t *core ) /* RRA */
+static int ___1F(core_crocods_t *core)   /* RRA */
 {
-    int i = ( RegA >> 1 ) | ( ( FLAGS << 7 ) & 128 );
-    FLAGS = ( UBYTE )( ( FLAGS & ( ~FLAG_C & ~FLAG_N & ~FLAG_H ) )
-                      | ( RegA & FLAG_C )
-                      );
-    RegA = ( UBYTE )i;
-    return( 1 /* 1 NOP */ );
+    int i = (RegA >> 1) | ( (FLAGS << 7) & 128);
+    FLAGS = (UBYTE)( (FLAGS & (~FLAG_C & ~FLAG_N & ~FLAG_H) )
+                     | (RegA & FLAG_C)
+                     );
+    RegA = (UBYTE)i;
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___20( core_crocods_t *core ) /* JR NZ, e */
+static int ___20(core_crocods_t *core)   /* JR NZ, e */
 {
     int r = 2;
-    if ( ! ( FLAGS & FLAG_Z ) )
-    {
-        RegPC = ( USHORT )( RegPC + ( signed char )PEEK8( core, RegPC ) );
+    if (!(FLAGS & FLAG_Z) ) {
+        RegPC = (USHORT)(RegPC + (signed char)PEEK8(core, RegPC) );
         r++;
     }
     RegPC++;
-    return( r );
+    return(r);
 }
 
-
-static int ___21( core_crocods_t *core ) /* LD HL, nnnn */
+static int ___21(core_crocods_t *core)   /* LD HL, nnnn */
 {
-    RegHL = PEEK16( core, RegPC );
+    RegHL = PEEK16(core, RegPC);
     RegPC += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___22( core_crocods_t *core ) /* LD ( nnnn ), HL */
+static int ___22(core_crocods_t *core)   /* LD ( nnnn ), HL */
 {
-    POKE16( core, PEEK16( core, RegPC ), RegHL );
+    POKE16(core, PEEK16(core, RegPC), RegHL);
     RegPC += 2;
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ___23( core_crocods_t *core ) /* INC HL */
+static int ___23(core_crocods_t *core)   /* INC HL */
 {
     RegHL++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___24( core_crocods_t *core ) /* INC H */
+static int ___24(core_crocods_t *core)   /* INC H */
 {
-    FLAG_INC( core, ++RegH );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___25( core_crocods_t *core ) /* DEC H */
+static int ___25(core_crocods_t *core)   /* DEC H */
 {
-    FLAG_DEC( core, --RegH );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___26( core_crocods_t *core ) /* LD H, n */
+static int ___26(core_crocods_t *core)   /* LD H, n */
 {
-    RegH = ( UBYTE )PEEK8( core, RegPC );
+    RegH = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___27( core_crocods_t *core ) /* DAA */
+static int ___27(core_crocods_t *core)   /* DAA */
 {
     RegAF = TabDAA[ RegA
-                   | ( ( FLAGS & FLAG_H ) << 6 )
-                   | ( ( FLAGS & ( FLAG_N | FLAG_C ) ) << 8 )
-                   ];
-    return( 1 /* 1 NOP */ );
+                    | ( (FLAGS & FLAG_H) << 6)
+                    | ( (FLAGS & (FLAG_N | FLAG_C) ) << 8)
+        ];
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___28( core_crocods_t *core ) /* JR Z, e */
+static int ___28(core_crocods_t *core)   /* JR Z, e */
 {
     int r = 2;
-    if ( FLAGS & FLAG_Z )
-    {
-        RegPC = ( USHORT )( RegPC + ( signed char )PEEK8( core, RegPC ) );
+    if (FLAGS & FLAG_Z) {
+        RegPC = (USHORT)(RegPC + (signed char)PEEK8(core, RegPC) );
         r++;
     }
     RegPC++;
-    return( r );
+    return(r);
 }
 
-
-static int ___29( core_crocods_t *core ) /* ADD HL, HL */
+static int ___29(core_crocods_t *core)   /* ADD HL, HL */
 {
-    ADD_R16( core, &RegHL, RegHL );
-    return( 3 /* 3 NOPs */ );
+    ADD_R16(core, &RegHL, RegHL);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___2A( core_crocods_t *core ) /* LD HL, ( nnnn ) */
+static int ___2A(core_crocods_t *core)   /* LD HL, ( nnnn ) */
 {
-    RegHL = PEEK16( core, PEEK16( core, RegPC ) );
+    RegHL = PEEK16(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 5 /* 5 NOPs */ );
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ___2B( core_crocods_t *core ) /* DEC HL */
+static int ___2B(core_crocods_t *core)   /* DEC HL */
 {
     RegHL--;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___2C( core_crocods_t *core ) /* INC L */
+static int ___2C(core_crocods_t *core)   /* INC L */
 {
-    FLAG_INC( core, ++RegL );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___2D( core_crocods_t *core ) /* DEC L */
+static int ___2D(core_crocods_t *core)   /* DEC L */
 {
-    FLAG_DEC( core, --RegL );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___2E( core_crocods_t *core ) /* LD L, n */
+static int ___2E(core_crocods_t *core)   /* LD L, n */
 {
-    RegL = ( UBYTE )PEEK8( core, RegPC );
+    RegL = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___2F( core_crocods_t *core ) /* CPL */
+static int ___2F(core_crocods_t *core)   /* CPL */
 {
-    RegAF = ( USHORT )( ( RegAF ^ 0xFF00 ) | ( FLAG_H | FLAG_N ) );
-    return( 1 /* 1 NOP */ );
+    RegAF = (USHORT)( (RegAF ^ 0xFF00) | (FLAG_H | FLAG_N) );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___30( core_crocods_t *core ) /* JR NC, e */
+static int ___30(core_crocods_t *core)   /* JR NC, e */
 {
     int r = 2;
-    if ( ! ( FLAGS & FLAG_C ) )
-    {
-        RegPC = ( USHORT )( RegPC + ( signed char )PEEK8( core, RegPC ) );
+    if (!(FLAGS & FLAG_C) ) {
+        RegPC = (USHORT)(RegPC + (signed char)PEEK8(core, RegPC) );
         r++;
     }
     RegPC++;
-    return( r );
+    return(r);
 }
 
-
-static int ___31( core_crocods_t *core ) /* LD SP, nnnn */
+static int ___31(core_crocods_t *core)   /* LD SP, nnnn */
 {
-    RegSP = PEEK16( core, RegPC );
+    RegSP = PEEK16(core, RegPC);
     RegPC += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___32( core_crocods_t *core ) /* LD ( nnnn ), A */
+static int ___32(core_crocods_t *core)   /* LD ( nnnn ), A */
 {
-    POKE8( core, PEEK16( core, RegPC ), RegA );
+    POKE8(core, PEEK16(core, RegPC), RegA);
     RegPC += 2;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___33( core_crocods_t *core ) /* INC SP */
+static int ___33(core_crocods_t *core)   /* INC SP */
 {
     RegSP++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___34( core_crocods_t *core ) /* INC ( HL ) */
+static int ___34(core_crocods_t *core)   /* INC ( HL ) */
 {
-    UBYTE r = ( UBYTE )PEEK8( core, RegHL );
-    FLAG_INC(  core, ++r );
-    POKE8( core, RegHL, r );
-    return( 3 /* 3 NOPs */ );
+    UBYTE r = (UBYTE)PEEK8(core, RegHL);
+    FLAG_INC(core, ++r);
+    POKE8(core, RegHL, r);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___35( core_crocods_t *core ) /* DEC ( HL ) */
+static int ___35(core_crocods_t *core)   /* DEC ( HL ) */
 {
-    UBYTE r = ( UBYTE )PEEK8( core, RegHL );
-    FLAG_DEC( core, --r );
-    POKE8( core, RegHL, r );
-    return( 3 /* 3 NOPs */ );
+    UBYTE r = (UBYTE)PEEK8(core, RegHL);
+    FLAG_DEC(core, --r);
+    POKE8(core, RegHL, r);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___36( core_crocods_t *core ) /* LD ( HL ), n */
+static int ___36(core_crocods_t *core)   /* LD ( HL ), n */
 {
-    POKE8( core, RegHL, ( UBYTE )PEEK8( core, RegPC ) );
+    POKE8(core, RegHL, (UBYTE)PEEK8(core, RegPC) );
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___37( core_crocods_t *core ) /* SCF */
+static int ___37(core_crocods_t *core)   /* SCF */
 {
-    FLAGS = ( UBYTE )( ( FLAGS | FLAG_C ) & ( ~FLAG_N & ~FLAG_H ) );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)( (FLAGS | FLAG_C) & (~FLAG_N & ~FLAG_H) );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___38( core_crocods_t *core ) /* JR C, e */
+static int ___38(core_crocods_t *core)   /* JR C, e */
 {
     int r = 2;
-    if ( FLAGS & FLAG_C )
-    {
-        RegPC = ( USHORT )( RegPC + ( signed char )PEEK8( core, RegPC ) );
+    if (FLAGS & FLAG_C) {
+        RegPC = (USHORT)(RegPC + (signed char)PEEK8(core, RegPC) );
         r++;
     }
     RegPC++;
-    return( r );
+    return(r);
 }
 
-
-static int ___39( core_crocods_t *core ) /* ADD HL, SP */
+static int ___39(core_crocods_t *core)   /* ADD HL, SP */
 {
-    ADD_R16( core, &RegHL, RegSP );
-    return( 3 /* 3 NOPs */ );
+    ADD_R16(core, &RegHL, RegSP);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___3A( core_crocods_t *core ) /* LD A, ( nnnn ) */
+static int ___3A(core_crocods_t *core)   /* LD A, ( nnnn ) */
 {
-    RegA = ( UBYTE )PEEK8( core, PEEK16( core, RegPC ) );
+    RegA = (UBYTE)PEEK8(core, PEEK16(core, RegPC) );
     RegPC += 2;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___3B( core_crocods_t *core ) /* DEC SP */
+static int ___3B(core_crocods_t *core)   /* DEC SP */
 {
     RegSP--;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___3C( core_crocods_t *core ) /* INC A */
+static int ___3C(core_crocods_t *core)   /* INC A */
 {
-    FLAG_INC( core, ++RegA );
-    return( 1 /* 1 NOP */ );
+    FLAG_INC(core, ++RegA);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___3D( core_crocods_t *core ) /* DEC A */
+static int ___3D(core_crocods_t *core)   /* DEC A */
 {
-    FLAG_DEC( core, --RegA );
-    return( 1 /* 1 NOP */ );
+    FLAG_DEC(core, --RegA);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___3E( core_crocods_t *core ) /* LD A, ee */
+static int ___3E(core_crocods_t *core)   /* LD A, ee */
 {
-    RegA = ( UBYTE )PEEK8( core, RegPC );
+    RegA = (UBYTE)PEEK8(core, RegPC);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___3F( core_crocods_t *core ) /* CCF */
+static int ___3F(core_crocods_t *core)   /* CCF */
 {
-    int tmp = ( FLAGS & FLAG_C ) << 4;
-    FLAGS = ( UBYTE )( (( FLAGS ^ FLAG_C ) & ( ~FLAG_N & ~FLAG_H )) | tmp );
-    return( 1 /* 1 NOP */ );
+    int tmp = (FLAGS & FLAG_C) << 4;
+    FLAGS = (UBYTE)( ((FLAGS ^ FLAG_C) & (~FLAG_N & ~FLAG_H)) | tmp);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___41( core_crocods_t *core ) /* LD B, C */
+static int ___41(core_crocods_t *core)   /* LD B, C */
 {
     RegB = RegC;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___42( core_crocods_t *core ) /* LD B, D */
+static int ___42(core_crocods_t *core)   /* LD B, D */
 {
     RegB = RegD;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___43( core_crocods_t *core ) /* LD B, E */
+static int ___43(core_crocods_t *core)   /* LD B, E */
 {
     RegB = RegE;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___44( core_crocods_t *core ) /* LD B, H */
+static int ___44(core_crocods_t *core)   /* LD B, H */
 {
     RegB = RegH;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___45( core_crocods_t *core ) /* LD B, L */
+static int ___45(core_crocods_t *core)   /* LD B, L */
 {
     RegB = RegL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___46( core_crocods_t *core ) /* LD B, ( HL ) */
+static int ___46(core_crocods_t *core)   /* LD B, ( HL ) */
 {
-    RegB = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegB = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___47( core_crocods_t *core ) /* LD B, A */
+static int ___47(core_crocods_t *core)   /* LD B, A */
 {
     RegB = RegA;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___48( core_crocods_t *core ) /* LD C, B */
+static int ___48(core_crocods_t *core)   /* LD C, B */
 {
     RegC = RegB;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___4A( core_crocods_t *core ) /* LD C, D */
+static int ___4A(core_crocods_t *core)   /* LD C, D */
 {
     RegC = RegD;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___4B( core_crocods_t *core ) /* LD C, E */
+static int ___4B(core_crocods_t *core)   /* LD C, E */
 {
     RegC = RegE;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___4C( core_crocods_t *core ) /* LD C, H */
+static int ___4C(core_crocods_t *core)   /* LD C, H */
 {
     RegC = RegH;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___4D( core_crocods_t *core ) /* LD C, L */
+static int ___4D(core_crocods_t *core)   /* LD C, L */
 {
     RegC = RegL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___4E( core_crocods_t *core ) /* LD C, ( HL ) */
+static int ___4E(core_crocods_t *core)   /* LD C, ( HL ) */
 {
-    RegC = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegC = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___4F( core_crocods_t *core ) /* LD C, A */
+static int ___4F(core_crocods_t *core)   /* LD C, A */
 {
     RegC = RegA;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___50( core_crocods_t *core ) /* LD D, B */
+static int ___50(core_crocods_t *core)   /* LD D, B */
 {
     RegD = RegB;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___51( core_crocods_t *core ) /* LD D, C */
+static int ___51(core_crocods_t *core)   /* LD D, C */
 {
     RegD = RegC;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___53( core_crocods_t *core ) /* LD D, E */
+static int ___53(core_crocods_t *core)   /* LD D, E */
 {
     RegD = RegE;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___54( core_crocods_t *core ) /* LD D, H */
+static int ___54(core_crocods_t *core)   /* LD D, H */
 {
     RegD = RegH;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___55( core_crocods_t *core ) /* LD D, L */
+static int ___55(core_crocods_t *core)   /* LD D, L */
 {
     RegD = RegL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___56( core_crocods_t *core ) /* LD D, ( HL ) */
+static int ___56(core_crocods_t *core)   /* LD D, ( HL ) */
 {
-    RegD = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegD = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___57( core_crocods_t *core ) /* LD D, A */
+static int ___57(core_crocods_t *core)   /* LD D, A */
 {
     RegD = RegA;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___58( core_crocods_t *core ) /* LD E, B */
+static int ___58(core_crocods_t *core)   /* LD E, B */
 {
     RegE = RegB;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___59( core_crocods_t *core ) /* LD E, C */
+static int ___59(core_crocods_t *core)   /* LD E, C */
 {
     RegE = RegC;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___5A( core_crocods_t *core ) /* LD E, D */
+static int ___5A(core_crocods_t *core)   /* LD E, D */
 {
     RegE = RegD;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___5C( core_crocods_t *core ) /* LD E, H */
+static int ___5C(core_crocods_t *core)   /* LD E, H */
 {
     RegE = RegH;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___5D( core_crocods_t *core ) /* LD E, L */
+static int ___5D(core_crocods_t *core)   /* LD E, L */
 {
     RegE = RegL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___5E( core_crocods_t *core ) /* LD E, ( HL ) */
+static int ___5E(core_crocods_t *core)   /* LD E, ( HL ) */
 {
-    RegE = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegE = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___5F( core_crocods_t *core ) /* LD E, A */
+static int ___5F(core_crocods_t *core)   /* LD E, A */
 {
     RegE = RegA;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___60( core_crocods_t *core ) /* LD H, B */
+static int ___60(core_crocods_t *core)   /* LD H, B */
 {
     RegH = RegB;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___61( core_crocods_t *core ) /* LD H, C */
+static int ___61(core_crocods_t *core)   /* LD H, C */
 {
     RegH = RegC;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___62( core_crocods_t *core ) /* LD H, D */
+static int ___62(core_crocods_t *core)   /* LD H, D */
 {
     RegH = RegD;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___63( core_crocods_t *core ) /* LD H, E */
+static int ___63(core_crocods_t *core)   /* LD H, E */
 {
     RegH = RegE;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___65( core_crocods_t *core ) /* LD H, L */
+static int ___65(core_crocods_t *core)   /* LD H, L */
 {
     RegH = RegL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___66( core_crocods_t *core ) /* LD H, ( HL ) */
+static int ___66(core_crocods_t *core)   /* LD H, ( HL ) */
 {
-    RegH = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegH = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___67( core_crocods_t *core ) /* LD H, A */
+static int ___67(core_crocods_t *core)   /* LD H, A */
 {
     RegH = RegA;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___68( core_crocods_t *core ) /* LD L, B */
+static int ___68(core_crocods_t *core)   /* LD L, B */
 {
     RegL = RegB;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___69( core_crocods_t *core ) /* LD L, C */
+static int ___69(core_crocods_t *core)   /* LD L, C */
 {
     RegL = RegC;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___6A( core_crocods_t *core ) /* LD L, D */
+static int ___6A(core_crocods_t *core)   /* LD L, D */
 {
     RegL = RegD;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___6B( core_crocods_t *core ) /* LD L, E */
+static int ___6B(core_crocods_t *core)   /* LD L, E */
 {
     RegL = RegE;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___6C( core_crocods_t *core ) /* LD L, H */
+static int ___6C(core_crocods_t *core)   /* LD L, H */
 {
     RegL = RegH;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___6E( core_crocods_t *core ) /* LD L, ( HL ) */
+static int ___6E(core_crocods_t *core)   /* LD L, ( HL ) */
 {
-    RegL = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegL = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___6F( core_crocods_t *core ) /* LD L, A */
+static int ___6F(core_crocods_t *core)   /* LD L, A */
 {
     RegL = RegA;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___70( core_crocods_t *core ) /* LD ( HL ), B */
+static int ___70(core_crocods_t *core)   /* LD ( HL ), B */
 {
-    POKE8( core, RegHL, RegB );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegB);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___71( core_crocods_t *core ) /* LD ( HL ), C */
+static int ___71(core_crocods_t *core)   /* LD ( HL ), C */
 {
-    POKE8( core, RegHL, RegC );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegC);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___72( core_crocods_t *core ) /* LD ( HL ), D */
+static int ___72(core_crocods_t *core)   /* LD ( HL ), D */
 {
-    POKE8( core, RegHL, RegD );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegD);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___73( core_crocods_t *core ) /* LD ( HL ), E */
+static int ___73(core_crocods_t *core)   /* LD ( HL ), E */
 {
-    POKE8( core, RegHL, RegE );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegE);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___74( core_crocods_t *core ) /* LD ( HL ), H */
+static int ___74(core_crocods_t *core)   /* LD ( HL ), H */
 {
-    POKE8( core, RegHL, RegH );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegH);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___75( core_crocods_t *core ) /* LD ( HL ), L */
+static int ___75(core_crocods_t *core)   /* LD ( HL ), L */
 {
-    POKE8( core, RegHL, RegL );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___76( core_crocods_t *core ) /* HALT */
+static int ___76(core_crocods_t *core)   /* HALT */
 {
 #ifndef HACK_IRQ
-    if ( ! core->IRQ ) RegPC--;
+    if (!core->IRQ) RegPC--;
 #else
     RegPC--;
-    core->halted=1;
+    core->halted = 1;
 #endif
-    
-    return( 1 /* 1 NOP */ );
+
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___77( core_crocods_t *core ) /* LD ( HL ), A */
+static int ___77(core_crocods_t *core)   /* LD ( HL ), A */
 {
-    POKE8( core, RegHL, RegA );
-    return( 2 /* 2 NOPs */ );
+    POKE8(core, RegHL, RegA);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___78( core_crocods_t *core ) /* LD A, B */
+static int ___78(core_crocods_t *core)   /* LD A, B */
 {
     RegA = RegB;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___79( core_crocods_t *core ) /* LD A, C */
+static int ___79(core_crocods_t *core)   /* LD A, C */
 {
-    RegA = RegC ;
-    return( 1 /* 1 NOP */ );
+    RegA = RegC;
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___7A( core_crocods_t *core ) /* LD A, D */
+static int ___7A(core_crocods_t *core)   /* LD A, D */
 {
     RegA = RegD;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___7B( core_crocods_t *core ) /* LD A, E */
+static int ___7B(core_crocods_t *core)   /* LD A, E */
 {
     RegA = RegE;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___7C( core_crocods_t *core ) /* LD A, H */
+static int ___7C(core_crocods_t *core)   /* LD A, H */
 {
     RegA = RegH;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___7D( core_crocods_t *core ) /* LD A, L */
+static int ___7D(core_crocods_t *core)   /* LD A, L */
 {
     RegA = RegL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___7E( core_crocods_t *core ) /* LD A, ( HL ) */
+static int ___7E(core_crocods_t *core)   /* LD A, ( HL ) */
 {
-    RegA = ( UBYTE )PEEK8( core, RegHL );
-    return( 2 /* 2 NOPs */ );
+    RegA = (UBYTE)PEEK8(core, RegHL);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___80( core_crocods_t *core ) /* ADD A, B */
+static int ___80(core_crocods_t *core)   /* ADD A, B */
 {
-    ADD_R8( core, RegB );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___81( core_crocods_t *core ) /* ADD A, C */
+static int ___81(core_crocods_t *core)   /* ADD A, C */
 {
-    ADD_R8( core, RegC );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___82( core_crocods_t *core ) /* ADD A, D */
+static int ___82(core_crocods_t *core)   /* ADD A, D */
 {
-    ADD_R8( core, RegD );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___83( core_crocods_t *core ) /* ADD A, E */
+static int ___83(core_crocods_t *core)   /* ADD A, E */
 {
-    ADD_R8( core, RegE );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___84( core_crocods_t *core ) /* ADD A, H */
+static int ___84(core_crocods_t *core)   /* ADD A, H */
 {
-    ADD_R8( core, RegH );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___85( core_crocods_t *core ) /* ADD A, L */
+static int ___85(core_crocods_t *core)   /* ADD A, L */
 {
-    ADD_R8( core, RegL );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___86( core_crocods_t *core ) /* ADD A, ( HL ) */
+static int ___86(core_crocods_t *core)   /* ADD A, ( HL ) */
 {
-    ADD_R8( core, PEEK8( core, RegHL ) );
-    return( 2 /* 2 NOPs */ );
+    ADD_R8(core, PEEK8(core, RegHL) );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___87( core_crocods_t *core ) /* ADD A, A */
+static int ___87(core_crocods_t *core)   /* ADD A, A */
 {
-    ADD_R8( core, RegA );
-    return( 1 /* 1 NOP */ );
+    ADD_R8(core, RegA);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___88( core_crocods_t *core ) /* ADC A, B */
+static int ___88(core_crocods_t *core)   /* ADC A, B */
 {
-    ADC_R8( core, RegB );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___89( core_crocods_t *core ) /* ADC A, C */
+static int ___89(core_crocods_t *core)   /* ADC A, C */
 {
-    ADC_R8( core, RegC );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___8A( core_crocods_t *core ) /* ADC A, D */
+static int ___8A(core_crocods_t *core)   /* ADC A, D */
 {
-    ADC_R8( core, RegD );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___8B( core_crocods_t *core ) /* ADC A, E */
+static int ___8B(core_crocods_t *core)   /* ADC A, E */
 {
-    ADC_R8( core, RegE );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___8C( core_crocods_t *core ) /* ADC A, H */
+static int ___8C(core_crocods_t *core)   /* ADC A, H */
 {
-    ADC_R8( core, RegH );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___8D( core_crocods_t *core ) /* ADC A, L */
+static int ___8D(core_crocods_t *core)   /* ADC A, L */
 {
-    ADC_R8( core, RegL );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___8E( core_crocods_t *core ) /* ADC A, (HL) */
+static int ___8E(core_crocods_t *core)   /* ADC A, (HL) */
 {
-    ADC_R8( core, PEEK8( core, RegHL ) );
-    return( 2 /* 2 NOPs */ );
+    ADC_R8(core, PEEK8(core, RegHL) );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___8F( core_crocods_t *core ) /* ADC A, A */
+static int ___8F(core_crocods_t *core)   /* ADC A, A */
 {
-    ADC_R8( core, RegA );
-    return( 1 /* 1 NOP */ );
+    ADC_R8(core, RegA);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___90( core_crocods_t *core ) /* SUB B */
+static int ___90(core_crocods_t *core)   /* SUB B */
 {
-    SUB_R8( core, RegB );
-    return( 1 /* 1 NOP */ );
+    SUB_R8(core, RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___91( core_crocods_t *core ) /* SUB C */
+static int ___91(core_crocods_t *core)   /* SUB C */
 {
-    SUB_R8( core, RegC );
-    return( 1 /* 1 NOP */ );
+    SUB_R8(core, RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___92( core_crocods_t *core ) /* SUB D */
+static int ___92(core_crocods_t *core)   /* SUB D */
 {
-    SUB_R8( core, RegD );
-    return( 1 /* 1 NOP */ );
+    SUB_R8(core, RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___93( core_crocods_t *core ) /* SUB E */
+static int ___93(core_crocods_t *core)   /* SUB E */
 {
-    SUB_R8( core, RegE );
-    return( 1 /* 1 NOP */ );
+    SUB_R8(core, RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___94( core_crocods_t *core ) /* SUB H */
+static int ___94(core_crocods_t *core)   /* SUB H */
 {
-    SUB_R8( core, RegH );
-    return( 1 /* 1 NOP */ );
+    SUB_R8(core, RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___95( core_crocods_t *core ) /* SUB L */
+static int ___95(core_crocods_t *core)   /* SUB L */
 {
-    SUB_R8( core, RegL );
-    return( 1 /* 1 NOP */ );
+    SUB_R8(core, RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___96( core_crocods_t *core ) /* SUB (HL) */
+static int ___96(core_crocods_t *core)   /* SUB (HL) */
 {
-    SUB_R8( core, PEEK8( core, RegHL ) );
-    return( 2 /* 2 NOPs */ );
+    SUB_R8(core, PEEK8(core, RegHL) );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___97( core_crocods_t *core ) /* SUB A */
+static int ___97(core_crocods_t *core)   /* SUB A */
 {
-    RegAF = ( USHORT )( FLAG_N | FLAG_Z );
-    return( 1 /* 1 NOP */ );
+    RegAF = (USHORT)(FLAG_N | FLAG_Z);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___98( core_crocods_t *core ) /* SBC A, B */
+static int ___98(core_crocods_t *core)   /* SBC A, B */
 {
-    SBC_R8( core, RegB );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___99( core_crocods_t *core ) /* SBC A, C */
+static int ___99(core_crocods_t *core)   /* SBC A, C */
 {
-    SBC_R8( core, RegC );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___9A( core_crocods_t *core ) /* SBC A, D */
+static int ___9A(core_crocods_t *core)   /* SBC A, D */
 {
-    SBC_R8( core, RegD );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___9B( core_crocods_t *core ) /* SBC A, E */
+static int ___9B(core_crocods_t *core)   /* SBC A, E */
 {
-    SBC_R8( core, RegE );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___9C( core_crocods_t *core ) /* SBC A, H */
+static int ___9C(core_crocods_t *core)   /* SBC A, H */
 {
-    SBC_R8( core, RegH );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___9D( core_crocods_t *core ) /* SBC A, L */
+static int ___9D(core_crocods_t *core)   /* SBC A, L */
 {
-    SBC_R8( core, RegL );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___9E( core_crocods_t *core ) /* SBC A, (HL) */
+static int ___9E(core_crocods_t *core)   /* SBC A, (HL) */
 {
-    SBC_R8( core, PEEK8( core, RegHL ) );
-    return( 2 /* 2 NOPs */ );
+    SBC_R8(core, PEEK8(core, RegHL) );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___9F( core_crocods_t *core ) /* SBC A, A */
+static int ___9F(core_crocods_t *core)   /* SBC A, A */
 {
-    SBC_R8( core, RegA );
-    return( 1 /* 1 NOP */ );
+    SBC_R8(core, RegA);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A0( core_crocods_t *core ) /* AND B */
+static int ___A0(core_crocods_t *core)   /* AND B */
 {
     RegA &= RegB;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A1( core_crocods_t *core ) /* AND C */
+static int ___A1(core_crocods_t *core)   /* AND C */
 {
     RegA &= RegC;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A2( core_crocods_t *core ) /* AND D */
+static int ___A2(core_crocods_t *core)   /* AND D */
 {
     RegA &= RegD;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A3( core_crocods_t *core ) /* AND E */
+static int ___A3(core_crocods_t *core)   /* AND E */
 {
     RegA &= RegE;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A4( core_crocods_t *core ) /* AND H */
+static int ___A4(core_crocods_t *core)   /* AND H */
 {
     RegA &= RegH;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A5( core_crocods_t *core ) /* AND L */
+static int ___A5(core_crocods_t *core)   /* AND L */
 {
     RegA &= RegL;
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A6( core_crocods_t *core ) /* AND (HL) */
+static int ___A6(core_crocods_t *core)   /* AND (HL) */
 {
-    RegA &= PEEK8( core, RegHL );
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 2 /* 2 NOPs */ );
+    RegA &= PEEK8(core, RegHL);
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___A7( core_crocods_t *core ) /* AND A */
+static int ___A7(core_crocods_t *core)   /* AND A */
 {
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
-    return( 1 /* 1 NOP */ );
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A8( core_crocods_t *core ) /* XOR B */
+static int ___A8(core_crocods_t *core)   /* XOR B */
 {
     RegA ^= RegB;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___A9( core_crocods_t *core ) /* XOR C */
+static int ___A9(core_crocods_t *core)   /* XOR C */
 {
     RegA ^= RegC;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___AA( core_crocods_t *core ) /* XOR D */
+static int ___AA(core_crocods_t *core)   /* XOR D */
 {
     RegA ^= RegD;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___AB( core_crocods_t *core ) /* XOR E */
+static int ___AB(core_crocods_t *core)   /* XOR E */
 {
     RegA ^= RegE;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___AC( core_crocods_t *core ) /* XOR H */
+static int ___AC(core_crocods_t *core)   /* XOR H */
 {
     RegA ^= RegH;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___AD( core_crocods_t *core ) /* XOR L */
+static int ___AD(core_crocods_t *core)   /* XOR L */
 {
     RegA ^= RegL;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___AE( core_crocods_t *core ) /* XOR (HL) */
+static int ___AE(core_crocods_t *core)   /* XOR (HL) */
 {
-    RegA ^= PEEK8( core, RegHL );
+    RegA ^= PEEK8(core, RegHL);
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___AF( core_crocods_t *core ) /* XOR A */
+static int ___AF(core_crocods_t *core)   /* XOR A */
 {
     RegAF = FLAG_Z | FLAG_V;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B0( core_crocods_t *core ) /* OR B */
+static int ___B0(core_crocods_t *core)   /* OR B */
 {
     RegA |= RegB;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B1( core_crocods_t *core ) /* OR C */
+static int ___B1(core_crocods_t *core)   /* OR C */
 {
     RegA |= RegC;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B2( core_crocods_t *core ) /* OR D */
+static int ___B2(core_crocods_t *core)   /* OR D */
 {
     RegA |= RegD;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B3( core_crocods_t *core ) /* OR E */
+static int ___B3(core_crocods_t *core)   /* OR E */
 {
     RegA |= RegE;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B4( core_crocods_t *core ) /* OR H */
+static int ___B4(core_crocods_t *core)   /* OR H */
 {
     RegA |= RegH;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B5( core_crocods_t *core ) /* OR L */
+static int ___B5(core_crocods_t *core)   /* OR L */
 {
     RegA |= RegL;
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B6( core_crocods_t *core ) /* OR (HL) */
+static int ___B6(core_crocods_t *core)   /* OR (HL) */
 {
-    RegA |= PEEK8( core, RegHL );
+    RegA |= PEEK8(core, RegHL);
     FLAGS = Parite[ RegA ];
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___B7( core_crocods_t *core ) /* OR A */
+static int ___B7(core_crocods_t *core)   /* OR A */
 {
     FLAGS = Parite[ RegA ];
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B8( core_crocods_t *core ) /* CP B */
+static int ___B8(core_crocods_t *core)   /* CP B */
 {
-    CP_R8( core, RegB );
-    return( 1 /* 1 NOP */ );
+    CP_R8(core, RegB);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___B9( core_crocods_t *core ) /* CP C */
+static int ___B9(core_crocods_t *core)   /* CP C */
 {
-    CP_R8( core, RegC );
-    return( 1 /* 1 NOP */ );
+    CP_R8(core, RegC);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___BA( core_crocods_t *core ) /* CP D */
+static int ___BA(core_crocods_t *core)   /* CP D */
 {
-    CP_R8( core, RegD );
-    return( 1 /* 1 NOP */ );
+    CP_R8(core, RegD);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___BB( core_crocods_t *core ) /* CP E */
+static int ___BB(core_crocods_t *core)   /* CP E */
 {
-    CP_R8( core, RegE );
-    return( 1 /* 1 NOP */ );
+    CP_R8(core, RegE);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___BC( core_crocods_t *core ) /* CP H */
+static int ___BC(core_crocods_t *core)   /* CP H */
 {
-    CP_R8( core, RegH );
-    return( 1 /* 1 NOP */ );
+    CP_R8(core, RegH);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___BD( core_crocods_t *core ) /* CP L */
+static int ___BD(core_crocods_t *core)   /* CP L */
 {
-    CP_R8( core, RegL );
-    return( 1 /* 1 NOP */ );
+    CP_R8(core, RegL);
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___BE( core_crocods_t *core ) /* CP (HL) */
+static int ___BE(core_crocods_t *core)   /* CP (HL) */
 {
-    CP_R8( core, PEEK8( core, RegHL ) );
-    return( 2 /* 2 NOPs */ );
+    CP_R8(core, PEEK8(core, RegHL) );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___BF( core_crocods_t *core ) /* CP A */
+static int ___BF(core_crocods_t *core)   /* CP A */
 {
     FLAGS = FLAG_N | FLAG_Z;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___C0( core_crocods_t *core ) /* RET NZ */
+static int ___C0(core_crocods_t *core)   /* RET NZ */
 {
-    if ( ! ( FLAGS & FLAG_Z ) )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (!(FLAGS & FLAG_Z) ) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___C1( core_crocods_t *core ) /* POP BC */
+static int ___C1(core_crocods_t *core)   /* POP BC */
 {
-    RegBC = PEEK16( core, RegSP );
+    RegBC = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___C2( core_crocods_t *core ) /* JP NZ, nnnn */
+static int ___C2(core_crocods_t *core)   /* JP NZ, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_Z ) )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (!(FLAGS & FLAG_Z) ) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___C3( core_crocods_t *core ) /* JP nnnn */
+static int ___C3(core_crocods_t *core)   /* JP nnnn */
 {
-    RegPC = PEEK16( core, RegPC );
-    return( 3 /* 3 NOPs */ );
+    RegPC = PEEK16(core, RegPC);
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___C4( core_crocods_t *core ) /* CALL NZ, nnnn */
+static int ___C4(core_crocods_t *core)   /* CALL NZ, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_Z ) )
-    {
+    if (!(FLAGS & FLAG_Z) ) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___C5( core_crocods_t *core ) /* PUSH BC */
+static int ___C5(core_crocods_t *core)   /* PUSH BC */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegBC );
-    return( 4 /* 4 NOPs */ );
+    POKE16(core, RegSP, RegBC);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___C6( core_crocods_t *core ) /* ADD A, ee */
+static int ___C6(core_crocods_t *core)   /* ADD A, ee */
 {
-    ADD_R8( core, PEEK8( core, RegPC ) );
+    ADD_R8(core, PEEK8(core, RegPC) );
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___C7( core_crocods_t *core ) /* RST 00 */
+static int ___C7(core_crocods_t *core)   /* RST 00 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x00;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___C8( core_crocods_t *core ) /* RET Z */
+static int ___C8(core_crocods_t *core)   /* RET Z */
 {
-    if ( FLAGS & FLAG_Z )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (FLAGS & FLAG_Z) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-int ___C9( core_crocods_t *core ) /* RET */
+int ___C9(core_crocods_t *core)   /* RET */
 {
-    RegPC = PEEK16( core, RegSP );
+    RegPC = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___CA( core_crocods_t *core ) /* JP Z, nnnn */
+static int ___CA(core_crocods_t *core)   /* JP Z, nnnn */
 {
-    if ( FLAGS & FLAG_Z )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (FLAGS & FLAG_Z) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-
-static int ___CB( core_crocods_t *core ) /* Special code CB */
+static int ___CB(core_crocods_t *core)   /* Special code CB */
 {
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) );
-    int r = tabCB[ PEEK8( core, RegPC++ ) ](core);
-    return( r );
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+    int r = tabCB[ PEEK8(core, RegPC++) ](core);
+    return(r);
 }
 
-
-static int ___CC( core_crocods_t *core ) /* CALL Z, nnnn */
+static int ___CC(core_crocods_t *core)   /* CALL Z, nnnn */
 {
-    if ( FLAGS & FLAG_Z )
-    {
+    if (FLAGS & FLAG_Z) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___CD( core_crocods_t *core ) /* CALL nnnn */
+static int ___CD(core_crocods_t *core)   /* CALL nnnn */
 {
-    u16 adr=0;
-    
+    u16 adr = 0;
+
     RegSP -= 2;
-    POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-    adr = PEEK16( core, RegPC );
-    
-    
+    POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+    adr = PEEK16(core, RegPC);
+
     RegPC = adr;
-    
-    return( 5 /* 5 NOPs */ );
+
+    return(5 /* 5 NOPs */);
 }
 
-
-static int ___CE( core_crocods_t *core ) /* ADC A, ee */
+static int ___CE(core_crocods_t *core)   /* ADC A, ee */
 {
-    ADC_R8( core, PEEK8( core, RegPC ) );
+    ADC_R8(core, PEEK8(core, RegPC) );
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___CF( core_crocods_t *core ) /* RST 08 */
+static int ___CF(core_crocods_t *core)   /* RST 08 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x08;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___D0( core_crocods_t *core ) /* RET NC */
+static int ___D0(core_crocods_t *core)   /* RET NC */
 {
-    if ( ! ( FLAGS & FLAG_C ) )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (!(FLAGS & FLAG_C) ) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___D1( core_crocods_t *core ) /* POP DE */
+static int ___D1(core_crocods_t *core)   /* POP DE */
 {
-    RegDE = PEEK16( core, RegSP );
+    RegDE = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___D2( core_crocods_t *core ) /* JP NC, nnnn */
+static int ___D2(core_crocods_t *core)   /* JP NC, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_C ) )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (!(FLAGS & FLAG_C) ) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___D3( core_crocods_t *core ) /* OUT ( n ), A */
+static int ___D3(core_crocods_t *core)   /* OUT ( n ), A */
 {
-    WritePort( core, ( RegA << 8 ) + PEEK8( core, RegPC ), RegA );
+    WritePort(core, (RegA << 8) + PEEK8(core, RegPC), RegA);
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___D4( core_crocods_t *core ) /* CALL NC, nnnn */
+static int ___D4(core_crocods_t *core)   /* CALL NC, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_C ) )
-    {
+    if (!(FLAGS & FLAG_C) ) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___D5( core_crocods_t *core ) /* PUSH DE */
+static int ___D5(core_crocods_t *core)   /* PUSH DE */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegDE );
-    return( 4 /* 4 NOPs */ );
+    POKE16(core, RegSP, RegDE);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___D6( core_crocods_t *core ) /* SUB ee */
+static int ___D6(core_crocods_t *core)   /* SUB ee */
 {
-    SUB_R8( core, PEEK8( core, RegPC ) );
+    SUB_R8(core, PEEK8(core, RegPC) );
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___D7( core_crocods_t *core ) /* RST 10 */
+static int ___D7(core_crocods_t *core)   /* RST 10 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x10;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___D8( core_crocods_t *core ) /* RET C */
+static int ___D8(core_crocods_t *core)   /* RET C */
 {
-    if ( FLAGS & FLAG_C )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (FLAGS & FLAG_C) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___D9( core_crocods_t *core ) /* EXX */
+static int ___D9(core_crocods_t *core)   /* EXX */
 {
     USHORT tmp = RegBC;
     RegBC = Reg_BC;
     Reg_BC = tmp;
-    
+
     tmp = RegDE;
     RegDE = Reg_DE;
     Reg_DE = tmp;
-    
+
     tmp = RegHL;
     RegHL = Reg_HL;
     Reg_HL = tmp;
-    
-    return( 1 /* 1 NOP */ );
+
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___DA( core_crocods_t *core ) /* JP C, nnnn */
+static int ___DA(core_crocods_t *core)   /* JP C, nnnn */
 {
-    if ( FLAGS & FLAG_C )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (FLAGS & FLAG_C) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___DB( core_crocods_t *core ) /* IN A, ( n ) */
+static int ___DB(core_crocods_t *core)   /* IN A, ( n ) */
 {
-    RegA = ( UBYTE )ReadPort( core, ( RegA << 8 ) + PEEK8( core, RegPC ) );
+    RegA = (UBYTE)ReadPort(core, (RegA << 8) + PEEK8(core, RegPC) );
     RegPC++;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___DC( core_crocods_t *core ) /* CALL C, nnnn */
+static int ___DC(core_crocods_t *core)   /* CALL C, nnnn */
 {
-    if ( FLAGS & FLAG_C )
-    {
+    if (FLAGS & FLAG_C) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___DD( core_crocods_t *core ) /* Special code DD : IX */
+static int ___DD(core_crocods_t *core)   /* Special code DD : IX */
 {
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) );
-    int r = tabIX[ PEEK8( core, RegPC++ ) ](core);
-    return( r );
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+    int r = tabIX[ PEEK8(core, RegPC++) ](core);
+    return(r);
 }
 
-
-static int ___DE( core_crocods_t *core ) /* SBC A, ee */
+static int ___DE(core_crocods_t *core)   /* SBC A, ee */
 {
-    SBC_R8( core, PEEK8( core, RegPC ) );
+    SBC_R8(core, PEEK8(core, RegPC) );
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___DF( core_crocods_t *core ) /* RST 18 */
+static int ___DF(core_crocods_t *core)   /* RST 18 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x18;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___E0( core_crocods_t *core ) /* RET PO */
+static int ___E0(core_crocods_t *core)   /* RET PO */
 {
-    if ( ! ( FLAGS & FLAG_V ) )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (!(FLAGS & FLAG_V) ) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___E1( core_crocods_t *core ) /* POP HL */
+static int ___E1(core_crocods_t *core)   /* POP HL */
 {
-    RegHL = PEEK16( core, RegSP );
+    RegHL = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___E2( core_crocods_t *core ) /* JP PO, nnnn */
+static int ___E2(core_crocods_t *core)   /* JP PO, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_V ) )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (!(FLAGS & FLAG_V) ) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___E3( core_crocods_t *core ) /* EX (SP), HL */
+static int ___E3(core_crocods_t *core)   /* EX (SP), HL */
 {
-    USHORT a = PEEK16( core, RegSP );
-    POKE16( core, RegSP, RegHL );
+    USHORT a = PEEK16(core, RegSP);
+    POKE16(core, RegSP, RegHL);
     RegHL = a;
-    return( 6 /* 6 NOPs */ );
+    return(6 /* 6 NOPs */);
 }
 
-
-static int ___E4( core_crocods_t *core ) /* CALL PO, nnnn */
+static int ___E4(core_crocods_t *core)   /* CALL PO, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_V ) )
-    {
+    if (!(FLAGS & FLAG_V) ) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___E5( core_crocods_t *core ) /* PUSH HL */
+static int ___E5(core_crocods_t *core)   /* PUSH HL */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegHL );
-    return( 4 /* 4 NOPs */ );
+    POKE16(core, RegSP, RegHL);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___E6( core_crocods_t *core ) /* AND ee */
+static int ___E6(core_crocods_t *core)   /* AND ee */
 {
-    RegA &= PEEK8( core, RegPC );
-    FLAGS = ( UBYTE )( FLAG_H | Parite[ RegA ] );
+    RegA &= PEEK8(core, RegPC);
+    FLAGS = (UBYTE)(FLAG_H | Parite[ RegA ]);
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___E7( core_crocods_t *core ) /* RST 20 */
+static int ___E7(core_crocods_t *core)   /* RST 20 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x20;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___E8( core_crocods_t *core ) /* RET PE */
+static int ___E8(core_crocods_t *core)   /* RET PE */
 {
-    if ( FLAGS & FLAG_V )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (FLAGS & FLAG_V) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___E9( core_crocods_t *core ) /* JP ( HL ) */
+static int ___E9(core_crocods_t *core)   /* JP ( HL ) */
 {
     RegPC = RegHL;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___EA( core_crocods_t *core ) /* JP PE, nnnn */
+static int ___EA(core_crocods_t *core)   /* JP PE, nnnn */
 {
-    if ( FLAGS & FLAG_V )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (FLAGS & FLAG_V) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___EB( core_crocods_t *core ) /* EX DE, HL */
+static int ___EB(core_crocods_t *core)   /* EX DE, HL */
 {
     USHORT tmp = RegDE;
     RegDE = RegHL;
     RegHL = tmp;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___EC( core_crocods_t *core ) /* CALL PE, nnnn */
+static int ___EC(core_crocods_t *core)   /* CALL PE, nnnn */
 {
-    if ( FLAGS & FLAG_V )
-    {
+    if (FLAGS & FLAG_V) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___ED( core_crocods_t *core ) /* Special code ED */
+static int ___ED(core_crocods_t *core)   /* Special code ED */
 {
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) );
-    
-    int r = tabED[ PEEK8( core, RegPC++ ) ](core);
-    return( r );
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+
+    int r = tabED[ PEEK8(core, RegPC++) ](core);
+    return(r);
 }
 
-
-static int ___EE( core_crocods_t *core ) /* XOR ee */
+static int ___EE(core_crocods_t *core)   /* XOR ee */
 {
-    RegA ^= PEEK8( core, RegPC );
+    RegA ^= PEEK8(core, RegPC);
     FLAGS = Parite[ RegA ];
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___EF( core_crocods_t *core ) /* RST 28 */
+static int ___EF(core_crocods_t *core)   /* RST 28 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x28;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___F0( core_crocods_t *core ) /* RET P */
+static int ___F0(core_crocods_t *core)   /* RET P */
 {
-    if ( ! ( FLAGS & FLAG_S ) )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (!(FLAGS & FLAG_S) ) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___F1( core_crocods_t *core ) /* POP AF */
+static int ___F1(core_crocods_t *core)   /* POP AF */
 {
-    RegAF = PEEK16( core, RegSP );
+    RegAF = PEEK16(core, RegSP);
     RegSP += 2;
-    return( 3 /* 3 NOPs */ );
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___F2( core_crocods_t *core ) /* JP P, nnnn */
+static int ___F2(core_crocods_t *core)   /* JP P, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_S ) )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (!(FLAGS & FLAG_S) ) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___F3( core_crocods_t *core ) /* DI */
+static int ___F3(core_crocods_t *core)   /* DI */
 {
     core->Z80.IFF1 = core->Z80.IFF2 = 0;
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___F4( core_crocods_t *core ) /* CALL P, nnnn */
+static int ___F4(core_crocods_t *core)   /* CALL P, nnnn */
 {
-    if ( ! ( FLAGS & FLAG_S ) )
-    {
+    if (!(FLAGS & FLAG_S) ) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___F5( core_crocods_t *core ) /* PUSH AF */
+static int ___F5(core_crocods_t *core)   /* PUSH AF */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegAF );
-    return( 4 /* 4 NOPs */ );
+    POKE16(core, RegSP, RegAF);
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___F6( core_crocods_t *core ) /* OR ee */
+static int ___F6(core_crocods_t *core)   /* OR ee */
 {
-    RegA |= PEEK8( core, RegPC );
+    RegA |= PEEK8(core, RegPC);
     FLAGS = Parite[ RegA ];
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___F7( core_crocods_t *core ) /* RST 30 */
+static int ___F7(core_crocods_t *core)   /* RST 30 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x30;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-
-static int ___F8( core_crocods_t *core ) /* RET M */
+static int ___F8(core_crocods_t *core)   /* RET M */
 {
-    if ( FLAGS & FLAG_S )
-    {
-        RegPC = PEEK16( core, RegSP );
+    if (FLAGS & FLAG_S) {
+        RegPC = PEEK16(core, RegSP);
         RegSP += 2;
-        return( 4 /* 4 NOPs */ );
-    }
-    else
-        return( 2 /* 2 NOPs */ );
+        return(4 /* 4 NOPs */);
+    } else return(2 /* 2 NOPs */);
 }
 
-
-static int ___F9( core_crocods_t *core ) /* LD SP, HL */
+static int ___F9(core_crocods_t *core)   /* LD SP, HL */
 {
     RegSP = RegHL;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___FA( core_crocods_t *core ) /* JP M, nnnn */
+static int ___FA(core_crocods_t *core)   /* JP M, nnnn */
 {
-    if ( FLAGS & FLAG_S )
-    {
-        RegPC = PEEK16( core, RegPC );
-    }
-    else
-        RegPC += 2;
-    
-    return( 3 /* 3 NOPs */ );
+    if (FLAGS & FLAG_S) {
+        RegPC = PEEK16(core, RegPC);
+    } else RegPC += 2;
+
+    return(3 /* 3 NOPs */);
 }
 
-
-static int ___FB( core_crocods_t *core ) /* EI */
+static int ___FB(core_crocods_t *core)   /* EI */
 {
     core->Z80.IFF1 = core->Z80.IFF2 = 1;
 #ifdef HACK_IRQ
     VerifyIRQ(core);
 #endif
-    return( 1 /* 1 NOP */ );
+    return(1 /* 1 NOP */);
 }
 
-
-static int ___FC( core_crocods_t *core ) /* CALL M, nnnn */
+static int ___FC(core_crocods_t *core)   /* CALL M, nnnn */
 {
-    if ( FLAGS & FLAG_S )
-    {
+    if (FLAGS & FLAG_S) {
         RegSP -= 2;
-        POKE16( core, RegSP, ( USHORT )( RegPC + 2 ) );
-        RegPC = PEEK16( core, RegPC );
-        return( 5 /* 5 NOPs */ );
-    }
-    else
-    {
+        POKE16(core, RegSP, (USHORT)(RegPC + 2) );
+        RegPC = PEEK16(core, RegPC);
+        return(5 /* 5 NOPs */);
+    } else {
         RegPC += 2;
-        return( 3 /* 3 NOPs */ );
+        return(3 /* 3 NOPs */);
     }
 }
 
-
-static int ___FD( core_crocods_t *core ) /* Special code FD : IY */
+static int ___FD(core_crocods_t *core)   /* Special code FD : IY */
 {
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) );
-    int r = tabIY[ PEEK8( core, RegPC++ ) ](core);
-    return( r );
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+    int r = tabIY[ PEEK8(core, RegPC++) ](core);
+    return(r);
 }
 
-
-static int ___FE( core_crocods_t *core ) /* CP ee */
+static int ___FE(core_crocods_t *core)   /* CP ee */
 {
-    CP_R8( core, PEEK8( core, RegPC ) );
+    CP_R8(core, PEEK8(core, RegPC) );
     RegPC++;
-    return( 2 /* 2 NOPs */ );
+    return(2 /* 2 NOPs */);
 }
 
-
-static int ___FF( core_crocods_t *core ) /* RST 38 */
+static int ___FF(core_crocods_t *core)   /* RST 38 */
 {
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x38;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
 static pfct tabinstr[ 256 ] =
@@ -7085,7 +6136,6 @@ static pfct tabinstr[ 256 ] =
     ___F8, ___F9, ___FA, ___FB, ___FC, ___FD, ___FE, ___FF  // F8
 };
 
-
 pfct tabCB[ 256 ] =
 {
     CB_00, CB_01, CB_02, CB_03, CB_04, CB_05, CB_06, CB_07, // 00
@@ -7122,14 +6172,13 @@ pfct tabCB[ 256 ] =
     CB_F8, CB_F9, CB_FA, CB_FB, CB_FC, CB_FD, CB_FE, CB_FF, // F8
 };
 
-
 pfct tabED[ 256 ] =
 {
     ED_00, ED_01, ED_02, ED_03, ED_04, ED_05, ED_06, ED_07, // 00
     ED_08, ED_09, ED_0A, ED_0B, ED_0C, ED_0D, ED_0E, ED_0F, // 08
     ED_10, ED_11, ED_12, ED_13, ED_14, ED_15, ED_16, ED_17, // 10
     ED_18, ED_19, ED_1A, ED_1B, ED_1C, ED_1D, ED_1E, ED_1F, // 18
-    
+
     ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___, // 20
     ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___, // 28
     ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___, // 30
@@ -7157,9 +6206,8 @@ pfct tabED[ 256 ] =
     ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___, // E0
     ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___, // E8
     ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___, // F0
-    ed___, ed___, ed___, ed___, ed___, ed___, ed___, ed___  // F8
+    ed___, ed___, ed___, ed___, ed___, ed___, ed___, ED_FF  // F8
 };
-
 
 pfct tabIX[ 256 ] =
 {
@@ -7233,7 +6281,6 @@ pfct tabIY[ 256 ] =
     ___F8, FD_F9, ___FA, ___FB, ___FC, fd___, ___FE, ___FF  // F8
 };
 
-
 /********************************************************* !NAME! **************
  * Nom : Z80_NMI
  ********************************************************** !PATHS! *************
@@ -7249,17 +6296,17 @@ pfct tabIY[ 256 ] =
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-int Z80_NMI( core_crocods_t *core )
+int Z80_NMI(core_crocods_t *core)
 {
     core->Z80.IFF2 = core->Z80.IFF1;
     core->Z80.IFF1 = 0;
     RegSP -= 2;
-    POKE16( core, RegSP, RegPC );
+    POKE16(core, RegSP, RegPC);
     RegPC = 0x66;
-    return( 4 /* 4 NOPs */ );
+    return(4 /* 4 NOPs */);
 }
 
-int bycycle;
+int bycycle, cycle;
 
 /********************************************************* !NAME! **************
  * Nom : ExecInstZ80
@@ -7276,66 +6323,56 @@ int bycycle;
  * Variables globales modifiées : Z80, CntHSync
  *
  ********************************************************** !0! ****************/
-int ExecInstZ80_orig(core_crocods_t *core)
+u16 ExecInstZ80_orig(core_crocods_t *core)
 {
-    bycycle=0;
-    
-    while(bycycle<core->RegsCRTC[ 0 ] + 1) {
-#ifndef HACK_IR
-        RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) ); // Retire par RedBug, ca marche sans :)
-#endif
-        bycycle += tabinstr[ PEEK8( core, RegPC++) ](core);
-        
+    bycycle = 0;
+
+    while (bycycle < core->RegsCRTC[ 0 ] + 1) {
+        RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );
+        bycycle += tabinstr[ PEEK8(core, RegPC++) ](core);
+
 #ifndef HACK_IRQ
         VerifyIRQ(core);
 #endif
     }
-#ifdef HACK_IR
-    RegR = ( UBYTE )( ( ( RegR + core->RegsCRTC[ 0 ] + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) ); // Fake RegR HACK
-#endif
-    
+
     return(bycycle);
 }
 
-int ExecInstZ80_debug(core_crocods_t *core)
+
+
+u16 ExecInstZ80_debug(core_crocods_t *core)
 {
-    bycycle=0;
-    
-    RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ) ); // Retire par RedBug, ca marche sans :)
-    bycycle += tabinstr[ PEEK8( core, RegPC++) ](core);
-    
+    bycycle = 0;
+
+    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );          // Retire par RedBug, ca marche sans :)
+    bycycle += tabinstr[ PEEK8(core, RegPC++) ](core);
+
     VerifyIRQ(core);
-    
+
     return(bycycle);
 }
 
-void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result) {
+void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result)
+{
     SRegs oldZ80;
-    
-    
+
     //    len=strlen(code);
-    
+
     memcpy(&oldZ80, &core->Z80, sizeof(SRegs));
-    
+
     RegPC = 0;
     memcpy(&core->TabPEEK[0][0], code, len);
-    
-    
-    while(RegPC!=len) {
-        bycycle += tabinstr[ PEEK8( core, RegPC++) ](core);
-    }
-    
-    if (result!=NULL) {
-        memcpy(result, &core->Z80, sizeof(SRegs));
-        
-    }
-    
-    
-    memcpy(&core->Z80, &oldZ80, sizeof(SRegs));
-    
-    
-}
 
+    while (RegPC != len)
+        bycycle += tabinstr[ PEEK8(core, RegPC++) ](core);
+
+    if (result != NULL) {
+        memcpy(result, &core->Z80, sizeof(SRegs));
+    }
+
+    memcpy(&core->Z80, &oldZ80, sizeof(SRegs));
+}
 
 /********************************************************* !NAME! **************
  * Nom : ResetZ80
@@ -7352,52 +6389,61 @@ void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result) {
  * Variables globales modifiées : Z80
  *
  ********************************************************** !0! ****************/
-void ResetZ80_orig( core_crocods_t *core )
+void ResetZ80_orig(core_crocods_t *core)
 {
-    memset( &core->Z80, 0xFF, sizeof( core->Z80 ) );
+    memset(&core->Z80, 0xFF, sizeof(core->Z80) );
     RegPC = 0;
     RegR = core->Z80.IFF1 = core->Z80.IFF2 = core->Z80.InterruptMode = 0;
 }
 
-
-
-void SetIRQZ80_orig(core_crocods_t *core, int i)
+void SetIRQZ80_orig(core_crocods_t *core, u8 i)
 {
-    core->IRQ=i;
+    core->IRQ = i;
 #ifdef HACK_IRQ
     VerifyIRQ(core);
 #endif
 }
 
-void VerifyIRQ(core_crocods_t *core) {
-    if (core->IRQ) {
+void VerifyIRQ(core_crocods_t *core)
+{
+    if (core->IRQ) {    // z80.int_pending
 #ifdef HACK_IRQ
         if (core->halted) {
-            RegPC ++;
-            core->halted=0;
+            RegPC++;
+            core->halted = 0;
         }
 #endif
-        if ( core->Z80.IFF1 ) // EI ?
-        {
+        if (core->Z80.IFF1) { // EI ?
             core->Z80.IFF1 = 0;
-            RegR = ( UBYTE )( ( ( RegR + 1 ) & 0x7F ) | ( UBYTE )( RegR & 0x80 ));
+            RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80));
             core->CntHSync &= 0x1F;
             RegSP -= 2;
-            POKE16( core, RegSP, RegPC );
-            if ( core->Z80.InterruptMode < 2 ) {
-                //
-                // IM 0 et IM 1 -> RST 38H
-                //
-                RegPC = 0x38;
-                bycycle += 4;
-            } else {
-                //
-                // IM 2 -> CALL ( adr( IR ) )
-                //
-                RegPC = PEEK16( core, RegIR );
-                bycycle += 4;
+            POKE16(core, RegSP, RegPC);
+
+            if (core->Z80.InterruptMode == 0) {
+                printf("interrupt: %d\n", core->Z80.InterruptMode);
             }
-            core->IRQ=0;
+
+            switch (core->Z80.InterruptMode) {
+                case 0:
+                case 1:
+
+                    //
+                    // IM 0 et IM 1 -> RST 38H
+                    //
+                    RegPC = 0x38;
+                    bycycle += 4;
+                    break;
+                case 2:
+                    //
+                    // IM 2 -> CALL ( adr( IR ) )
+                    //
+                    RegPC = PEEK16(core, RegIR);
+                    bycycle += 4;
+                    break;
+            }
+
+            core->IRQ = 0;
         }
     }
 }

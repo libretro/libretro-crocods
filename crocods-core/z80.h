@@ -19,7 +19,7 @@
  *
  * @section DESCRIPTION
  *
- * Z80 emulation
+ * Z80 emulation (M Cycles)
  */
 
 #include  "crocods.h"
@@ -104,7 +104,6 @@ typedef int ( * pfct )( core_crocods_t *core );
 
 
 
-
 UBYTE Peek8Ext( core_crocods_t *core, USHORT adr );
 
 void Poke8Ext( core_crocods_t *core, USHORT adr, UBYTE val );
@@ -112,11 +111,12 @@ void Poke8Ext( core_crocods_t *core, USHORT adr, UBYTE val );
 int Z80_NMI( core_crocods_t *core );
 int ___C9( core_crocods_t *core );
 
-int ExecInstZ80_debug(core_crocods_t *core);
+u16 ExecInstZ80_debug(core_crocods_t *core);
 
-int ExecInstZ80_orig(core_crocods_t *core);
+u16 ExecInstZ80_orig(core_crocods_t *core);
 void ResetZ80_orig(core_crocods_t *core);
-void SetIRQZ80_orig(core_crocods_t *core, int i);
+void SetIRQZ80_orig(core_crocods_t *core, u8 i);
+
 
 void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result);
 

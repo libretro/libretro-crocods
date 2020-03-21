@@ -40,7 +40,7 @@ ifeq ($(ARCHFLAGS),)
 ifeq ($(archs),ppc)
    ARCHFLAGS = -arch ppc -arch ppc64
 else
-   ARCHFLAGS = -arch i386 -arch x86_64
+   ARCHFLAGS = -arch x86_64
 endif
 endif
 

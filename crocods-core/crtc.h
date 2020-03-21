@@ -1,7 +1,6 @@
 /**
  * @file
  * @author  Miguel Vanhove / Kyuran <crocods@kyuran.be>
- * @author  Ludovic Delplanque <ludovic.deplanque@libertysurf.fr> for the original version pc-cpc v0.1r (05/11/2002)
  * @version 2.0
  *
  * @section LICENSE
@@ -27,22 +26,20 @@
 #ifndef CRTC_H
 #define CRTC_H
 
+#include "crtc-arnold.h"
+#include "crtc-wincpc.h"
+#include "crtc-cap32.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
 
-    
-    
-    
-    void WriteCRTC( core_crocods_t *core, u16 adr, u8 val );
-    
-    int CalcCRTCLine( core_crocods_t *core );
-    
-    
-    void ResetCRTC( core_crocods_t *core );
-    
+
+
+
+
+void UpdateSTateCRTC(core_crocods_t *core, int RegIndex);
+
 #ifdef __cplusplus
 }
 #endif

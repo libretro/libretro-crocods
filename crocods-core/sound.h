@@ -22,45 +22,40 @@
  * AY3-8912 emulation
  */
 
-#include  "crocods.h"
+#include "crocods.h"
 
 #ifndef AY8912_H
 #define AY8912_H
 
 #define SOUNDV2 OK
 
-
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-    
+
     typedef struct
     {
         unsigned short left;
         unsigned short right;
     } GB_sample_t;
-    
-    void Reset8912( core_crocods_t *core );
-    
-    void Write8912( core_crocods_t *core, int r, int v );
-    int Read8912( core_crocods_t *core, int r );
-    
-    void Loop8912( core_crocods_t *core, int uS );
-    
-    BOOL IsWritePSGReg13( core_crocods_t *core );
-    
-    void SetSound( core_crocods_t *core, int Channel, int Freq, int Volume );
-    
-    
-    
+
+    void Reset8912(core_crocods_t *core);
+
+    void Write8912(core_crocods_t *core, int r, int v);
+    int Read8912(core_crocods_t *core, int r);
+
+    void Loop8912(core_crocods_t *core, int uS);
+
+    BOOL IsWritePSGReg13(core_crocods_t *core);
+
+    void SetSound(core_crocods_t *core, int Channel, int Freq, int Volume);
+
     void initSound(core_crocods_t *gb, int r);
-    void procSound(core_crocods_t *gb, int us);
-    
+    void procSound(core_crocods_t *gb);
+
     void crocods_copy_sound_buffer(core_crocods_t *gb, GB_sample_t *dest, unsigned int count);
-    
-    
-    
+
 #ifdef __cplusplus
 }
 #endif

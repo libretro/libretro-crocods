@@ -20,23 +20,29 @@
  * @section DESCRIPTION
  *
  * Snapshot management
+ * Use description from http://www.cpcwiki.eu/index.php/Format:SNA_snapshot_file_format
  */
 
-#include  "crocods.h"
+#include "crocods.h"
 
 #ifndef SNAPSHOT_H
 #define SNAPSHOT_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-	int getSnapshotSize(core_crocods_t *core);    
+    int getSnapshotSize(core_crocods_t *core);
     char *getSnapshot(core_crocods_t *core, int *len);
-    
+
     void SauveSnap(core_crocods_t *core, char *Nom);
     void LireSnapshotMem(core_crocods_t *core, u8 *snap);
-    
+
+    void SelectSNAP(core_crocods_t *core);
+    void LoadSlotSnap(core_crocods_t *core, int c);
+    int HaveSlotSnap(core_crocods_t *core, char *file, int c);
+
 #ifdef __cplusplus
 }
 #endif

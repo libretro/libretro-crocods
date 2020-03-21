@@ -30,21 +30,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    int ReadUPD( core_crocods_t *core, int port );
-    
-    void WriteUPD( core_crocods_t *core, int Port, int val );
-    
-    void ResetUPD( core_crocods_t *core );
-    
-    void SetDiskUPD( core_crocods_t *core, char * );
-    
-    void EjectDiskUPD( core_crocods_t *core );
-    
-    int GetCurrTrack( core_crocods_t *core );
-    
-    void LireDiskMem( core_crocods_t *core, u8 *rom, u32 romsize, char *autofile);
-    
+
+int ReadUPD(core_crocods_t *core, int port);
+
+void WriteUPD(core_crocods_t *core, int Port, int val);
+
+void ResetUPD(core_crocods_t *core);
+
+void SetDiskUPD(core_crocods_t *core, char *);
+
+void EjectDiskUPD(core_crocods_t *core);
+
+int GetCurrTrack(core_crocods_t *core);
+
+void ChangeCurrTrack(core_crocods_t *core, int newTrack);
+
 #ifdef __cplusplus
 }
 #endif

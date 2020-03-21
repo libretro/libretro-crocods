@@ -21,6 +21,8 @@
  * Types
  */
 
+#define CROCOVERSION "2020-02-04"
+
 #ifndef crocods_nds_h
 #define crocods_nds_h
 
@@ -35,43 +37,55 @@
 struct core_crocods_s;
 typedef struct core_crocods_s core_crocods_t;
 
-typedef unsigned short          USHORT;
-typedef signed short            SHORT;
-typedef unsigned char           UBYTE;
+typedef unsigned short USHORT;
+typedef signed short SHORT;
+typedef unsigned char UBYTE;
 //typedef unsigned long           ULONG;
 
-
 #ifndef USEDBOOL
-typedef signed char		BOOL;
+typedef signed char BOOL;
 #endif
 
 #ifndef FALSE
-enum { FALSE, TRUE };
+enum
+{
+    FALSE,
+    TRUE
+};
 #endif
 
 #define CPC_VISIBLE_SCR_WIDTH 256
 #define CPC_VISIBLE_SCR_HEIGHT 240
 
-
-#define    USE_DEBUG
-#undef     USE_TAPE
-#undef     USE_PRINTER
-#undef     USE_MULTIFACE
-#define    USE_SOUND
-#undef     USE_SOUND_CAS
-#define    USE_SNAPSHOT
-
+#define USE_DEBUG
+#undef USE_TAPE
+#undef USE_MULTIFACE
+#define USE_SOUND
+#undef USE_SOUND_CAS
+#define USE_SNAPSHOT
 
 #define USE_CONSOLE
-#undef USE_ALTERSCREEN
 
-#define 	BIT(n)   (1 << (n))
+#define BIT16(n) (1 << (n))
 
-enum  	KEYPAD_BITS {
-    KEY_A = BIT(0), KEY_B = BIT(1), KEY_SELECT = BIT(2), KEY_START = BIT(3), 
-    KEY_RIGHT = BIT(4), KEY_LEFT = BIT(5), KEY_UP = BIT(6), KEY_DOWN = BIT(7), 
-    KEY_R = BIT(8), KEY_L = BIT(9), KEY_X = BIT(10), KEY_Y = BIT(11), 
-    KEY_TOUCH = BIT(12), KEY_LID = BIT(13) 
+enum KEYPAD_BITS
+{
+    KEY_A = BIT16(0),
+    KEY_B = BIT16(1),
+    KEY_SELECT = BIT16(2),
+    KEY_START = BIT16(3),
+    KEY_RIGHT = BIT16(4),
+    KEY_LEFT = BIT16(5),
+    KEY_UP = BIT16(6),
+    KEY_DOWN = BIT16(7),
+    KEY_R = BIT16(8),
+    KEY_L = BIT16(9),
+    KEY_X = BIT16(10),
+    KEY_Y = BIT16(11),
+    KEY_TOUCH = BIT16(12),
+    KEY_LID = BIT16(13),
+    KEY_R2 = BIT16(14),
+    KEY_L2 = BIT16(15)
 };
 
 typedef uint8_t u8;

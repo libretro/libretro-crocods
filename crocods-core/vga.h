@@ -44,9 +44,12 @@ void AddRom(core_crocods_t *core, const char *rom,int i);
 
 BOOL InitMemCPC(core_crocods_t *core, const char *cpc6128_bin, const char *romdisc_bin);
 
-void VGA_Interrupt(core_crocods_t *core);
-void VGA_Update(core_crocods_t *core);
+    
 
+
+    void wincpc_ResetVGA(core_crocods_t *core);
+    
+    
 #ifdef __cplusplus
 }
 #endif

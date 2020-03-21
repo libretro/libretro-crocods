@@ -453,8 +453,32 @@ int32_t WsInputGetState(core_crocods_t *core)
      * 14: PAD_R2;
      */
 
+// Hardware keyboard
+
+    memset(gb.clav, 0xFF, 16);
+
+    int i;
+    for (i = 0; i < RETROK_LAST; i++) {
+        int scanCode = KeySymToCPCKey[i];
+
+        if (scanCode != CPC_NIL) {
+
+            Core_Key_Sate[i] = input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0, i);
+
+            if (Core_Key_Sate[i] != 0) {
+                log_cb(RETRO_LOG_INFO, "hard key down: %d (scan: %d) %d\n", i, scanCode, Core_Key_Sate[i]);
+
+                CPC_SetScanCode(&gb, scanCode);
+            }
+        }
+    }
+
+
+
     // int8_t szFile[256];
     int32_t button = 0;
+
+
 
 
     // int i;

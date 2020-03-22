@@ -1,4 +1,5 @@
 #include "crocods.h"
+#include "retro_endianness.h"
 
 #include <ctype.h>
 
@@ -126,13 +127,7 @@ int main(int argc, char **argv)
 
 char idsk_isBigEndian(void)
 {
-#ifdef BYTE_ORDER
-    return BYTE_ORDER == BIG_ENDIAN;
-#elif defined(_MSC_VER) || defined(_WIN32)
-    return 1; // It doesn't run on anything except x86, right?
-#else
-    return __BYTE_ORDER == __BIG_ENDIAN;
-#endif
+    return RETRO_IS_BIG_ENDIAN;
 }
 
 //

@@ -35,7 +35,7 @@
 
 typedef unsigned short word;
 typedef unsigned char byte;
-typedef unsigned int dword;
+typedef uint32_t        dword;
 
 typedef union {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN

@@ -48,6 +48,19 @@ extern const int menu_gif_length;
 #define PG_LBMASK565 0xF7DE
 #define PG_LBMASK555 0x7BDE
 
+#if defined(VITA)
+#  include <psp2/io/fcntl.h>
+#  include <psp2/io/dirent.h>
+#  include <psp2/io/stat.h>
+#elif defined(PSP)
+#  include <pspiofilemgr.h>
+#endif
+
+
+#if defined(VITA) || defined(PSP)
+#define mkdir sceIoMkdir
+#endif
+
 #define AlphaBlendFast(pixel, backpixel) (((((pixel) & PG_LBMASK565) >> 1) | (((backpixel) & PG_LBMASK565) >> 1)))
 
 // static u16 AlphaBlend(u16 pixel, u16 backpixel, u16 opacity)

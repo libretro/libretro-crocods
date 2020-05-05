@@ -116,7 +116,7 @@ void retro_init(void)
     environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &savedir);
 
 
-    char oldOpenFilename[PATH_MAX];
+    char oldOpenFilename[MAX_PATH+1];
     strcpy(oldOpenFilename, gb.openFilename);
 
     memset(&gb, 0, sizeof(gb));

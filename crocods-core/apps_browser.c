@@ -1,6 +1,6 @@
 #include "plateform.h"
 
-#if defined (_WIN32) || defined (_3DS)
+#if defined (_WIN32) || defined (_3DS) || defined(VITA)
 
 void apps_browser_init(core_crocods_t *core, int flag) {
 }

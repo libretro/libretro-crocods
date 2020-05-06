@@ -539,6 +539,8 @@ int32_t WsInputGetState(core_crocods_t *core)
 char framebuf[128];
 
 int frame = 0;
+static int old_width;
+static int old_height;
 
 void retro_run(void)
 {
@@ -653,7 +655,10 @@ void retro_run(void)
         geometry.max_height = height;
         geometry.aspect_ratio = ratio;
 
-        environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
+        if (width != old_width || height != old_height)
+                environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
+        old_width = width;
+        old_height = height;
         gb.changeFilter = 0;
     }
 
@@ -1559,6 +1564,9 @@ bool retro_load_game(const struct retro_game_info *info)
         {0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT, "Pause" },
         {0},
     };
+
+    old_width = 0;
+    old_height = 0;
 
     log_cb(RETRO_LOG_INFO, "begin of load games\n");
 

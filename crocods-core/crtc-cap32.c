@@ -916,11 +916,11 @@ void cap32_prerender_normal(core_crocods_t *core)
 {
     byte bVidMem = cap32_getRAMByte(core, CRTC.next_address);
 
-    *RendPos = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2)));
-    *(RendPos + 1) = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2) + 1));
+    *RendPos = *(ModeMap + (bVidMem * 2));
+    *(RendPos + 1) = *(ModeMap + (bVidMem * 2) + 1);
     bVidMem = cap32_getRAMByte(core, CRTC.next_address + 1);
-    *(RendPos + 2) = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2)));
-    *(RendPos + 3) = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2) + 1));
+    *(RendPos + 2) = *(ModeMap + (bVidMem * 2));
+    *(RendPos + 3) = *(ModeMap + (bVidMem * 2) + 1);
     RendPos += 4;
 }
 
@@ -1274,6 +1274,26 @@ void cap32_crtc_init(core_crocods_t *core)
 //    GateArray.lower_ROM_bank = 0;
 
     // End of todo
+
+#if RETRO_IS_BIG_ENDIAN
+   static int byte_swapped = 0;
+   if (!byte_swapped) {
+     int j;
+     byte_swapped = 1;
+     for (j = 0; j < 0x200; j++) {
+	 M0Map[j] = retro_cpu_to_le32(M0Map[j]);
+	 M1Map[j] = retro_cpu_to_le32(M1Map[j]);
+	 M2Map[j] = retro_cpu_to_le32(M2Map[j]);
+	 M3Map[j] = retro_cpu_to_le32(M3Map[j]);
+     }
+     for (j = 0; j < 0x100; j++) {
+	 M0hMap[j] = retro_cpu_to_le32(M0hMap[j]);
+	 M1hMap[j] = retro_cpu_to_le32(M1hMap[j]);
+	 M2hMap[j] = retro_cpu_to_le32(M2hMap[j]);
+	 M3hMap[j] = retro_cpu_to_le32(M3hMap[j]);
+     }
+   }
+#endif
 
     ModeMaps[0] = M0Map;
     ModeMaps[1] = M1Map;

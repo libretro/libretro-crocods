@@ -8,14 +8,7 @@ enum { ERR_NO_ERR = 0, ERR_NO_DIRENTRY, ERR_NO_BLOCK, ERR_FILE_EXIST };
 #define ASCII_MODE   0
 #define BINARY_MODE  1
 
-#define SWAP_2(x)    ( (((x) & 0xff) << 8) | ((u16)(x) >> 8) )
-#define SWAP_4(x)    ( ((x) << 24) | \
-                       (((x) << 8) & 0x00ff0000) | \
-                       (((x) >> 8) & 0x0000ff00) | \
-                       ((x) >> 24) )
-
-#define FIX_SHORT(x) (*(u16 *)&(x) = SWAP_2(*(u16 *)&(x)))
-#define FIX_INT(x)   (*(u32 *)&(x) = SWAP_4(*(u32 *)&(x)))
+#define FIX_SHORT(x) retro_get_unaligned_16be(&(x))
 
 #define SECTSIZE     512
 #define USER_DELETED 0xE5

@@ -996,7 +996,7 @@ int GetPosData(u8 *imgDsk, int track, int sect, char SectPhysique)
                       )
                     break;
             }
-            SizeByte = tr->Sect[ s ].SectSize;
+            SizeByte = retro_le_to_cpu16 (tr->Sect[ s ].SectSize);
             if (SizeByte)
                 Pos += SizeByte;
             else

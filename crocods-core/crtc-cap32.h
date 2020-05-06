@@ -34,6 +34,7 @@ typedef uint16_t        word;
 #pragma pack(1)
 
 // The next 4 bytes must remain together
+#if RETRO_IS_LITTLE_ENDIAN
 typedef union {
     dword combined;
     struct {
@@ -56,6 +57,32 @@ typedef union {
         byte NewHDSPTIMG;
     };
 } t_new_dt;
+#elif RETRO_IS_BIG_ENDIAN
+typedef union {
+    dword combined;
+    struct {
+        union {
+            word combined;
+            struct {
+	        byte HDSPTIMG;
+                byte DISPTIMG;
+            };
+        } dt;
+        byte inHSYNC;
+        byte monVSYNC;
+    };
+} t_flags1;
+// The next two bytes must remain together
+typedef union {
+    word combined;
+    struct {
+        byte NewHDSPTIMG;
+        byte NewDISPTIMG;
+    };
+} t_new_dt;
+#else
+#error Unknown endianness
+#endif
 
 #pragma pack()
 

@@ -131,19 +131,20 @@ typedef struct
     {
         unsigned short SpriteX_W;
 
-#ifdef CPC_LSB_FIRST
-
+#if RETRO_IS_LITTLE_ENDIAN
         struct
         {
             unsigned char l;
             unsigned char h;
+        } SpriteX_B;
+#elif RETRO_IS_BIG_ENDIAN
+        struct
+        {
+            unsigned char h;
+            unsigned char l;
         } SpriteX_B;
 #else
-        struct
-        {
-            unsigned char h;
-            unsigned char l;
-        } SpriteX_B;
+#error Unknown endianness
 #endif
 
     } SpriteX;
@@ -151,7 +152,7 @@ typedef struct
     union
     {
         unsigned short SpriteY_W;
-#ifdef CPC_LSB_FIRST
+#if RETRO_IS_LITTLE_ENDIAN
         struct
         {
             unsigned char l;
@@ -177,7 +178,7 @@ typedef struct
     union
     {
         unsigned short Addr_W;
-#ifdef CPC_LSB_FIRST
+#if RETRO_IS_LITTLE_ENDIAN
         struct
         {
             unsigned char l;
@@ -232,7 +233,7 @@ typedef struct
     union
     {
         unsigned short Addr_W;
-#ifdef CPC_LSB_FIRST
+#if RETRO_IS_LITTLE_ENDIAN
         struct
         {
             unsigned char l;

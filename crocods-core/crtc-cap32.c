@@ -906,21 +906,21 @@ dword shiftLittleEndianDwordTriplet(core_crocods_t *core, dword val1, dword val2
     }
     if (byteShift < 4) {
         int bitShift = 8 * byteShift;
-        return (val3 << bitShift) | (val2 >> (32 - bitShift));
+        return retro_cpu_to_le32((retro_le_to_cpu32(val3) << bitShift) | (retro_le_to_cpu32(val2) >> (32 - bitShift)));
     }
     int bitShift = 8 * (byteShift - 4);
-    return (val2 << bitShift) | (val1 >> (32 - bitShift));
+    return retro_cpu_to_le32((retro_le_to_cpu32(val2) << bitShift) | (retro_le_to_cpu32(val1) >> (32 - bitShift)));
 }
 
 void cap32_prerender_normal(core_crocods_t *core)
 {
     byte bVidMem = cap32_getRAMByte(core, CRTC.next_address);
 
-    *RendPos = *(ModeMap + (bVidMem * 2));
-    *(RendPos + 1) = *(ModeMap + (bVidMem * 2) + 1);
+    *RendPos = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2)));
+    *(RendPos + 1) = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2) + 1));
     bVidMem = cap32_getRAMByte(core, CRTC.next_address + 1);
-    *(RendPos + 2) = *(ModeMap + (bVidMem * 2));
-    *(RendPos + 3) = *(ModeMap + (bVidMem * 2) + 1);
+    *(RendPos + 2) = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2)));
+    *(RendPos + 3) = retro_le_to_cpu32(*(ModeMap + (bVidMem * 2) + 1));
     RendPos += 4;
 }
 

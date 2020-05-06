@@ -102,7 +102,7 @@ static int RechercheSecteur(core_crocods_t *core, int newSect, int *pos)
         if ( core->CurrTrackDatasDSK.Sect[ i ].R == newSect )
             return( ( UBYTE )i );
         else
-            *pos += core->CurrTrackDatasDSK.Sect[ i ].SectSize;
+            *pos += retro_le_to_cpu16(core->CurrTrackDatasDSK.Sect[ i ].SectSize);
     }
 
     core->ST0 |= ST0_IC1;
@@ -426,14 +426,14 @@ void ChangeCurrTrack(core_crocods_t *core, int newTrack)
         memcpy(&core->CurrTrackDatasDSK, core->ImgDsk, sizeof( core->CurrTrackDatasDSK ) );
         for ( t = 0; t < newTrack; t++ ) {
             for ( s = 0; s < core->CurrTrackDatasDSK.NbSect; s++ ) {
-                Pos += core->CurrTrackDatasDSK.Sect[ s ].SectSize;
+	         Pos += retro_le_to_cpu16(core->CurrTrackDatasDSK.Sect[ s ].SectSize);
             }
 
             Pos += sizeof( core->CurrTrackDatasDSK );
             memcpy(&core->CurrTrackDatasDSK, &core->ImgDsk[ Pos ], sizeof( core->CurrTrackDatasDSK ) );
         }
     } else
-        Pos += core->Infos.DataSize * newTrack;
+        Pos += retro_le_to_cpu16(core->Infos.DataSize) * newTrack;
 
     memcpy(&core->CurrTrackDatasDSK, &core->ImgDsk[ Pos ], sizeof( core->CurrTrackDatasDSK ) );
 

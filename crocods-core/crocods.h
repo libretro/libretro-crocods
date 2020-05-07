@@ -95,4 +95,6 @@ typedef int16_t s16;
 typedef uint32_t u32;
 typedef int32_t s32;
 
+#include "retro_endianness.h"
+
 #endif

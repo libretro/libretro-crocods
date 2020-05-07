@@ -43,8 +43,8 @@
 
  // In gestport
 
-u8 ReadPort( core_crocods_t *core, reg_pair port );
-void WritePort( core_crocods_t *core, reg_pair port, u8 val );
+u8 ReadPort( core_crocods_t *core, u16 port );
+void WritePort( core_crocods_t *core, u16 port, u8 val );
 
 // Try to inline those functions
 
@@ -761,7 +761,7 @@ inline byte SRL(byte val);
 
 #define IND \
 { \
-   byte io = ReadPort(core, z80.BC); \
+   byte io = ReadPort(core, z80.BC.w.l); \
    _B--; \
    write_mem(_HL, io); \
    _HL--; \
@@ -782,7 +782,7 @@ inline byte SRL(byte val);
 
 #define INI \
 { \
-   byte io = ReadPort(core, z80.BC); \
+   byte io = ReadPort(core, z80.BC.w.l); \
    _B--; \
    write_mem(_HL, io); \
    _HL++; \
@@ -854,7 +854,7 @@ inline byte SRL(byte val);
 { \
    byte io = read_mem(_HL); \
    _B--; \
-   WritePort(core, z80.BC, io); \
+   WritePort(core, z80.BC.w.l, io); \
    _HL--; \
    _F = SZ[_B]; \
    if(io & Sflag) _F |= Nflag; \
@@ -875,7 +875,7 @@ inline byte SRL(byte val);
 { \
    byte io = read_mem(_HL); \
    _B--; \
-   WritePort(core, z80.BC, io); \
+   WritePort(core, z80.BC.w.l, io); \
    _HL++; \
    _F = SZ[_B]; \
    if(io & Sflag) _F |= Nflag; \
@@ -1163,7 +1163,7 @@ void z80_execute_instruction(void)
          case ex_de_hl:    EX(z80.DE, z80.HL); break;
          case ex_msp_hl:   EX_SP(HL); iWSAdjust++; break;
          case halt:        _HALT = 1; _PC--; break;
-         case ina:         { z80_wait_states iCycleCount = Ia_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; _A = ReadPort(core, p); } break;
+         case ina:         { z80_wait_states iCycleCount = Ia_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; _A = ReadPort(core, p.w.l); } break;
          case inc_a:       INC(_A); break;
          case inc_b:       INC(_B); break;
          case inc_bc:      _BC++; iWSAdjust++; break;
@@ -1285,7 +1285,7 @@ void z80_execute_instruction(void)
          case or_h:        OR(_H); break;
          case or_l:        OR(_L); break;
          case or_mhl:      OR(read_mem(_HL)); break;
-         case outa:        { z80_wait_states iCycleCount = Oa_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; WritePort(core, p, _A); } break;
+         case outa:        { z80_wait_states iCycleCount = Oa_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; WritePort(core, p.w.l, _A); } break;
          case pfx_cb:      z80_execute_pfx_cb_instruction(); break;
          case pfx_dd:      z80_execute_pfx_dd_instruction(); break;
          case pfx_ed:      z80_execute_pfx_ed_instruction(); break;
@@ -1703,7 +1703,7 @@ void z80_execute_pfx_dd_instruction()
       case ex_de_hl:    EX(z80.DE, z80.HL); break;
       case ex_msp_hl:   EX_SP(IX); iWSAdjust++; break;
       case halt:        _HALT = 1; _PC--; break;
-      case ina:         { z80_wait_states iCycleCount = Ia_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; _A = ReadPort(core, p); } break;
+      case ina:         { z80_wait_states iCycleCount = Ia_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; _A = ReadPort(core, p.w.l); } break;
       case inc_a:       INC(_A); break;
       case inc_b:       INC(_B); break;
       case inc_bc:      _BC++; iWSAdjust++; break;
@@ -1825,7 +1825,7 @@ void z80_execute_pfx_dd_instruction()
       case or_h:        OR(_IXh); break;
       case or_l:        OR(_IXl); break;
       case or_mhl:      { signed char o = read_mem(_PC++); OR(read_mem(_IX+o)); } break;
-      case outa:        { z80_wait_states iCycleCount = Oa_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; WritePort(core, p, _A); } break;
+      case outa:        { z80_wait_states iCycleCount = Oa_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; WritePort(core, p.w.l, _A); } break;
       case pfx_cb:      z80_execute_pfx_ddcb_instruction(); break;
       case pfx_dd:      z80_execute_pfx_dd_instruction(); break;
       case pfx_ed:      z80_execute_pfx_ed_instruction(); break;
@@ -2370,14 +2370,14 @@ void z80_execute_pfx_ed_instruction()
       case indr:        { z80_wait_states iCycleCount = Iy_;} INDR; break;
       case ini:         { z80_wait_states iCycleCount = Iy_;} INI; break;
       case inir:        { z80_wait_states iCycleCount = Iy_;} INIR; break;
-      case in_0_c:      { z80_wait_states iCycleCount = Ix_;} { byte res = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[res]; } break;
-      case in_a_c:      { z80_wait_states iCycleCount = Ix_;} _A = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_A]; break;
-      case in_b_c:      { z80_wait_states iCycleCount = Ix_;} _B = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_B]; break;
-      case in_c_c:      { z80_wait_states iCycleCount = Ix_;} _C = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_C]; break;
-      case in_d_c:      { z80_wait_states iCycleCount = Ix_;} _D = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_D]; break;
-      case in_e_c:      { z80_wait_states iCycleCount = Ix_;} _E = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_E]; break;
-      case in_h_c:      { z80_wait_states iCycleCount = Ix_;} _H = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_H]; break;
-      case in_l_c:      { z80_wait_states iCycleCount = Ix_;} _L = ReadPort(core, z80.BC); _F = (_F & Cflag) | SZP[_L]; break;
+      case in_0_c:      { z80_wait_states iCycleCount = Ix_;} { byte res = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[res]; } break;
+      case in_a_c:      { z80_wait_states iCycleCount = Ix_;} _A = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_A]; break;
+      case in_b_c:      { z80_wait_states iCycleCount = Ix_;} _B = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_B]; break;
+      case in_c_c:      { z80_wait_states iCycleCount = Ix_;} _C = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_C]; break;
+      case in_d_c:      { z80_wait_states iCycleCount = Ix_;} _D = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_D]; break;
+      case in_e_c:      { z80_wait_states iCycleCount = Ix_;} _E = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_E]; break;
+      case in_h_c:      { z80_wait_states iCycleCount = Ix_;} _H = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_H]; break;
+      case in_l_c:      { z80_wait_states iCycleCount = Ix_;} _L = ReadPort(core, z80.BC.w.l); _F = (_F & Cflag) | SZP[_L]; break;
       case ldd:         LDD; iWSAdjust++; break;
       case lddr:        LDDR; iWSAdjust++; break;
       case ldi:         LDI; iWSAdjust++; break;
@@ -2406,14 +2406,14 @@ void z80_execute_pfx_ed_instruction()
       case otir:        { z80_wait_states iCycleCount = Oy_;} OTIR; break;
       case outd:        { z80_wait_states iCycleCount = Oy_;} OUTD; break;
       case outi:        { z80_wait_states iCycleCount = Oy_;} OUTI; break;
-      case out_c_0:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, 0); break;
-      case out_c_a:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _A); break;
-      case out_c_b:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _B); break;
-      case out_c_c:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _C); break;
-      case out_c_d:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _D); break;
-      case out_c_e:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _E); break;
-      case out_c_h:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _H); break;
-      case out_c_l:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC, _L); break;
+      case out_c_0:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, 0); break;
+      case out_c_a:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _A); break;
+      case out_c_b:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _B); break;
+      case out_c_c:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _C); break;
+      case out_c_d:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _D); break;
+      case out_c_e:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _E); break;
+      case out_c_h:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _H); break;
+      case out_c_l:     { z80_wait_states iCycleCount = Ox_;} WritePort(core, z80.BC.w.l, _L); break;
       case reti:        _IFF1 = _IFF2; RET; break;
       case reti_1:      _IFF1 = _IFF2; RET; break;
       case reti_2:      _IFF1 = _IFF2; RET; break;
@@ -2514,7 +2514,7 @@ void z80_execute_pfx_fd_instruction()
       case ex_de_hl:    EX(z80.DE, z80.HL); break;
       case ex_msp_hl:   EX_SP(IY); iWSAdjust++; break;
       case halt:        _HALT = 1; _PC--; break;
-      case ina:         { z80_wait_states iCycleCount = Ia_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; _A = ReadPort(core, p); } break;
+      case ina:         { z80_wait_states iCycleCount = Ia_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; _A = ReadPort(core, p.w.l); } break;
       case inc_a:       INC(_A); break;
       case inc_b:       INC(_B); break;
       case inc_bc:      _BC++; iWSAdjust++; break;
@@ -2636,7 +2636,7 @@ void z80_execute_pfx_fd_instruction()
       case or_h:        OR(_IYh); break;
       case or_l:        OR(_IYl); break;
       case or_mhl:      { signed char o = read_mem(_PC++); OR(read_mem(_IY+o)); } break;
-      case outa:        { z80_wait_states iCycleCount = Oa_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; WritePort(core, p, _A); } break;
+      case outa:        { z80_wait_states iCycleCount = Oa_;} { reg_pair p; p.b.l = read_mem(_PC++); p.b.h = _A; WritePort(core, p.w.l, _A); } break;
       case pfx_cb:      z80_execute_pfx_fdcb_instruction(); break;
       case pfx_dd:      z80_execute_pfx_dd_instruction(); break;
       case pfx_ed:      z80_execute_pfx_ed_instruction(); break;

@@ -8,15 +8,6 @@ enum { ERR_NO_ERR = 0, ERR_NO_DIRENTRY, ERR_NO_BLOCK, ERR_FILE_EXIST };
 #define ASCII_MODE   0
 #define BINARY_MODE  1
 
-#define SWAP_2(x)    ( (((x) & 0xff) << 8) | ((u16)(x) >> 8) )
-#define SWAP_4(x)    ( ((x) << 24) | \
-                       (((x) << 8) & 0x00ff0000) | \
-                       (((x) >> 8) & 0x0000ff00) | \
-                       ((x) >> 24) )
-
-#define FIX_SHORT(x) (*(u16 *)&(x) = SWAP_2(*(u16 *)&(x)))
-#define FIX_INT(x)   (*(u32 *)&(x) = SWAP_4(*(u32 *)&(x)))
-
 #define SECTSIZE     512
 #define USER_DELETED 0xE5
 
@@ -124,12 +115,6 @@ int main(int argc, char **argv)
 */
 
 // iDsk functions
-
-char idsk_isBigEndian(void)
-{
-    return RETRO_IS_BIG_ENDIAN;
-}
-
 //
 // Calcule et positionne le checksum AMSDOS
 //
@@ -141,7 +126,7 @@ void idsk_setChecksum(idsk_StAmsdos *pEntete)
         Checksum += *(p + i);
     }
 
-    pEntete->CheckSum = (u16)Checksum;
+    pEntete->CheckSum = retro_cpu_to_le16((u16)Checksum);
 }
 
 //
@@ -194,7 +179,7 @@ idsk_StAmsdos * idsk_creeEnteteAmsdos(char *NomFic, u16 Longueur)
 
     memcpy(Entete.FileName, Nom, 11);
     Entete.Length = 0;     //Non renseign� par AMSDos !!
-    Entete.RealLength = Entete.LogicalLength = Longueur;
+    Entete.RealLength = Entete.LogicalLength = retro_cpu_to_le16 (Longueur);
     Entete.FileType = 2; //Fichier binaire
 
     idsk_setChecksum(&Entete);
@@ -252,10 +237,11 @@ char * idsk_getNomAmsdos(const char *AmsName)
 
 void idsk_formatTrack(u8 *ImgDsk, idsk_Ent *Infos, int t, int MinSect, int NbSect)
 {
-    idsk_Track *tr = (idsk_Track *)&ImgDsk[ sizeof(idsk_Ent) + t * Infos->DataSize ];
+    u16 dataSize = retro_le_to_cpu16(Infos->DataSize);
+    idsk_Track *tr = (idsk_Track *)&ImgDsk[ sizeof(idsk_Ent) + t * dataSize ];
     memset(&ImgDsk[ sizeof(idsk_Ent)
                     + sizeof(idsk_Track)
-                    + (t * Infos->DataSize)
+                    + (t * dataSize)
            ]
            , 0xE5
            , 0x200 * NbSect
@@ -277,14 +263,14 @@ void idsk_formatTrack(u8 *ImgDsk, idsk_Ent *Infos, int t, int MinSect, int NbSec
         tr->Sect[ s ].H = 0;
         tr->Sect[ s ].R = (u8)(ss + MinSect);
         tr->Sect[ s ].N = 2;
-        tr->Sect[ s ].SizeByte = 0x200;
+        tr->Sect[ s ].SizeByte = retro_cpu_to_le16(0x200);
         ss++;
         if (++s < NbSect) {
             tr->Sect[ s ].C = (u8)t;
             tr->Sect[ s ].H = 0;
             tr->Sect[ s ].R = (u8)(ss + MinSect + 4);
             tr->Sect[ s ].N = 2;
-            tr->Sect[ s ].SizeByte = 0x200;
+            tr->Sect[ s ].SizeByte = retro_cpu_to_le16(0x200);
             s++;
         }
     }
@@ -321,7 +307,7 @@ int idsk_getPosData(u8 *ImgDsk, int track, int sect, char SectPhysique)
                       || ( (s == sect) && !SectPhysique)
                       ) break;
             }
-            SizeByte = tr->Sect[ s ].SizeByte;
+            SizeByte = retro_le_to_cpu16(tr->Sect[ s ].SizeByte);
             if (SizeByte) Pos += SizeByte;
             else Pos += (128 << tr->Sect[ s ].N);
         }
@@ -381,7 +367,7 @@ u8 * idsk_createNewDisk(void)
     idsk_Ent *Infos = (idsk_Ent *)ImgDsk;
 
     strcpy(Infos->debut, "MV - CPCEMU Disk-File\r\nDisk-Info\r\n");
-    Infos->DataSize = (short)(sizeof(idsk_Track) + (0x200 * NbSect) );
+    Infos->DataSize = retro_cpu_to_le16((short)(sizeof(idsk_Track) + (0x200 * NbSect) ));
     Infos->NbTracks = (u8)NbTrack;
     Infos->NbHeads = 1;
 
@@ -397,90 +383,23 @@ u8 * idsk_createNewDisk(void)
     return ImgDsk;
 }
 
-void idsk_fixEndianTrack(u8 *ImgDsk, idsk_Ent *Infos, int t, int NbSect)
-{
-    idsk_Track *tr;
-    if (Infos->DataSize != 0) tr = (idsk_Track *)&ImgDsk[ sizeof(idsk_Ent) + t * Infos->DataSize ];
-    else {
-        int ExtendedDataSize = ImgDsk[ 0x34 + t ] * 256; //case of a extended dsk image
-        tr = (idsk_Track *)&ImgDsk[ sizeof(idsk_Ent) + t * ExtendedDataSize ];
-    }
-    int ss = 0;
-
-    //
-    // Gestion "entrelacement" des secteurs
-    //
-    int s;
-    for (s = 0; s < NbSect;) {
-        tr->Sect[ s ].SizeByte = FIX_SHORT(tr->Sect[ s ].SizeByte);
-        tr->Sect[ s ].Un1 = FIX_SHORT(tr->Sect[ s ].Un1);
-        ss++;
-        if (++s < NbSect) {
-            tr->Sect[ s ].SizeByte = FIX_SHORT(tr->Sect[ s ].SizeByte);
-            tr->Sect[ s ].Un1 = FIX_SHORT(tr->Sect[ s ].Un1);
-            s++;
-        }
-    }
-    tr->Unused = FIX_SHORT(tr->Unused);
-}
-
-void idsk_fixEndianDsk(u8 *ImgDsk, char littleToBig)
-{
-    idsk_Ent *Infos = (idsk_Ent *)ImgDsk;
-    //std::cerr<< "FixEndianDsk() Infos->DataSize : " << Infos->DataSize <<std::endl;
-
-    if (!littleToBig) {
-        Infos->DataSize = FIX_SHORT(Infos->DataSize);
-    }
-    int t;
-    for (t = 0; t < Infos->NbTracks; t++) {
-        idsk_fixEndianTrack(ImgDsk, Infos, t, 9);
-    }
-    if (littleToBig) {
-        Infos->DataSize = FIX_SHORT(Infos->DataSize);
-    }
-    u8 *bmp = idsk_fillBitmap(ImgDsk);
-    free(bmp);
-}
-
-
-
 char * idsk_getDiskBuffer(u8 *ImgDsk,  u32 *length)
 {
     idsk_Ent *Infos = (idsk_Ent *)ImgDsk;
     u32 Taille;
 
-    if (!Infos->DataSize) Infos->DataSize = 0x100 + SECTSIZE * 9;
-    Taille = Infos->NbTracks * Infos->DataSize + sizeof(*Infos);
-    if (idsk_isBigEndian() ) {
-        idsk_fixEndianDsk(ImgDsk, 1);        // Fix endianness for Big endian machines (PPC)
-    }
+    if (!Infos->DataSize) Infos->DataSize = retro_cpu_to_le16(0x100 + SECTSIZE * 9);
+    Taille = Infos->NbTracks * retro_le_to_cpu16(Infos->DataSize) + sizeof(*Infos);
 
     char *retBuf = (char *)malloc(Taille);
     if (retBuf == NULL) {
         return NULL;
     }
     memcpy(retBuf, ImgDsk, Taille);
-
-    // in case of the same DSK image stay in memory
-    if (idsk_isBigEndian() ) {
-        idsk_fixEndianDsk(ImgDsk, 0);     // unFix endianness for Big endian machines (PPC)
-    }
     
     *length = Taille;
     
     return retBuf;
-}
-
-idsk_StAmsdos * idsk_stAmsdosEndian(idsk_StAmsdos *pEntete)
-{
-    pEntete->Length = FIX_SHORT(pEntete->Length);
-    pEntete->Adress = FIX_SHORT(pEntete->Adress);
-    pEntete->LogicalLength = FIX_SHORT(pEntete->LogicalLength);
-    pEntete->EntryAdress = FIX_SHORT(pEntete->EntryAdress);
-    pEntete->RealLength = FIX_SHORT(pEntete->RealLength);
-    pEntete->CheckSum = FIX_SHORT(pEntete->CheckSum);
-    return (pEntete);
 }
 
 idsk_StDirEntry * idsk_getNomDir(char *NomFic)
@@ -668,17 +587,15 @@ char idsk_importFile(u8 *ImgDsk, u8 *buf, u32 len, char *Masque)
     if (!IsAmsdos) { // Add default AMSDOS Header
         e = idsk_creeEnteteAmsdos(cFileName, (u16)Lg);
         if (loadAdress != 0) {
-            e->Adress = (u16)loadAdress;
+            e->Adress = retro_cpu_to_le16((u16)loadAdress);
             TypeModeImport = BINARY_MODE;
         }
         if (exeAdress != 0) {
-            e->EntryAdress = (u16)exeAdress;
+            e->EntryAdress = retro_cpu_to_le16((u16)exeAdress);
             TypeModeImport = BINARY_MODE;
         }
         // Il faut recalculer le checksum en comptant es adresses !
         idsk_setChecksum(e);
-        // fix the endianness of the input file
-        if (idsk_isBigEndian() ) e = idsk_stAmsdosEndian(e);
     } else {
 //        cout << "Le fichier a d�j� une en-t�te\n";
     }

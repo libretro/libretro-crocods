@@ -30,7 +30,7 @@
 
 #include  "crocods.h"
 #include  "plateform.h"
-
+#include  "retro_endianness.h"
 
 
 typedef unsigned short word;
@@ -38,12 +38,14 @@ typedef unsigned char byte;
 typedef uint32_t        dword;
 
 typedef union {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#if RETRO_IS_LITTLE_ENDIAN
    struct { byte l, h, h2, h3; } b;
    struct { word l, h; } w;
-#else
+#elif RETRO_IS_BIG_ENDIAN
    struct { byte h3, h2, h, l; } b;
    struct { word h, l; } w;
+#else
+#error Unknown endianness
 #endif
    dword d;
 }  reg_pair;

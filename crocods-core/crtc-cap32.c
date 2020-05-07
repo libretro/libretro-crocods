@@ -906,10 +906,10 @@ dword shiftLittleEndianDwordTriplet(core_crocods_t *core, dword val1, dword val2
     }
     if (byteShift < 4) {
         int bitShift = 8 * byteShift;
-        return (val3 << bitShift) | (val2 >> (32 - bitShift));
+        return retro_cpu_to_le32((retro_le_to_cpu32(val3) << bitShift) | (retro_le_to_cpu32(val2) >> (32 - bitShift)));
     }
     int bitShift = 8 * (byteShift - 4);
-    return (val2 << bitShift) | (val1 >> (32 - bitShift));
+    return retro_cpu_to_le32((retro_le_to_cpu32(val2) << bitShift) | (retro_le_to_cpu32(val1) >> (32 - bitShift)));
 }
 
 void cap32_prerender_normal(core_crocods_t *core)
@@ -1274,6 +1274,26 @@ void cap32_crtc_init(core_crocods_t *core)
 //    GateArray.lower_ROM_bank = 0;
 
     // End of todo
+
+#if RETRO_IS_BIG_ENDIAN
+   static int byte_swapped = 0;
+   if (!byte_swapped) {
+     int j;
+     byte_swapped = 1;
+     for (j = 0; j < 0x200; j++) {
+	 M0Map[j] = retro_cpu_to_le32(M0Map[j]);
+	 M1Map[j] = retro_cpu_to_le32(M1Map[j]);
+	 M2Map[j] = retro_cpu_to_le32(M2Map[j]);
+	 M3Map[j] = retro_cpu_to_le32(M3Map[j]);
+     }
+     for (j = 0; j < 0x100; j++) {
+	 M0hMap[j] = retro_cpu_to_le32(M0hMap[j]);
+	 M1hMap[j] = retro_cpu_to_le32(M1hMap[j]);
+	 M2hMap[j] = retro_cpu_to_le32(M2hMap[j]);
+	 M3hMap[j] = retro_cpu_to_le32(M3hMap[j]);
+     }
+   }
+#endif
 
     ModeMaps[0] = M0Map;
     ModeMaps[1] = M1Map;

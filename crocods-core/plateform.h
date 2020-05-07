@@ -113,10 +113,19 @@ typedef struct {
 
 typedef union {
     USHORT Word;
+#if RETRO_IS_LITTLE_ENDIAN
     struct {
         UBYTE Low;
         UBYTE High;
     } Byte;
+#elif RETRO_IS_BIG_ENDIAN
+    struct {
+        UBYTE High;
+        UBYTE Low;
+    } Byte;
+#else
+#error Unknown endianness
+#endif
 } Registre;
 
 typedef struct {
@@ -272,17 +281,35 @@ typedef struct core_crocods_s {
     u8 soundEnabled;
 
     union {
+#if RETRO_IS_LITTLE_ENDIAN
         struct {
             unsigned int low;
             unsigned int high;
         };
+#elif RETRO_IS_BIG_ENDIAN
+        struct {
+            unsigned int high;
+            unsigned int low;
+        };
+#else
+#error Unknown endianness
+#endif
         int64_t both;
     } snd_cycle_count_init;
     union {
+#if RETRO_IS_LITTLE_ENDIAN
         struct {
             unsigned int low;
             unsigned int high;
         };
+#elif RETRO_IS_BIG_ENDIAN
+        struct {
+            unsigned int high;
+            unsigned int low;
+        };
+#else
+#error Unknown endianness
+#endif
         int64_t both;
     } psg_cycle_count;
 

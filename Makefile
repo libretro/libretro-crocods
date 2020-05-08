@@ -191,7 +191,7 @@ else ifeq ($(platform), psp1)
    TARGET := $(TARGET_NAME)_libretro_$(platform).$(EXT)
    CC = psp-gcc$(EXE_EXT)
    AR = psp-ar$(EXE_EXT)
-   PLATFORM_DEFINES := -DPSP -G0
+   PLATFORM_DEFINES := -DPSP -G0 -I$(shell psp-config --pspsdk-path)/include
    STATIC_LINKING = 1
 
 # Vita

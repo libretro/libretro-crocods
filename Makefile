@@ -182,7 +182,7 @@ else ifeq ($(platform), psl1ght)
 	CC = $(PS3DEV)/ppu/bin/ppu-gcc$(EXE_EXT)
 	CC_AS = $(PS3DEV)/ppu/bin/ppu-gcc$(EXE_EXT)
 	AR = $(PS3DEV)/ppu/bin/ppu-ar$(EXE_EXT)
-	PLATFORM_DEFINES := -D__CELLOS_LV2__
+	PLATFORM_DEFINES := -D__CELLOS_LV2__ -D__PSL1GHT__
 	STATIC_LINKING = 1
 
 # PSP
@@ -223,7 +223,7 @@ else ifeq ($(platform), ngc)
 	CC = $(DEVKITPPC)/bin/powerpc-eabi-gcc$(EXE_EXT)
 	CC_AS = $(DEVKITPPC)/bin/powerpc-eabi-gcc$(EXE_EXT)
 	AR = $(DEVKITPPC)/bin/powerpc-eabi-ar$(EXE_EXT)
-	PLATFORM_DEFINES += -DGEKKO -DHW_DOL -mrvl -mcpu=750 -meabi -mhard-float
+	PLATFORM_DEFINES += -DGEKKO -DHW_DOL -mogc -mcpu=750 -meabi -mhard-float
 	STATIC_LINKING = 1
 
 # Nintendo Wii

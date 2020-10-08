@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "libz/zlib.h"
 #include "ziptool.h"
@@ -157,54 +158,42 @@ bool doHeader( struct CZipTool *CZ, struct ZipLocalHeader* hdr);
 
 static int MyComp( const char* str1, const char* str2);
 
-inline char tolower(const char toLower)
-{
-	if ((toLower >= 'A') && (toLower <= 'Z'))
-		return (char)(toLower + 0x20);
-
-	return toLower;
-}
-
 int MyComp( const char* str1, const char* str2)
 {
-	int i;
+   int i;
 
-	i=0;
+   i=0;
 
-	while(1) {
-		int c1,c2;
+   while(1)
+   {
+      int c1=str1[i];
+      int c2=str2[i];
 
-		c1=str1[i];
-		c2=str2[i];
+      if ((c1==0) && (c2==0))
+         return 0;
 
-		if ((c1==0) && (c2==0)) {
-			return 0;
-		}
+      c1=tolower(c1);
+      c2=tolower(c2);
 
-		c1=tolower(c1);
-		c2=tolower(c2);
+      if (c1=='\\')
+         c1='/';
+      if (c2=='\\')
+         c2='/';
 
-		if (c1=='\\') c1='/';
-		if (c2=='\\') c2='/';
+      if (c1>c2)
+         return 1;
+      if (c1<c2)
+         return -1;
+      i++;
+   }
 
-		if (c1>c2) {
-			return 1;
-		}
-		if (c1<c2) {
-			return -1;
-		}
-		i++;
-	}
-
-	return -1;
+   return -1;
 }
 
 int compare( const void *arg1, const void *arg2 )
 {
-	struct zipdir *alb1, *alb2;
-
-	alb1=(struct zipdir*)arg1;
-	alb2=(struct zipdir*)arg2;
+	struct zipdir *alb1=(struct zipdir*)arg1;
+	struct zipdir *alb2=(struct zipdir*)arg2;
 
 	return MyComp( alb1->name, alb2->name);
 }
@@ -233,80 +222,74 @@ void CZipToolInit(struct CZipTool *CZ, unsigned char *buffer, unsigned int size)
 	CZ->open=1;
 }
 
-
-
-
 void ReadDir(struct CZipTool *CZ)
 {
-	int max=100;
+   int max=100;
+   struct ZipLocalHeader hdr;
 
-	if (CZ->zipnbrc!=-1) {
-		return;
-	}
+   if (CZ->zipnbrc!=-1)
+      return;
 
-	CZ->zipdirc=(struct zipdir*)malloc(sizeof(struct zipdir)*max);
+   CZ->zipdirc=(struct zipdir*)malloc(sizeof(struct zipdir)*max);
 
-	CZ->zipdirc=NULL;
-	CZ->zipnbrc=-1;
+   CZ->zipdirc=NULL;
+   CZ->zipnbrc=-1;
 
-	struct ZipLocalHeader hdr;
 
-	CZ->pzip=0;
-	CZ->pout=0;
+   CZ->pzip=0;
+   CZ->pout=0;
 
-	CZ->zipnbrc=0;
+   CZ->zipnbrc=0;
 
-	CZ->zipdirc=(struct zipdir*)malloc(sizeof(struct zipdir)*max);
+   CZ->zipdirc=(struct zipdir*)malloc(sizeof(struct zipdir)*max);
 
-	while(1)
-	{
-		int oldpos;
+   while(1)
+   {
+      int oldpos;
 
-		oldpos=CZ->pzip;
+      oldpos=CZ->pzip;
 
-		if (doHeader(CZ, &hdr)==0) break;
-		if (CZ->zipdirc==NULL) {
-			CZ->zipnbrc=0;
-			break;
-		}
-		CZ->zipdirc[CZ->zipnbrc].name = (char*)malloc(strlen(hdr.fnm)+1);
-		strcpy(CZ->zipdirc[CZ->zipnbrc].name, hdr.fnm);
-		CZ->zipdirc[CZ->zipnbrc].position=oldpos;
+      if (doHeader(CZ, &hdr)==0) break;
+      if (CZ->zipdirc==NULL) {
+         CZ->zipnbrc=0;
+         break;
+      }
+      CZ->zipdirc[CZ->zipnbrc].name = (char*)malloc(strlen(hdr.fnm)+1);
+      strcpy(CZ->zipdirc[CZ->zipnbrc].name, hdr.fnm);
+      CZ->zipdirc[CZ->zipnbrc].position=oldpos;
 
-		CZ->pzip = CZ->pzip + hdr.csz;
-		CZ->zipnbrc++;
+      CZ->pzip = CZ->pzip + hdr.csz;
+      CZ->zipnbrc++;
 
-		if (CZ->zipnbrc>=max) {
-			max+=100;
-			CZ->zipdirc=(struct zipdir*)realloc(CZ->zipdirc, sizeof(struct zipdir)*max);
-		}
-	}
+      if (CZ->zipnbrc>=max)
+      {
+         max+=100;
+         CZ->zipdirc=(struct zipdir*)realloc(CZ->zipdirc, sizeof(struct zipdir)*max);
+      }
+   }
 
-	qsort(CZ->zipdirc, CZ->zipnbrc, sizeof(struct zipdir), compare);
-
-	return;
+   qsort(CZ->zipdirc, CZ->zipnbrc, sizeof(struct zipdir), compare);
 }
 
 void CZipToolClean(struct CZipTool *CZ)
 {
-	if (CZ->common_buf != NULL) {
-		free(CZ->common_buf);
-	}
-	if (CZ->cached != NULL) {
-		free(CZ->cached);
-	}
+   if (CZ->common_buf)
+      free(CZ->common_buf);
+   if (CZ->cached)
+      free(CZ->cached);
 }
 
 int kgetc(struct CZipTool *CZ)
 {
 	int a;
 
-	if (CZ->pzip<CZ->mzip) {
+	if (CZ->pzip<CZ->mzip)
+   {
 		a=CZ->kzip[CZ->pzip];
 		CZ->pzip++;
-	} else {
-		a=EOF;
 	}
+   else
+		a=EOF;
 
 	return a;
 }
@@ -314,9 +297,8 @@ int kgetc(struct CZipTool *CZ)
 
 int kread(struct CZipTool *CZ, unsigned char *dest, int count)
 {
-	if (CZ->pzip+count > CZ->mzip) {
+	if (CZ->pzip+count > CZ->mzip)
 		count=CZ->mzip-CZ->pzip;
-	}
 
 	memcpy(dest, CZ->kzip+CZ->pzip, count);
 	CZ->pzip+=count;
@@ -351,6 +333,7 @@ int getbits( struct CZipTool *CZ, int n )
 
 int fillbits( struct CZipTool *CZ, int n )
 {
+   int c;
 	unsigned char next;
 
 	if( !zipread( CZ, &next,1 ) )
@@ -367,7 +350,7 @@ int fillbits( struct CZipTool *CZ, int n )
 		}
 	}
 
-	int c = (int)(CZ->bitbuf & ((1<<n)-1));
+	c = (int)(CZ->bitbuf & ((1<<n)-1));
 	CZ->bitbuf >>= n;
 	CZ->bits_left -= n;
 	return c;
@@ -386,23 +369,21 @@ void zipwrite( struct CZipTool *CZ, unsigned char* dat, int len )
 	kwrite( CZ, dat, len);
 }
 
-
-
 void pathInit(struct CZipTool *CZ)
 {
 }
 
-
-
 void pathSplit( struct CZipTool *CZ, const char* path, int* y, int* d )
 {
-	*y=-1, *d=-1;
 	const char *x;
+	*y=-1, *d=-1;
 
 	for( x=path; *x!='\0'; x++)
 	{
-		if( *x=='\\' || *x=='/' ) *y=x-path,*d=-1;
-		else if( *x=='.' ) *d=x-path;
+		if( *x=='\\' || *x=='/' )
+         *y=x-path,*d=-1;
+		else if( *x=='.' )
+         *d=x-path;
 	}
 }
 
@@ -455,104 +436,102 @@ const char* pathName( struct CZipTool *CZ, const char* path )
 
 bool ReadFromZIP( struct CZipTool *CZ, char *filter, unsigned int *dsize, unsigned char **dBuffer)
 {
+	int i,j,k;
 	struct ZipLocalHeader hdr;
 
 	CZ->pzip=0;
 	CZ->pout=0;
 
-	int i,j,k;
-
 	i=0;
 	j=CZ->zipnbrc-1;
 	k=0;
 
-	if (CZ->zipnbrc<=0) {
+	if (CZ->zipnbrc<=0)
+   {
 		*dBuffer=NULL;
 		*dsize=0;
 
 		return 0;
 	}
 
-	while(i<=j) {
-		k=(i+j)/2;
+   while(i<=j)
+   {
+      k=(i+j)/2;
 
-		if (!MyComp(CZ->zipdirc[k].name, filter)) {
-			break;
-		}
+      if (!MyComp(CZ->zipdirc[k].name, filter))
+         break;
 
-		if (MyComp(CZ->zipdirc[k].name, filter)>0) {
-			j=k-1;
-		} else {
-			i=k+1;
-		}
-	}
+      if (MyComp(CZ->zipdirc[k].name, filter)>0)
+         j=k-1;
+      else
+         i=k+1;
+   }
 
-	if (!MyComp(CZ->zipdirc[k].name, filter)) {
-		CZ->pzip=CZ->zipdirc[k].position;
+	if (!MyComp(CZ->zipdirc[k].name, filter))
+   {
+      CZ->pzip=CZ->zipdirc[k].position;
 
-		doHeader(CZ, &hdr);
+      doHeader(CZ, &hdr);
 
-		CZ->kout=(unsigned char*)malloc(hdr.usz);
-		CZ->pout=0;
-		CZ->mout=0; // ??
+      CZ->kout=(unsigned char*)malloc(hdr.usz);
+      CZ->pout=0;
+      CZ->mout=0; // ??
 
-		switch( hdr.mhd )
-		{
-		case Stored:
-			Unstore( CZ, hdr.usz, hdr.csz );
-			break;
-		case Deflated:
-			Inflate( CZ, hdr.usz, hdr.csz );
-			break;
-		case Shrunk:
-			Unshrink( CZ, hdr.usz, hdr.csz );
-			break;
-		case Reduced1:
-			Unreduce( CZ, hdr.usz, hdr.csz, 1 );
-			break;
-		case Reduced2:
-			Unreduce( CZ, hdr.usz, hdr.csz, 2 );
-			break;
-		case Reduced3:
-			Unreduce( CZ, hdr.usz, hdr.csz, 3 );
-			break;
-		case Reduced4:
-			Unreduce( CZ, hdr.usz, hdr.csz, 4 );
-			break;
-		case Imploded:
-			Explode( CZ, hdr.usz, hdr.csz,       0!=(hdr.flg&0x02), 0!=((hdr.flg)&0x04) );
-			break;
-		}
+      switch( hdr.mhd )
+      {
+         case Stored:
+            Unstore( CZ, hdr.usz, hdr.csz );
+            break;
+         case Deflated:
+            Inflate( CZ, hdr.usz, hdr.csz );
+            break;
+         case Shrunk:
+            Unshrink( CZ, hdr.usz, hdr.csz );
+            break;
+         case Reduced1:
+            Unreduce( CZ, hdr.usz, hdr.csz, 1 );
+            break;
+         case Reduced2:
+            Unreduce( CZ, hdr.usz, hdr.csz, 2 );
+            break;
+         case Reduced3:
+            Unreduce( CZ, hdr.usz, hdr.csz, 3 );
+            break;
+         case Reduced4:
+            Unreduce( CZ, hdr.usz, hdr.csz, 4 );
+            break;
+         case Imploded:
+            Explode( CZ, hdr.usz, hdr.csz,
+                  0!=(hdr.flg&0x02), 0!=((hdr.flg)&0x04) );
+            break;
+      }
 
-		if (CZ->pout!=0) {
-			*dBuffer=CZ->kout;
-			*dsize=CZ->pout;
-		} else {
-			*dBuffer=NULL;
-			*dsize=0;
-		}
-
-
-	} else {
-		*dBuffer=NULL;
-		*dsize=0;
-		return false;
-	}
+      if (CZ->pout!=0)
+      {
+         *dBuffer=CZ->kout;
+         *dsize=CZ->pout;
+      }
+      else
+      {
+         *dBuffer=NULL;
+         *dsize=0;
+      }
+   }
+   else
+   {
+      *dBuffer=NULL;
+      *dsize=0;
+      return false;
+   }
 
 
 	return true;
 }
 
-
-
-
-
-
 bool read_header( struct CZipTool *CZ, struct ZipLocalHeader* hdr)
 {
-	if( 26 != kread(CZ, CZ->common_buf, 26) ) {
+	if( 26 != kread(CZ, CZ->common_buf, 26) )
 		return false;
-	}
 
 	hdr->ver = ((CZ->common_buf[ 0])|(CZ->common_buf[ 1]<<8));
 	hdr->flg = ((CZ->common_buf[ 2])|(CZ->common_buf[ 3]<<8));
@@ -565,22 +544,18 @@ bool read_header( struct CZipTool *CZ, struct ZipLocalHeader* hdr)
 	hdr->fnl = ((CZ->common_buf[22])|(CZ->common_buf[23]<<8));  // Longueur du filename
 	hdr->exl = ((CZ->common_buf[24])|(CZ->common_buf[25]<<8));
 
-	if (hdr->fnl>=256) {
+	if (hdr->fnl>=256)
 		return false;
-	}
 
-	if( hdr->fnl!=kread(CZ, (unsigned char*)hdr->fnm, hdr->fnl) ) {  // common_buf <- filename
+	if( hdr->fnl!=kread(CZ, (unsigned char*)hdr->fnm, hdr->fnl) )  // common_buf <- filename
 		return false;
-	}
 
 	hdr->fnm[hdr->fnl]=0;
 
-	if( hdr->mhd > Deflated || hdr->mhd==Tokenized ) {
+	if( hdr->mhd > Deflated || hdr->mhd==Tokenized )
 		return false;
-	}
-	if ((hdr->exl!=0) && (hdr->exl != kread(CZ, CZ->common_buf, hdr->exl)) ) {
+	if ((hdr->exl!=0) && (hdr->exl != kread(CZ, CZ->common_buf, hdr->exl)) )
 		return false;
-	}
 
 	return true;
 }
@@ -591,13 +566,12 @@ bool doHeader( struct CZipTool *CZ, struct ZipLocalHeader* hdr)
 
 	kread(CZ, key, 4);
 
-	if ( (key[0]=='P') && (key[1]=='K') && (key[2]==0x03) && (key[3]==0x04) )       {
-		int x=CZ->pzip;
-		if (read_header(CZ, hdr)) {
-			return true;
-		}
-		CZ->pzip = x;
-	}
+   if ( (key[0]=='P') && (key[1]=='K') && (key[2]==0x03) && (key[3]==0x04) )       {
+      int x=CZ->pzip;
+      if (read_header(CZ, hdr))
+         return true;
+      CZ->pzip = x;
+   }
 
 	return false;
 }
@@ -725,7 +699,6 @@ void Unshrink( struct CZipTool *CZ, unsigned int usz, unsigned int csz )
 	for( code=(1<<13); code > 255; code-- )
 		prefix_of[code] = -1;
 	for( code=0; code <256; code++ )
-	// for( code=255; code >= 0; code-- )
 	{
 		prefix_of[code] = 0;
 		suffix_of[code] = code;

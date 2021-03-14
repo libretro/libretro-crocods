@@ -24,6 +24,9 @@ else ifneq ($(findstring Darwin,$(shell uname -a)),)
 ifeq ($(shell uname -p),powerpc)
 	arch = ppc
 endif
+ifeq ($(shell uname -p),arm)
+	arch = arm
+endif
 else ifneq ($(findstring MINGW,$(shell uname -a)),)
 	system_platform = win
 endif
@@ -36,13 +39,6 @@ endif
 LIBM := -lm
 fpic=
 
-ifeq ($(ARCHFLAGS),)
-ifeq ($(archs),ppc)
-   ARCHFLAGS = -arch ppc -arch ppc64
-else
-   ARCHFLAGS = -arch x86_64
-endif
-endif
 
 ifeq ($(STATIC_LINKING),1)
 	EXT=a
@@ -64,33 +60,58 @@ else ifeq ($(platform), linux-portable)
    SHARED := -shared -Wl,--no-undefined
 	LIBM :=
 else ifeq ($(platform), osx)
-	EXT?=dylib
+   EXT?=dylib
    TARGET := $(TARGET_NAME)_libretro.$(EXT)
    fpic := -fPIC
    SHARED := -dynamiclib
+
+ifeq ($(UNIVERSAL),1)
+ifeq ($(archs),ppc)
+   ARCHFLAGS = -arch ppc -arch ppc64
+else ifeq ($(archs),arm64)
+   ARCHFLAGS = -arch x86_64 -arch arm64
+else
+   ARCHFLAGS = -arch x86_64
+endif
+endif
+
+   ifeq ($(CROSS_COMPILE),1)
+		TARGET_RULE   = -target $(LIBRETRO_APPLE_PLATFORM) -isysroot $(LIBRETRO_APPLE_ISYSROOT)
+		CFLAGS   += $(TARGET_RULE)
+		CPPFLAGS += $(TARGET_RULE)
+		CXXFLAGS += $(TARGET_RULE)
+		LDFLAGS  += $(TARGET_RULE)
+   endif
+
+   CFLAGS  += $(ARCHFLAGS)
+   CXXFLAGS  += $(ARCHFLAGS)
+   LDFLAGS += $(ARCHFLAGS)
+
+
 # iOS
 else ifneq (,$(findstring ios,$(platform)))
-	EXT?=dylib
+   EXT?=dylib
    TARGET := $(TARGET_NAME)_libretro_ios.$(EXT)
    fpic := -fPIC
    SHARED := -dynamiclib
    DEFINES := -DIOS
+   MINVERSION :=
 
 ifeq ($(IOSSDK),)
    IOSSDK := $(shell xcodebuild -version -sdk iphoneos Path)
 endif
 ifeq ($(platform),ios-arm64)
-	CC = cc -arch arm64 -isysroot $(IOSSDK)
+   CC = cc -arch arm64 -isysroot $(IOSSDK)
 else
-	CC = cc -arch armv7 -isysroot $(IOSSDK)
+   CC = cc -arch armv7 -isysroot $(IOSSDK)
 endif
 ifeq ($(platform),$(filter $(platform),ios9 ios-arm64))
-   SHARED += -miphoneos-version-min=8.0
-   CC +=  -miphoneos-version-min=8.0
+   MINVERSION = -miphoneos-version-min=8.0
 else
-   SHARED += -miphoneos-version-min=5.0
-   CC +=  -miphoneos-version-min=5.0
+   MINVERSION = -miphoneos-version-min=5.0
 endif
+   SHARED += $(MINVERSION)
+
 else ifeq ($(platform), tvos-arm64)
    EXT?=dylib
    TARGET := $(TARGET_NAME)_libretro_tvos.$(EXT)
@@ -101,6 +122,8 @@ else ifeq ($(platform), tvos-arm64)
 ifeq ($(IOSSDK),)
    IOSSDK := $(shell xcodebuild -version -sdk appletvos Path)
 endif
+
+   CC = cc -arch arm64 -isysroot $(IOSSDK)
 
 else ifeq ($(platform), theos_ios)
 	# Theos iOS

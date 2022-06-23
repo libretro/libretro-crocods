@@ -2314,7 +2314,7 @@ void z80_execute_pfx_ed_instruction()
       case ed_fb:       break;
       case ed_fc:       break;
       case ed_fd:       break;
-       case ed_fe:       printf("F%d - T%d/80000\n", core->framecount, core->CPC_cycle_count ); break;
+      case ed_fe:       break;
       case ed_ff:       break;          // Winape - Break
       case im_0:        _IM = 0; break;
       case im_0_1:      _IM = 0; break;

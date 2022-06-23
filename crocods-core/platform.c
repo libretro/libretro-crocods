@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-#include <sys/time.h>
 
 #include "autotype.h"
 #include "snapshot.h"
@@ -2279,10 +2278,3 @@ void saveIni(core_crocods_t *core, int local)
         iniparser_freedict(ini);
     }
 } /* saveIni */
-
-u32 getTicks(void)
-{
-    struct timeval tval; /* timing */
-    gettimeofday(&tval, 0);
-    return (u32)(((tval.tv_sec * 1000000) + (tval.tv_usec)));
-}

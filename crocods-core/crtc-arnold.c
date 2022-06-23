@@ -990,12 +990,9 @@ u16 arn_cpu_doFrame(core_crocods_t *core)
 {
     long TimeOut = 0;
     int byCycle = 0;
-    long tz80 = 0;
 
     // (FREQUENCY_MHZ 4.0 * FRAME_PERIOD_MS 20.0 * 1000 / 4)
     while (byCycle  < 19968) {
-        tz80 -= getTicks(); // TODO("replace this function")
-
         u16 cycle = ExecInstZ80(core);
         int i;
 
@@ -1010,7 +1007,6 @@ u16 arn_cpu_doFrame(core_crocods_t *core)
 
 	// Fais tourner le CPU tant CptInstr < CYCLELIGNE
         byCycle += cycle;
-        tz80 += getTicks();
 
         TimeOut += core->RegsCRTC[ 0 ] + 1;
 

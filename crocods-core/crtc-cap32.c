@@ -1491,7 +1491,7 @@ void cap32_WriteCRTC(core_crocods_t *core, u8 val)
 
     core->XStart = max( (50 - core->RegsCRTC[ 2 ]) << 1, 0);
     core->XEnd = min(core->XStart + (core->RegsCRTC[ 1 ] << 1), 96);
-} /* cap32_WriteCRTC */
+}
 
 void cap32_RegisterSelectCRTC(core_crocods_t *core, u8 val)
 {
@@ -1512,23 +1512,12 @@ void cap32_ResetVGA(core_crocods_t *core)
 
 u16 cap32_cpu_doFrame(core_crocods_t *core)
 {
-    long TimeOut = 0;
-    long tz80 = 0;
-
     int retour = 0;
-
-    tz80 -= getTicks(); // TODO("replace this function")
 
     do {
         retour = z80_execute();  // Ignore EC_CYCLE_COUNT, EC_BREAKPOINT
         cap32_endofline(core);
     } while (retour != EC_FRAME_COMPLETE);
 
-    tz80 += getTicks();
-
-    TimeOut = 20000;
-
-    core->framecount++;
-    
-    return TimeOut;
+    return 20000;
 }

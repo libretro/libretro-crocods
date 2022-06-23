@@ -562,7 +562,6 @@ typedef struct core_crocods_s {
     u16 overlayBitmap_posx, overlayBitmap_posy;
     char overlayBitmap_center;
     int dispframerate;
-    int framecount;
 
     char runStartApp;
     char runApp[258];
@@ -880,7 +879,5 @@ void appendIcon(core_crocods_t *core, int x, int y, int timer);
 
 void loadIni(core_crocods_t *core, int local);
 void saveIni(core_crocods_t *core, int local);
-
-u32 getTicks(void);
 
 #endif // ifndef PLATEFORM_H

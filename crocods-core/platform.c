@@ -733,14 +733,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             core->inMenu = 0;
             SetPalette(core, -1);
             break;
-        case ID_DEBUG_ENTER:
-            ExecInstZ80 = ExecInstZ80_debug;
-            core->debug = 1;
-            break;
-        case ID_DEBUG_EXIT:
-            ExecInstZ80 = ExecInstZ80_orig;
-            core->debug = 0;
-            break;
         case ID_SAVE_SETTINGS:
             saveIni(core, 0);
             break;

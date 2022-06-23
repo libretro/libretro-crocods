@@ -385,21 +385,14 @@ void PressKey(core_crocods_t *core, CPC_KEY n)
 
 char CPC_isScanCode(core_crocods_t *core, CPC_SCANCODE cpc_scancode)
 {
-    //    printf("%d %d\n", core->clav[(u8)cpc_scancode >> 3] , bit_values[(u8)cpc_scancode & 7]);
-
-    if (core->clav[(u8)cpc_scancode >> 3] & bit_values[(u8)cpc_scancode & 7]) {
+    if (core->clav[(u8)cpc_scancode >> 3] & bit_values[(u8)cpc_scancode & 7])
         return 0;
-    }
-
-//    printf("Scancode: %d\n", cpc_scancode);
     return 1;
 }
 
 void CPC_SetScanCode(core_crocods_t *core, CPC_SCANCODE cpc_scancode)
 {
     core->clav[(u8)cpc_scancode >> 3] &= ~bit_values[(u8)cpc_scancode & 7];
-//    printf("scancode: %d\n", cpc_scancode);
-    // DispScanCode(core, cpc_scancode, 1);
 }
 
 void CPC_ClearScanCode(core_crocods_t *core, CPC_SCANCODE cpc_scancode)

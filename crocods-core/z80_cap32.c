@@ -1008,45 +1008,7 @@ void SetIRQZ80_cap32(core_crocods_t *core, u8 i)
     z80.int_pending = i;
 }
 
-
-int z80_execute_debug()
-{
-   while (_PCdword != z80.break_point) { // loop until break point
-
-      z80_execute_instruction();
-
-      z80_wait_states
-
-      if (z80.EI_issued) { // EI 'delay' in effect?
-         if (--z80.EI_issued == 0) {
-            _IFF1 = _IFF2 = Pflag; // set interrupt flip-flops
-            if (z80.int_pending) {
-               z80_int_handler
-            }
-         }
-      }
-      else if (z80.int_pending) { // any interrupts pending?
-         z80_int_handler
-      }
-      iWSAdjust = 0;
-
-      if (core->VDU_frame_completed) { // video emulation finished building frame?
-         core->VDU_frame_completed = 0;
-         return EC_FRAME_COMPLETE; // exit emulation loop
-      }
-//      if (PSG.buffer_full) { // sound emulation finished filling a buffer?
-//         PSG.buffer_full = 0;
-//         return EC_SOUND_BUFFER; // exit emulation loop
-//      }
-      if (core->CPC_cycle_count <= 0) { // emulation loop ran for one frame?
-         core->CPC_cycle_count += CYCLE_COUNT_INIT;
-         return EC_CYCLE_COUNT; // exit emulation loop
-      }
-   }
-   return EC_BREAKPOINT;
-}
-
-int z80_execute()
+int z80_execute(void)
 {
    while (1) { // loop until break point
 
@@ -1071,10 +1033,6 @@ int z80_execute()
          core->VDU_frame_completed = 0;
          return EC_FRAME_COMPLETE; // exit emulation loop
       }
-//      if (PSG.buffer_full) { // sound emulation finished filling a buffer?
-//         PSG.buffer_full = 0;
-//         return EC_SOUND_BUFFER; // exit emulation loop
-//      }
       if (core->CPC_cycle_count <= 0) { // emulation loop ran for one frame?
          core->CPC_cycle_count += CYCLE_COUNT_INIT;
          return EC_CYCLE_COUNT; // exit emulation loop

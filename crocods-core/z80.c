@@ -6320,20 +6320,6 @@ u16 ExecInstZ80_orig(core_crocods_t *core)
     return(bycycle);
 }
 
-
-
-u16 ExecInstZ80_debug(core_crocods_t *core)
-{
-    bycycle = 0;
-
-    RegR = (UBYTE)( ( (RegR + 1) & 0x7F) | (UBYTE)(RegR & 0x80) );          // Retire par RedBug, ca marche sans :)
-    bycycle += tabinstr[ PEEK8(core, RegPC++) ](core);
-
-    VerifyIRQ(core);
-
-    return(bycycle);
-}
-
 void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result)
 {
     SRegs oldZ80;

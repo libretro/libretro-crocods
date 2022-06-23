@@ -58,7 +58,6 @@ apps_menu_publicmenu apps_menu_publicmenus[APPS_MENU_PUBLICMENU_COUNT] = {
     {ID_REDEFINE_R,   "R: XXXXXXXXXX",     NULL,    0 },
     {ID_REDEFINE_L2,  "L2: XXXXXXXXXX",    NULL,    0 },
     {ID_REDEFINE_R2,  "R2: XXXXXXXXXX",    NULL,    0 },
-    {ID_DEBUG_MENU,   "Debug",     NULL,    0 },
     {ID_FRAMERATEMENU,    "Display framerate", NULL,    0 },
     {ID_DISPFRAMERATE,    "Enable",    NULL,    0 },
     {ID_NODISPFRAMERATE,  "Disable",   NULL,    0 },

@@ -207,8 +207,6 @@ enum {
 typedef void (*kFctVoidU16)(core_crocods_t *core, u16);
 
 typedef struct core_crocods_s {
-    char debug_stopped;
-
     char VDU_frame_completed;     // used by cap32
     int CPC_cycle_count;          // used by cap32
 
@@ -575,9 +573,6 @@ typedef struct core_crocods_s {
     int redefineKeyRetour;
 
     kFctVoidU16 runApplication;
-
-    char debug;
-    char debugOneStep;
 } core_crocods_t;
 
 struct kmenu {
@@ -827,13 +822,10 @@ typedef enum {
     ID_PAUSE_ENTER,
     ID_PAUSE_EXIT,
     ID_NOHACK_TABCOUL,
-    ID_DEBUG_ENTER,
-    ID_DEBUG_EXIT,
     ID_USE_CRTC_WINCPC,
     ID_USE_CRTC_ARNOLD,
 
     ID_EXIT,
-    ID_DEBUG_MENU,
     ID_SNAP_MENU,
     ID_LOADSNAP,
     ID_DISK_MENU,

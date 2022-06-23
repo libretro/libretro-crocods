@@ -50,8 +50,6 @@ void apps_autorun_end(core_crocods_t *core)
 
 void apps_autorun_init(core_crocods_t *core, int flag)
 {
-    printf("apps_autorun_init: %s\n", core->openFilename);
-
     if ((core->openFilename[0] == 0) && (core->resources == NULL)) {
         apps_autorun_end(core);
         return;
@@ -70,22 +68,15 @@ void apps_autorun_init(core_crocods_t *core, int flag)
     u8 *dsk;
     long dsk_size;
 
-    if (core->resources != NULL) {
-        printf("Open resources\n");
-
+    if (core->resources != NULL)
+    {
         dsk_size = core->resources_len;
 
         dsk = (u8 *)malloc(core->resources_len);
         memcpy(dsk, core->resources, core->resources_len);
     } else {
-        printf("open file\n");
-
         FILE *fic = fopen(core->openFilename, "rb");
-
-//        mydebug(core,"Open file: %s\n", core->openFilename);
-
         if (fic == NULL) {
-            printf("File not found\n");
             appendIcon(core, 0, 4, 60);
             apps_autorun_end(core);
             return;
@@ -103,11 +94,7 @@ void apps_autorun_init(core_crocods_t *core, int flag)
         fread(dsk, 1, dsk_size, fic);
         fclose(fic);
 
-        printf("Open filename: %s\n", core->openFilename);
-
         char *p = strrchr(core->openFilename, '/');
-
-        printf("P: %s\n", p);
 
         strcpy(core->filename, p ? p + 1 : (char *)core->openFilename);
 
@@ -119,16 +106,12 @@ void apps_autorun_init(core_crocods_t *core, int flag)
 
         core->file_dir = (char *)realloc(core->file_dir, strlen(directory) + 1);
         strcpy(core->file_dir, directory);
-
-//        mydebug(core,"New dir: %s\n", core->file_dir);
     }
 
     char *ext = strrchr(core->openFilename, '.');
     if (ext != NULL) {
         ext++;
         if (!strcasecmp(ext, "bas")) {
-            printf("Basic\n");
-
             u8 *ImgDsk = idsk_createNewDisk();
 
             // TODO: check 0x0A, 0x0D for carriage return
@@ -208,18 +191,14 @@ void apps_autorun_init(core_crocods_t *core, int flag)
         pos = 12;
 
         while (bytes_to_read > 0) {
-            if (pos + 4 > dsk_size) {
-                printf("CPR: failed to read from cart image\n");
+            if (pos + 4 > dsk_size)
                 return; // TODO: fix return
-            }
             memcpy(chunkid, dsk + pos, 4);
             pos += 4;
             bytes_to_read -= 4;
 
-            if (pos + 4 > dsk_size) {
-                printf("CPR: failed to read from cart image\n");
+            if (pos + 4 > dsk_size)
                 return;
-            }
             memcpy(chunklen, dsk + pos, 4);
             pos += 4;
             bytes_to_read -= 4;
@@ -250,12 +229,9 @@ void apps_autorun_init(core_crocods_t *core, int flag)
 
                     pos += chunksize;
                     bytes_to_read -= chunksize;
-                    printf("CPR: Loaded chunk into RAM block %i\n", ramblock);
                 }
             } else {
-                printf("CPR: Unknown chunk '%4s', skipping %i bytes\n", chunkid, chunksize);
                 if (chunksize != 0) {
-//                    image_fseek(image, chunksize, SEEK_CUR);
                     pos += chunksize;
                     bytes_to_read -= chunksize;
                 }
@@ -281,7 +257,6 @@ void apps_autorun_init(core_crocods_t *core, int flag)
             for (i = 0; i < (int)mz_zip_reader_get_num_files(&zip_archive); i++) {
                 mz_zip_archive_file_stat file_stat;
                 if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat)) {
-                    printf("mz_zip_reader_file_stat() failed!\n");
                     mz_zip_reader_end(&zip_archive);
                     break;
                 }
@@ -289,8 +264,6 @@ void apps_autorun_init(core_crocods_t *core, int flag)
                 if (!strcasecmp(file_stat.m_filename, "settings.ini")) {
                     isKcr = 1;
                 }
-
-                printf("Filename: \"%s\", Comment: \"%s\", Uncompressed size: %u, Compressed size: %u, Is Dir: %u\n", file_stat.m_filename, file_stat.m_comment, (uint)file_stat.m_uncomp_size, (uint)file_stat.m_comp_size, mz_zip_reader_is_file_a_directory(&zip_archive, i));
             }
 
             // TODO: handle isKcr flag!
@@ -485,8 +458,6 @@ void LireDiskMem(core_crocods_t *core, u8 *rom, u32 romsize)
 
     int NumDir;
 
-    printf("First pos: %d\n", pos);
-
     for (NumDir = 0; NumDir < 64; NumDir++) {
         static StDirEntry Dir;
         int MinSect = GetMinSect(core->ImgDsk);
@@ -498,10 +469,8 @@ void LireDiskMem(core_crocods_t *core, u8 *rom, u32 romsize)
 
         pos = ( (NumDir & 15) << 5) + GetPosData(core->ImgDsk, t, s, 1);
 
-        if ((pos < 0) || (pos + sizeof(StDirEntry) >= 1024 * 1024)) {
-            printf("Error when reading");
+        if ((pos < 0) || (pos + sizeof(StDirEntry) >= 1024 * 1024))
             break;
-        }
 
         memcpy(&Dir, &core->ImgDsk[pos], sizeof(StDirEntry) );
 
@@ -589,15 +558,4 @@ void LireDiskMem(core_crocods_t *core, u8 *rom, u32 romsize)
             place++;
         }
     }
-
-    printf("Print dir\n");
-
-    printf("filename ext blk/cnt us\n");
-
-//    int n;
-//    for (n = 0; n < apps_autorun_files_count; n++) {
-//        printf("%8s %3s %03d/%03d %02x\n", apps_autorun_files[n].name, apps_autorun_files[n].ext, apps_autorun_files[n].page, apps_autorun_files[n].nbpages, apps_autorun_files[n].user);
-//    }
-
-    printf("End of dir\n");
 } /* LireDiskMem */

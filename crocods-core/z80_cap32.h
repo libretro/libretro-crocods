@@ -81,7 +81,6 @@ void ResetZ80_cap32(core_crocods_t *core0);
 void SetIRQZ80_cap32(core_crocods_t *core, u8 i);
 
 int z80_execute(void);
-int z80_execute_debug(void);
 
 // Handle prefixed bits instructions.
 void z80_execute_pfx_cb_instruction(void);

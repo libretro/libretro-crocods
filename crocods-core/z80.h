@@ -105,12 +105,9 @@ void Poke8Ext( core_crocods_t *core, USHORT adr, UBYTE val );
 int Z80_NMI( core_crocods_t *core );
 int ___C9( core_crocods_t *core );
 
-u16 ExecInstZ80_debug(core_crocods_t *core);
-
 u16 ExecInstZ80_orig(core_crocods_t *core);
 void ResetZ80_orig(core_crocods_t *core);
 void SetIRQZ80_orig(core_crocods_t *core, u8 i);
-
 
 void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result);
 

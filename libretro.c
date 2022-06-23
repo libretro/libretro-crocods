@@ -7,9 +7,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <sys/time.h>
-
-#include "deps/ziptool.h"
 
 #include "crocods-core/platform.h"
 #include "crocods-core/gif.h"

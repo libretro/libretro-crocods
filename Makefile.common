@@ -1,6 +1,4 @@
 SOURCES_C := $(CORE_DIR)/libretro.c \
     $(wildcard $(CORE_DIR)/crocods-core/*.c) \
     $(wildcard $(CORE_DIR)/crocods-core/iniparser/*.c) \
-    $(wildcard $(CORE_DIR)/crocods-core/resources/*.c) \
-    $(wildcard $(CORE_DIR)/deps/*.c) \
     $(wildcard $(CORE_DIR)/deps/libz/*.c)

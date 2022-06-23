@@ -25,8 +25,6 @@ int CRTC_GetRAOutput(core_crocods_t *core);
 
 #define GET_MA (core->RegsCRTC[12] << 8) | (core->RegsCRTC[13])
 
-// extern CRTC_INTERNAL_STATE CRTC_InternalState;
-
 void CRTC_DoLineChecks(core_crocods_t *core);
 void arn_CRTC_DoLine(core_crocods_t *core);
 
@@ -120,8 +118,6 @@ int CRTC_GetSelectedRegister(core_crocods_t *core)
 
 void CRTC_SetVsyncOutput(core_crocods_t *core, BOOL bState)
 {
-//    printf("\nCRTC_SetVsyncOutput: %d\n", bState);
-
     // if state has changed, and state is now active
 
     // Computer_UpdateVsync
@@ -202,7 +198,7 @@ void arn_ResetCRTC(core_crocods_t *core)
     core->CursorBlinkCount = 0;
 
     CRTC_DoLineChecks(core);
-} // ResetCRTC
+}
 
 /*------------------------------------------------------------------------------------------------------*/
 unsigned char CRTC_GetRegisterData(core_crocods_t *core, int RegisterIndex)
@@ -235,11 +231,8 @@ void CRTC_InitVsync(core_crocods_t *core)
 {
     core->LinesAfterVsyncStart = 0;
 
-//    printf("\nCRTC_InitVsync\n");
-
-    if (!(core->CRTC_Flags & CRTC_VSCNT_FLAG)) {
-//        printf("\CRTC_VSCNT_FLAG: %d\n", core->CRTC_Flags);
-
+    if (!(core->CRTC_Flags & CRTC_VSCNT_FLAG))
+    {
         core->VerticalSyncCount = 0;
 
         core->VerticalSyncWidth = CRTC_GetVerticalSyncWidth(core);
@@ -262,11 +255,8 @@ void CRTC_RefreshHStartAndHEnd(core_crocods_t *core)
     core->HStart = core->HDelayReg8;
 
     /* set HStart and HEnd to same, because Reg1 is set to 0 */
-    if (core->RegsCRTC[1] == 0) {
+    if (core->RegsCRTC[1] == 0)
         core->HStart = core->HEnd = 0;
-    }
-
-    printf("hstart/end: %d,%d %d,%d\n", core->HStart, core->HEnd, core->XStart, core->XEnd);
 
     /* update rendering function */
     CRTC_DoDispEnable(core);
@@ -294,8 +284,6 @@ void CRTC_DoReg8(core_crocods_t *core)
     }
 
     core->HDelayReg8 = (unsigned char)Delay;
-
-    printf("HDelayReg8: %d\n", core->HDelayReg8);
 
     CRTC_RefreshHStartAndHEnd(core);
 } // CRTC_DoReg8
@@ -383,8 +371,6 @@ void CRTC_UpdateState(core_crocods_t *core, int RegIndex)
 
 void arn_WriteCRTC(core_crocods_t *core, u8 val)
 {
-    printf("OUTP %d = %d\n", core->CRTC_Reg, val);
-
     int CRTC_RegIndex = core->CRTC_Reg & 0x1f;
 
     /* store registers using current CRTC information - masking out appropiate bits etc for this CRTC*/
@@ -394,8 +380,6 @@ void arn_WriteCRTC(core_crocods_t *core, u8 val)
 
     core->XStart = max( (50 - core->RegsCRTC[2]) << 1, 0);
     core->XEnd = min(core->XStart + (core->RegsCRTC[1] << 1), 96);
-
-    printf("hstart/end: %d,%d %d,%d\n", core->HStart, core->HEnd, core->XStart, core->XEnd);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -409,10 +393,9 @@ void CRTC_DoHDisp(core_crocods_t *core)
      * and get the graphics to repeat but doesn't cause problems for RCC */
     /* confirmed: gerald's tests seem to indicate that MAStore is not updated when vdisp is not active. i.e. in lower border */
 
-    if ((core->CRTC_Flags & CRTC_MR_FLAG) && (core->CRTC_Flags & CRTC_VDISP_FLAG)) {
+    if ((core->CRTC_Flags & CRTC_MR_FLAG) && (core->CRTC_Flags & CRTC_VDISP_FLAG))
         /* remember it for next line */
         core->MAStore = core->MA;
-    }
 }
 
 void CRTC_RestartFrame(core_crocods_t *core)
@@ -431,10 +414,8 @@ void CRTC_RestartFrame(core_crocods_t *core)
 
     /* on type 0, the first line is always visible */
 
-//#ifdef HD6845S
     /* if type 0 is a HD6845S */
     CRTC_SetFlag(CRTC_VDISP_FLAG);
-//#endif
 
     /* incremented when? */
     core->CursorBlinkCount++;
@@ -673,12 +654,7 @@ void arn_CRTC_DoCycles(core_crocods_t *core, u32 Cycles)
 
         Graphics_Update(core);
     }
-} // CRTC_DoCycles
-
-//int CalcCRTCLine(core_crocods_t *core)
-//{
-//    return  ((core->MonitorSyncInputs & VSYNC_INPUT) == 0);
-//}
+}
 
 /* executed for each complete line done by the CRTC */
 void arn_CRTC_DoLine(core_crocods_t *core)
@@ -742,35 +718,24 @@ void arn_CRTC_DoLine(core_crocods_t *core)
 
     core->MA = core->MAStore;
 
-    if ((core->RegsCRTC[8] & 1) != 0) {
+    if ((core->RegsCRTC[8] & 1) != 0)
         CRTC_SetFlag(CRTC_INTERLACE_ACTIVE);
-    } else {
+    else
         CRTC_ClearFlag(CRTC_INTERLACE_ACTIVE);
-    }
 
     CRTC_MaxRasterMatch(core);
 
     /* do last to capture line counter increment in R5 and frame restart */
     CRTC_DoLineChecks(core);
-} // CRTC_DoLine
+}
 
 int CRTC_GetRAOutput(core_crocods_t *core)
 {
-    if ((core->CRTC_Flags & CRTC_INTERLACE_ACTIVE) != 0) {
-        //		/* if R9 is odd, this will change between 0 or 1 */
-        //		int Bit0 = ((core->LineCounter^core->Frame) & core->RegsCRTC[9] & 0x01) |
-        //			/* if R9 is even, we want Frame */
-        //			(((core->RegsCRTC[9] & 0x01) ^ 0x01) & core->Frame);
-
+    if ((core->CRTC_Flags & CRTC_INTERLACE_ACTIVE) != 0)
         return (core->RasterCounter << 1) | core->Frame;
-    } else {
-        if (core->CRTC_Flags & CRTC_VADJ_FLAG) {
-            return core->VertAdjustCount;
-        } else {
-            return core->RasterCounter;
-        }
-    }
-    //	return core->RasterCounter;
+    if (core->CRTC_Flags & CRTC_VADJ_FLAG)
+        return core->VertAdjustCount;
+    return core->RasterCounter;
 }
 
 int CRTC_GetHorizontalSyncWidth(core_crocods_t *core)
@@ -779,11 +744,9 @@ int CRTC_GetHorizontalSyncWidth(core_crocods_t *core)
 //    return core->RegsCRTC[3] & 0x0f;
 
     int HorizontalSyncWidth =  core->RegsCRTC[3] & 0x0f;
-    if (HorizontalSyncWidth == 0) {
-        HorizontalSyncWidth = 16;
-    }
-
-    return HorizontalSyncWidth;
+    if (HorizontalSyncWidth != 0)
+        return HorizontalSyncWidth;
+    return 16;
 }
 
 int CRTC_GetVerticalSyncWidth(core_crocods_t *core)
@@ -791,11 +754,9 @@ int CRTC_GetVerticalSyncWidth(core_crocods_t *core)
     /* confirmed: a programmed vsync width of 0, results in an actual width of 16 */
     /* 16 can happen when counter overflows */
     int VerticalSyncWidth = (core->RegsCRTC[3] >> 4) & 0x0f;
-
-    if (VerticalSyncWidth == 0) {
-        VerticalSyncWidth = 16;
-    }
-    return VerticalSyncWidth;
+    if (VerticalSyncWidth != 0)
+        return VerticalSyncWidth;
+    return 16;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -814,13 +775,10 @@ u8 arn_ReadCRTC(core_crocods_t *core)
 
 void GateArray_DoDispEnable(core_crocods_t *core, BOOL bState)
 {
-    if (bState) {
+    if (bState)
         core->BlankingOutput &= ~DISPTMG_ACTIVE;
-//        Computer_UpdateGraphicsFunction();
-    } else {
+    else
         core->BlankingOutput |= DISPTMG_ACTIVE;
-//        Computer_UpdateGraphicsFunction();
-    }
 }
 
 /* chances are the crtc hsync could happen in the middle */
@@ -838,26 +796,14 @@ void arn_GateArray_Cycle(core_crocods_t *core)
         switch (core->nHBlankCycle) {
             case 0:
                 break;
-
-            case 1: {
-                /* set pixel translation table which is dependant on mode */
-//                Render_SetPixelTranslation(GateArray_State.RomConfiguration & 0x03);
-
-                if (core->CRTCSyncInputs & HSYNC_INPUT) {
+            case 1:
+                if (core->CRTCSyncInputs & HSYNC_INPUT)
                     Monitor_DoHsyncStart(core);
-                }
-
-//                CPC_UpdateGraphicsFunction();
-            }
-            break;
-
-            case 5: {
+		break;
+            case 5:
                 /* end monitor hsync but continue blanking */
                 Monitor_DoHsyncEnd(core);
-
-//                CPC_UpdateGraphicsFunction();
-            }
-            break;
+		break;
         } // switch
         core->nHBlankCycle++;
     }
@@ -870,7 +816,6 @@ void GateArray_UpdateHsync(core_crocods_t *core, BOOL bState)       // Arnold on
         core->BlankingOutput |= HBLANK_ACTIVE;
 
         core->nHBlankCycle = 0;
-//        CPC_UpdateGraphicsFunction();
     } else {
         core->CRTCSyncInputs &= ~HSYNC_INPUT;
         core->BlankingOutput &= ~HBLANK_ACTIVE;
@@ -915,8 +860,6 @@ void GateArray_UpdateHsync(core_crocods_t *core, BOOL bState)       // Arnold on
                 core->BlankingOutput &= ~VBLANK_ACTIVE;
             }
         }
-
-//        CPC_UpdateGraphicsFunction();
     }
 } // GateArray_UpdateHsync
 
@@ -930,12 +873,10 @@ void GateArray_UpdateVsync(core_crocods_t *core, BOOL bState)
         core->CRTCSyncInputs |= VSYNC_INPUT;
         core->BlankingOutput |= VBLANK_ACTIVE;
         core->nVBlankCycle = 0;
-//        CPC_UpdateGraphicsFunction();
     } else {
         core->CRTCSyncInputs &= ~VSYNC_INPUT;
         /* CHECK, immediate or at hsync */
         Monitor_DoVsyncEnd(core);
-//        CPC_UpdateGraphicsFunction();
     }
 }
 
@@ -1051,11 +992,9 @@ u16 arn_cpu_doFrame(core_crocods_t *core)
     int byCycle = 0;
     long tz80 = 0;
 
-    // Arnold
-    core->MonitorCyclesDebug = 0;
-
-    while (byCycle  < 19968) {                        // (FREQUENCY_MHZ 4.0 * FRAME_PERIOD_MS 20.0 * 1000 / 4)
-        tz80 -= getTicks();                       // TODO("replace this function")
+    // (FREQUENCY_MHZ 4.0 * FRAME_PERIOD_MS 20.0 * 1000 / 4)
+    while (byCycle  < 19968) {
+        tz80 -= getTicks(); // TODO("replace this function")
 
         u16 cycle = ExecInstZ80(core);
         int i;
@@ -1069,7 +1008,8 @@ u16 arn_cpu_doFrame(core_crocods_t *core)
             }
         }
 
-        byCycle += cycle;                         // Fais tourner le CPU tant CptInstr < CYCLELIGNE
+	// Fais tourner le CPU tant CptInstr < CYCLELIGNE
+        byCycle += cycle;
         tz80 += getTicks();
 
         TimeOut += core->RegsCRTC[ 0 ] + 1;
@@ -1077,9 +1017,8 @@ u16 arn_cpu_doFrame(core_crocods_t *core)
         cap32_endofline(core);
     }
 
-    //                    printf("End of frame: %d,%d %d,%d\n", gb.MonitorCyclesDebug, byCycle,  gb.MonitorHCount, gb.MonitorScanLineCount);
-
-    byCycle -= 19968;                         // Ond 50Hz monitor frame (64 ms per line * 312 lines)
+    // On 50Hz monitor frame (64 ms per line * 312 lines)
+    byCycle -= 19968; 
 
     return TimeOut;
 }

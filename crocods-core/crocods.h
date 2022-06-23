@@ -40,7 +40,6 @@ typedef struct core_crocods_s core_crocods_t;
 typedef unsigned short USHORT;
 typedef signed short SHORT;
 typedef unsigned char UBYTE;
-//typedef unsigned long           ULONG;
 
 #ifndef USEDBOOL
 typedef signed char BOOL;
@@ -57,7 +56,6 @@ enum
 #define CPC_VISIBLE_SCR_WIDTH 256
 #define CPC_VISIBLE_SCR_HEIGHT 240
 
-#define USE_DEBUG
 #undef USE_TAPE
 #undef USE_MULTIFACE
 #define USE_SOUND

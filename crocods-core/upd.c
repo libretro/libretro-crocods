@@ -108,9 +108,7 @@ static int RechercheSecteur(core_crocods_t *core, int newSect, int *pos)
     core->ST0 |= ST0_IC1;
     core->ST1 |= ST1_ND;
 
-    //    sprintf( MsgLog, "secteur (C:%02X,H:%02X,R:%02X) non trouv�", C, H, R );
-
-    return( 0 );
+    return 0;
 }
 
 

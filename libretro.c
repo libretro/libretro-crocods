@@ -22,18 +22,8 @@ extern const unsigned char romdisc_bin[];
 
 #define maxByCycle 400 // 50 fois par frame
 
-bool loadGame(void);
-void loadDisk(BOOL autoStart);
-void loadSnapshot(void);
-
-void updateFromEnvironnement();
-
-void guestScreenDraw(core_crocods_t *core);
-void guestInit(void);
-
 char Core_Key_Sate[512];
 char Core_old_Key_Sate[512];
-
 
 static int KeySymToCPCKey[RETROK_LAST];
 
@@ -84,7 +74,6 @@ struct CrocoKeyMap {
 // Crocods variable
 
 core_crocods_t gb;
-int bx, by;
 
 u8 *disk = NULL;
 u32 diskLength;
@@ -93,6 +82,18 @@ u8 *snapshot = NULL;
 u32 snapshotLength;
 
 char autoString[256];
+
+u16 scanlineMask[] = {0b1110111101011101,
+                      0b1110011100011100,
+                      0b1100011000011000,
+                      0b1000010000010000};
+
+u16 textureBytes[384 * 288 * 2];
+
+u32 old_width1 = 0, old_height1 = 0, old_left1 = 0, old_top1 = 0, old_bpl1 = 0;
+u16 old_width2 = 0, old_height2 = 0;
+
+u32 *incX, *incY;
 
 // end of crocods variable
 
@@ -107,13 +108,49 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
     va_end(va);
 }
 
+static void updateFromEnvironment(void)
+{
+    // struct retro_variable pk1var = {"crocods_greenmonitor"};
+
+    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &pk1var) && pk1var.value) {
+    //     if (!strcmp(pk1var.value, "green")) {
+    //         ExecuteMenu(&gb, ID_GREEN_MONITOR, NULL);
+    //     } else if (!strcmp(pk1var.value, "color")) {
+    //         ExecuteMenu(&gb, ID_COLOR_MONITOR, NULL);
+    //     }
+    // }
+
+    // struct retro_variable pk2var = {"crocods_resize"};
+    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &pk2var) && pk2var.value) {
+    //     if (!strcmp(pk2var.value, "Auto")) {
+    //         ExecuteMenu(&gb, ID_SCREEN_AUTO, NULL);
+    //     } else if (!strcmp(pk2var.value, "320x200")) {
+    //         ExecuteMenu(&gb, ID_SCREEN_320, NULL);
+    //     } else if (!strcmp(pk2var.value, "Overscan")) {
+    //         ExecuteMenu(&gb, ID_SCREEN_OVERSCAN, NULL);
+    //     }
+    // }
+
+    // struct retro_variable pk3var = {"crocods_hack"};
+    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &pk3var) && pk3var.value) {
+    //     if (!strcmp(pk3var.value, "no")) {
+    //         ExecuteMenu(&gb, ID_NOHACK_TABCOUL, NULL);
+    //     } else if (!strcmp(pk3var.value, "yes")) {
+    //         ExecuteMenu(&gb, ID_HACK_TABCOUL, NULL);
+    //     }
+    // }
+
+}
+
 void retro_init(void)
 {
     char *savedir = NULL;
     int i;
+    int bx, by;
 
-    guestInit();
-
+    // Set Video
+    incX = (u32 *)malloc(384 * 2 * sizeof(u32)); // malloc the max width
+    incY = (u32 *)malloc(272 * sizeof(u32));     // malloc the max height
 
     environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &savedir);
 
@@ -129,9 +166,8 @@ void retro_init(void)
 
     gb.keyboardLayout = 1; // French
 
-    for (i = 0; i < RETROK_LAST; i++) {
+    for (i = 0; i < RETROK_LAST; i++)
         KeySymToCPCKey[i] = CPC_NIL;
-    }
 
     /* International key mappings */
     KeySymToCPCKey[RETROK_0] = CPC_ZERO;
@@ -227,8 +263,7 @@ void retro_init(void)
     nds_initBorder(&gb, &bx, &by);
     nds_init(&gb);
 
-    updateFromEnvironnement();
-
+    updateFromEnvironment();
 
     AutoType_Init(&gb);
 
@@ -290,11 +325,10 @@ void retro_set_environment(retro_environment_t cb)
 
     environ_cb = cb;
 
-    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging)) {
+    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
         log_cb = logging.log;
-    } else {
+    else
         log_cb = fallback_log;
-    }
 
     log_cb = fallback_log;
 
@@ -353,140 +387,31 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_reset(void)
 {
-    // printf("retro_reset\n");
-
     ResetZ80(&gb);
     ResetUPD(&gb);
     ResetCRTC(&gb);
 
-    loadGame();
+    ExecuteMenu(&gb, ID_AUTORUN, NULL); // Do: open disk & autorun // TODO
 }
 
-// static void frame_time_cb(retro_usec_t usec)
-// {
-//     frame_time = usec / 1000000.0;
-
-// }
-
-
-void readIni(void)
+static int32_t WsInputGetState(core_crocods_t *core)
 {
-    /*
-     * CURSOR_UP, CURSOR_RIGHT, CURSOR_DOWN, F9, F6, F3, SMALL_ENTER, FDOT, CURSOR_LEFT, COPY, F7, F8, F5, F1, F2, F0, CLR, OPEN_SQUARE_BRACKET, RETURN, CLOSE_SQUARE_BRACKET, F4, SHIFT, FORWARD_SLASH, CONTROL, HAT, MINUS, AT, P, SEMICOLON, COLON, BACKSLASH, DOT, ZERO, 9, O, I, L, K, M, COMMA, 8, 7, U, Y, H, J, N, SPACE, 6, 5, R, T, G, F, B, V, 4, 3, E, W, S, D, C, X, 1, 2, ESC, Q, TAB, A, CAPS_LOCK, Z, JOY_UP, JOY_DOWN, JOY_LEFT, JOY_RIGHT, JOY_FIRE1, JOY_FIRE2, SPARE, DEL */
-
-}
-
-void updateFromEnvironnement()
-{
-    // struct retro_variable pk1var = {"crocods_greenmonitor"};
-
-    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &pk1var) && pk1var.value) {
-    //     if (!strcmp(pk1var.value, "green")) {
-    //         ExecuteMenu(&gb, ID_GREEN_MONITOR, NULL);
-    //     } else if (!strcmp(pk1var.value, "color")) {
-    //         ExecuteMenu(&gb, ID_COLOR_MONITOR, NULL);
-    //     }
-    // }
-
-    // struct retro_variable pk2var = {"crocods_resize"};
-    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &pk2var) && pk2var.value) {
-    //     if (!strcmp(pk2var.value, "Auto")) {
-    //         ExecuteMenu(&gb, ID_SCREEN_AUTO, NULL);
-    //     } else if (!strcmp(pk2var.value, "320x200")) {
-    //         ExecuteMenu(&gb, ID_SCREEN_320, NULL);
-    //     } else if (!strcmp(pk2var.value, "Overscan")) {
-    //         ExecuteMenu(&gb, ID_SCREEN_OVERSCAN, NULL);
-    //     }
-    // }
-
-    // struct retro_variable pk3var = {"crocods_hack"};
-    // if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &pk3var) && pk3var.value) {
-    //     if (!strcmp(pk3var.value, "no")) {
-    //         ExecuteMenu(&gb, ID_NOHACK_TABCOUL, NULL);
-    //     } else if (!strcmp(pk3var.value, "yes")) {
-    //         ExecuteMenu(&gb, ID_HACK_TABCOUL, NULL);
-    //     }
-    // }
-
-} /* updateFromEnvironnement */
-
-void retro_key_down(int key)
-{
-    log_cb(RETRO_LOG_INFO, "key: %d\n", key);
-}
-
-
-
-int32_t WsInputGetState(core_crocods_t *core)
-{
-    // int32_t mode = 0;
-    // static int16_t old_button_state[18];
-
-    /* enum     KEYPAD_BITS {
-     * KEY_A = BIT(0), KEY_B = BIT(1), KEY_SELECT = BIT(2), KEY_START = BIT(3),
-     * KEY_RIGHT = BIT(4), KEY_LEFT = BIT(5), KEY_UP = BIT(6), KEY_DOWN = BIT(7),
-     * KEY_R = BIT(8), KEY_L = BIT(9), KEY_X = BIT(10), KEY_Y = BIT(11),
-     * KEY_TOUCH = BIT(12), KEY_LID = BIT(13), KEY_R2 = BIT(14), KEY_L2 = BIT(15),
-     * }; */
-
-    /*
-     * 0: PAD_LEFT;
-     * 1: PAD_RIGHT;
-     * 2: PAD_UP;
-     * 3: PAD_DOWN;
-     * 4: PAD_A;
-     * 5: PAD_B;
-     * 6: PAD_X;
-     * 7: PAD_Y;
-     * 8: PAD_L;
-     * 9: PAD_R;
-     * 10: PAD_START;
-     * 11: PAD_SELECT;
-     * 12: PAD_QUIT;
-     * 13: PAD_L2;
-     * 14: PAD_R2;
-     */
-
-// Hardware keyboard
-
+    // Hardware keyboard
     memset(gb.clav, 0xFF, 16);
 
     int i;
     for (i = 0; i < RETROK_LAST; i++) {
         int scanCode = KeySymToCPCKey[i];
 
-        if (scanCode != CPC_NIL) {
-
+        if (scanCode != CPC_NIL)
+	{
             Core_Key_Sate[i] = input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0, i);
-
-            if (Core_Key_Sate[i] != 0) {
-                log_cb(RETRO_LOG_INFO, "hard key down: %d (scan: %d) %d\n", i, scanCode, Core_Key_Sate[i]);
-
+            if (Core_Key_Sate[i] != 0)
                 CPC_SetScanCode(&gb, scanCode);
-            }
         }
     }
 
-
-
-    // int8_t szFile[256];
     int32_t button = 0;
-
-
-
-
-    // int i;
-
-    // for (i = 0; i < sizeof(crocokeymap) / sizeof(struct CrocoKeyMap); i++) {
-    //     int scanCode = crocokeymap[i].scanCode;
-
-    //     if (scanCode != CPC_NIL) {
-
-    //         if (input_state_cb(crocokeymap[i].port, RETRO_DEVICE_JOYPAD, 0, crocokeymap[i].index)) {
-    //             log_cb(RETRO_LOG_INFO, "joy key down: %d (scan: %d)\n", crocokeymap[i].index, crocokeymap[i].scanCode);
-    //         }
-    //     }
-    // }
 
     /* Button A	*/
     button |= (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A)) ? (1 << 0) : 0;
@@ -523,12 +448,8 @@ int32_t WsInputGetState(core_crocods_t *core)
     /* L2    */
     button |= (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L2)) ? (1 << 15) : 0;
 
-    // if (button != 0) {
-    //     printf("Button: %d\n", button);
-    // }
-
     return button;
-} /* WsInputGetState */
+}
 
 char framebuf[128];
 
@@ -536,190 +457,7 @@ int frame = 0;
 static int old_width;
 static int old_height;
 
-void retro_run(void)
-{
-    frame++;
-
-    // printf("retro_run %d\n", frame);
-
-
-    static bool updated = false;
-    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated) {
-        updateFromEnvironnement();
-    }
-
-    input_poll_cb();
-
-
-
-/*
- *  if ((gb.AutoType.nFlags & (AUTOTYPE_ACTIVE | AUTOTYPE_WAITING)) == 0) {
- *
- *      memset(gb.clav, 0xFF, 16);
- *
- *      int i;
- *      for (i = 0; i < RETROK_LAST; i++) {
- *          int scanCode = KeySymToCPCKey[i];
- *
- *          if (scanCode != CPC_NIL) {
- *
- *              Core_Key_Sate[i] = input_state_cb(0, RETRO_DEVICE_KEYBOARD, 0, i);
- *
- *              if (Core_Key_Sate[i] != 0) {
- *                  log_cb(RETRO_LOG_INFO, "hard key down: %d (scan: %d) %d\n", i, scanCode, Core_Key_Sate[i]);
- *
- *                  CPC_SetScanCode(&gb, scanCode);
- *              }
- *          }
- *      }
- *
- *      for (i = 0; i < sizeof(crocokeymap) / sizeof(struct CrocoKeyMap); i++) {
- *          int scanCode = crocokeymap[i].scanCode;
- *
- *          if (scanCode != CPC_NIL) {
- *
- *              if (input_state_cb(crocokeymap[i].port, RETRO_DEVICE_JOYPAD, 0, crocokeymap[i].index)) {
- *                  log_cb(RETRO_LOG_INFO, "joy key down: %d (scan: %d)\n", crocokeymap[i].index, crocokeymap[i].scanCode);
- *
- *                  CPC_SetScanCode(&gb, scanCode);
- *              }
- *          }
- *      }
- *
- *  }
- */
-
-    // game_update(frame_time, &ks);
-    // game_render();
-
-    int sndSamplerToPlay = 44100 / 50;
-    int byCycle = 0;
-
-    // Crocods
-    // while (1) {
-
-    if (!gb.isPaused) {     // Pause only the Z80
-        croco_cpu_doFrame(&gb);
-    }
-
-
-
-    u16 keys_pressed = WsInputGetState(&gb);
-
-    if (gb.runApplication != NULL) {
-        gb.runApplication(&gb, (gb.wait_key_released == 1) ? 0 : keys_pressed);
-    }
-
-    // printf("UpdateScreen\n");
-
-    UpdateScreen(&gb);
-
-    if (keys_pressed == 0) {
-        gb.wait_key_released = 0;
-    }
-
-    if ((gb.runApplication == NULL)  && (gb.wait_key_released == 0)) {
-        gb.ipc.keys_pressed = keys_pressed;
-    }
-
-    // printf("Readkey\n");
-
-    nds_ReadKey(&gb);
-
-
-    int width, height;
-    float ratio;
-
-    width = gb.screenBufferWidth;
-    height = gb.screenBufferHeight;
-
-    ratio = (float)width / (float)height;
-
-    if (gb.lastMode == 2) {
-        width = width * 2;
-    }
-
-    if (gb.changeFilter != 0) {
-
-        struct retro_game_geometry geometry;
-
-        geometry.base_width = width;
-        geometry.base_height = height;
-        geometry.max_width = width;
-        geometry.max_height = height;
-        geometry.aspect_ratio = ratio;
-
-        if (width != old_width || height != old_height)
-                environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
-        old_width = width;
-        old_height = height;
-        gb.changeFilter = 0;
-    }
-
-    guestScreenDraw(&gb);
-
-
-    updateScreenBuffer(&gb, gb.MemBitmap, gb.screenBufferWidth);        // gb.MemBitmap not used
-
-    gb.overlayBitmap_width = 0;
-
-
-
-    // if (byCycle>=maxByCycle) { // Sur 20000
-
-    //     int snd_sampler = (44100/50/(20000/maxByCycle));
-    //     GB_sample_t sample[snd_sampler];
-
-    //     crocods_copy_sound_buffer(&gb, sample, snd_sampler);
-    //     audio_batch_cb((int16_t*)&sample, snd_sampler);
-
-    //     byCycle-=maxByCycle;
-    //     sndSamplerToPlay -= snd_sampler;
-    // }
-
-    // }
-
-
-    if (sndSamplerToPlay > 0) {
-
-        GB_sample_t sample[sndSamplerToPlay];
-        int x;
-
-        crocods_copy_sound_buffer(&gb, sample, sndSamplerToPlay);
-        audio_batch_cb((int16_t *)&sample, sndSamplerToPlay);
-    }
-
-
-} /* retro_run */
-
-u16 scanlineMask[] = {0b1110111101011101,
-                      0b1110011100011100,
-                      0b1100011000011000,
-                      0b1000010000010000};
-
-u16 textureBytes[384 * 288 * 2];
-
-u32 old_width1 = 0, old_height1 = 0, old_left1 = 0, old_top1 = 0, old_bpl1 = 0;
-u16 old_width2 = 0, old_height2 = 0;
-
-u32 *incX, *incY;
-
-
-void guestInit(void)
-{
-// Set Video
-
-    // printf("Guest Init\n");
-
-
-
-    incX = (u32 *)malloc(384 * 2 * sizeof(u32));     // malloc the max width
-    incY = (u32 *)malloc(272 * sizeof(u32));           // malloc the max height
-
-
-} /* initSDL */
-
-void guestBlit(core_crocods_t *core, u16 *memBitmap, u32 width1, u32 height1, u32 left1, u32 top1, u32 bpl1, u16 *buffer_scr, u16 width2, u16 height2)
+static void guestBlit(core_crocods_t *core, u16 *memBitmap, u32 width1, u32 height1, u32 left1, u32 top1, u32 bpl1, u16 *buffer_scr, u16 width2, u16 height2)
 {
     u16 myScanlineMask = 0;
 
@@ -759,7 +497,7 @@ void guestBlit(core_crocods_t *core, u16 *memBitmap, u32 width1, u32 height1, u3
 
                     u16 color = memBitmap[pos] & myScanlineMask;
 
-                    *buffer_scr = color;        /// AlphaBlendFast(memBitmap[pos],AlphaBlendFast(memBitmap[pos],AlphaBlendFast(memBitmap[pos], memBitmap[pos-bpl1])));
+                    *buffer_scr = color;
                     buffer_scr++;
                 }
             } else {
@@ -781,12 +519,11 @@ void guestBlit(core_crocods_t *core, u16 *memBitmap, u32 width1, u32 height1, u3
             }
         }
     }
-} /* guestBlit */
+}
 
 
-void guestScreenDraw(core_crocods_t *core)
+static void guestScreenDraw(core_crocods_t *core)
 {
-
     uint16_t *buffer_scr = textureBytes;
 
     uint16_t *memBitmap;
@@ -797,12 +534,6 @@ void guestScreenDraw(core_crocods_t *core)
         int ignoreRow = 0; // 3; // only in caprice32 actually
         memBitmap = core->MemBitmap + 384 * 2 * ignoreRow;
     }
-
-    // printf("resize: %d\n", core->resize);
-
-    // printf("%x\n", buffer_scr);
-
-
 
     u32 width2 = 0, height2 = 0;
 
@@ -825,19 +556,8 @@ void guestScreenDraw(core_crocods_t *core)
         height2 = 272;
     }
 
-//    if ((!core->screenIsOptimized) || (core->lastMode == 2)) {
-//      width2 = width2 * 2;
-//    }
-
-    if (core->lastMode == 2) {
+    if (core->lastMode == 2)
         width2 = width2 * 2;
-    }
-
-    // if (bufferWidth != width2) {
-    //     bufferWidth = width2;
-    //     bufferHeight = height2;
-    // }
-
 
     int x, y;
 
@@ -845,13 +565,10 @@ void guestScreenDraw(core_crocods_t *core)
         // ID_SCREEN_320 x 200 - keep ratio
 
         if (core->screenIsOptimized) {
-            int dbl;
+            int dbl = 1;
 
-            if (core->lastMode == 2) {
+            if (core->lastMode == 2)
                 dbl = 2;
-            } else {
-                dbl = 1;
-            }
 
             // buffer_scr += 20 * actualScreen->w;      // TODO: add
 
@@ -864,29 +581,12 @@ void guestScreenDraw(core_crocods_t *core)
                 }
             }
 
-            // for (y = 0; y < 200; y++) {
-            //     memcpy(buffer_scr + 320 * 20 + y * 320, core->MemBitmap + y * core->MemBitmap_width, 320 * 2);
-            // }
-
-            // for (y = 0; y < 240; y++) {
-            //     for (x = 0; x < 320; x++) {
-            //         int pos = (x * 320 * dbl) / 320 + ((y * 200) / 240) * core->screenBufferWidth;
-
-            //         *buffer_scr = core->MemBitmap[pos];
-            //         buffer_scr++;
-            //     }
-            // }
-
-
             #define PG_LBMASK565 0xF7DE
 
             #define AlphaBlendFast(pixel, backpixel) (((((pixel) & PG_LBMASK565) >> 1) | (((backpixel) & PG_LBMASK565) >> 1)))
 
             uint16_t *buffer_scr = textureBytes;
-            // char pos[]={10,8,6,4,3,3,2,2,1,1};
             char pos[] = {10, 7, 5, 4, 3, 2, 2, 1, 1, 1};
-
-            // uint16_t col = core->MemBitmap[0];
 
             uint16_t col = core->BG_PALETTE[core->TabCoul[ 16 ]];   // Border color
 
@@ -958,32 +658,14 @@ void guestScreenDraw(core_crocods_t *core)
         }
     }
 
-    // printf("bef resize 1\n");
-
     if (core->resize == 1) {   // TODO: improve resize
         // ID_SCREEN_AUTO
 
-        // int width = core->screenBufferWidth;
-        // if (width > 320)
-        //  width = 320;
-
-        // for (y = 0; y < 200; y++)
-        // {
-        //  memcpy(buffer_scr + 320 * 20 + y * 320, core->MemBitmap + y * core->MemBitmap_width, width * 2);
-        // }
-
-        // printf("resize 1\n");
-
-        // printf("opt: %d\n", core->screenIsOptimized);
-
         if (core->screenIsOptimized) {
-            int dbl;
+            int dbl = 1;
 
-            if (core->lastMode == 2) {
+            if (core->lastMode == 2)
                 dbl = 2;
-            } else {
-                dbl = 1;
-            }
 
             for (y = 0; y < height2; y++) {
                 for (x = 0; x < width2; x++) {
@@ -996,8 +678,6 @@ void guestScreenDraw(core_crocods_t *core)
         } else {
             // Copy 1 to 2
 
-            // printf("draw %p %p %dx%d\n", incX, incY, width2, height2);
-
             u32 left1 = core->x0 * 2;
             u32 top1 = core->y0;
             u32 width1 = core->screenBufferWidth * 2;
@@ -1006,43 +686,6 @@ void guestScreenDraw(core_crocods_t *core)
 
             guestBlit(core, memBitmap, width1, height1, left1, top1, bpl1,
                       buffer_scr, width2, height2);
-
-            /*
-             * // printf(" incx\n");
-             *
-             * for (x = 0; x < width2; x++) {
-             *  incX[x] = ((x * width1) / width2) + left1;
-             * }
-             *
-             * // printf("end incx\n");
-             *
-             * for (y = 0; y < height2; y++) {
-             *  incY[y] = (((y * height1) / (height2)) + top1) *  bpl1;
-             * }
-             *
-             * // printf("end incy\n");
-             * // printf("print to %p from %p\n", buffer_scr, memBitmap);
-             *
-             * for (y = 0; y < height2; y++) {
-             *  if (((y % 2) == 1)  & (myScanlineMask != 0)) {
-             *      for (x = 0; x < width2; x++) {
-             *          int pos = incX[x] + incY[y];
-             *
-             * buffer_scr = memBitmap[pos] & myScanlineMask;
-             *          buffer_scr++;
-             *      }
-             *  } else {
-             *      for (x = 0; x < width2; x++) {
-             *          int pos = incX[x] + incY[y];
-             *
-             * buffer_scr = memBitmap[pos];
-             *          buffer_scr++;
-             *      }
-             *  }
-             * }
-             */
-
-            // printf("end of draw\n");
         }
     }
 
@@ -1050,13 +693,10 @@ void guestScreenDraw(core_crocods_t *core)
         // ID_SCREEN_OVERSCAN
 
         if (core->screenIsOptimized) {
-            int dbl;
+            int dbl = 1;
 
-            if (core->lastMode == 2) {
+            if (core->lastMode == 2)
                 dbl = 2;
-            } else {
-                dbl = 1;
-            }
 
             for (y = 0; y < height2; y++) {
                 for (x = 0; x < width2; x++) {
@@ -1073,62 +713,10 @@ void guestScreenDraw(core_crocods_t *core)
             u32 height1 = 272;
             u32 bpl1 = 768;     // byte per line
 
-            // u32 left2 = 0;
-            // u32 top2 = 0;
-
             guestBlit(core, memBitmap, width1, height1, left1, top1, bpl1,
                       buffer_scr, width2, height2);
-
-            /*
-             *
-             * for (x = 0; x < width2; x++) {
-             *  incX[x] = ((x * width1) / width2) + left1;
-             * }
-             * for (y = 0; y < height2; y++) {
-             *  incY[y] = (((y * height1) / (height2)) + top1) *  bpl1;
-             * }
-             *
-             * for (y = 0; y < height2; y++) {
-             *  if (((y % 2) == 1)  & (myScanlineMask != 0)) {
-             *      for (x = 0; x < width2; x++) {
-             *          int pos = incX[x] + incY[y];
-             *
-             * buffer_scr = memBitmap[pos] & myScanlineMask;
-             *          buffer_scr++;
-             *      }
-             *  } else {
-             *      for (x = 0; x < width2; x++) {
-             *          int pos = incX[x] + incY[y];
-             *
-             * buffer_scr = memBitmap[pos];
-             *          buffer_scr++;
-             *      }
-             *  }
-             * }
-             */
         }
     }
-
-    /*
-     * static char buffer[4];
-     * if (GameConf.m_DisplayFPS)
-     * {
-     *      if (GameConf.m_ScreenRatio == 2 || GameConf.m_ScreenRatio == 0)
-     *      {
-     *              SDL_Rect pos;
-     *              pos.x = 0;
-     *              pos.y = 0;
-     *              pos.w = 17;
-     *              pos.h = 16;
-     *              SDL_FillRect(actualScreen, &pos, 0);
-     *      }
-     *      sprintf(buffer,"%d",FPS);
-     *      print_string_video(2,2,buffer);
-     * }
-     */
-
-    // printf("Drawicon\n");
-
 
     if ((core->iconTimer > 0) || (core->overlayBitmap_width != 0)) {
 
@@ -1232,9 +820,76 @@ void guestScreenDraw(core_crocods_t *core)
 
 } /* screen_draw */
 
-void guestExit(void)
-{
 
+void retro_run(void)
+{
+    frame++;
+
+    static bool updated = false;
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
+        updateFromEnvironment();
+
+    input_poll_cb();
+
+    int sndSamplerToPlay = 44100 / 50;
+    int byCycle = 0;
+
+    if (!gb.isPaused)     // Pause only the Z80
+        croco_cpu_doFrame(&gb);
+
+    u16 keys_pressed = WsInputGetState(&gb);
+
+    if (gb.runApplication != NULL)
+        gb.runApplication(&gb, (gb.wait_key_released == 1) ? 0 : keys_pressed);
+
+    UpdateScreen(&gb);
+
+    if (keys_pressed == 0)
+        gb.wait_key_released = 0;
+
+    if ((gb.runApplication == NULL)  && (gb.wait_key_released == 0))
+        gb.ipc.keys_pressed = keys_pressed;
+
+    nds_ReadKey(&gb);
+
+    int width   = gb.screenBufferWidth;
+    int height  = gb.screenBufferHeight;
+    float ratio = (float)width / (float)height;
+
+    if (gb.lastMode == 2)
+        width = width * 2;
+
+    if (gb.changeFilter != 0)
+    {
+        struct retro_game_geometry geometry;
+
+        geometry.base_width = width;
+        geometry.base_height = height;
+        geometry.max_width = width;
+        geometry.max_height = height;
+        geometry.aspect_ratio = ratio;
+
+        if (width != old_width || height != old_height)
+                environ_cb(RETRO_ENVIRONMENT_SET_GEOMETRY, &geometry);
+        old_width = width;
+        old_height = height;
+        gb.changeFilter = 0;
+    }
+
+    guestScreenDraw(&gb);
+
+    updateScreenBuffer(&gb, gb.MemBitmap, gb.screenBufferWidth);        // gb.MemBitmap not used
+
+    gb.overlayBitmap_width = 0;
+
+    if (sndSamplerToPlay > 0)
+    {
+        GB_sample_t sample[sndSamplerToPlay];
+        int x;
+
+        crocods_copy_sound_buffer(&gb, sample, sndSamplerToPlay);
+        audio_batch_cb((int16_t *)&sample, sndSamplerToPlay);
+    }
 }
 
 void guestGetAllKeyPressed(core_crocods_t *core, char *string)
@@ -1246,305 +901,6 @@ void guestGetJoystick(core_crocods_t *core, char *string)
 {
 
 }
-
-void setVariable(char *key, char *value)
-{
-    char isMap = false;
-    unsigned index;
-    unsigned port;
-
-    log_cb(RETRO_LOG_INFO, "setVariable: %s=%s\n", key, value);
-
-    CPC_SCANCODE scanCode;
-
-    if (!strcmp(key, "input_player1_a")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_A;
-    } else if (!strcmp(key, "input_player1_b")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_B;
-    } else if (!strcmp(key, "input_player1_x")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_X;
-    } else if (!strcmp(key, "input_player1_y")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_Y;
-    } else if (!strcmp(key, "input_player1_l")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_L;
-    } else if (!strcmp(key, "input_player1_r")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_R;
-    } else if (!strcmp(key, "input_player1_left")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_LEFT;
-    } else if (!strcmp(key, "input_player1_right")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_RIGHT;
-    } else if (!strcmp(key, "input_player1_up")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_UP;
-    } else if (!strcmp(key, "input_player1_down")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_DOWN;
-    } else if (!strcmp(key, "input_player1_select")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_SELECT;
-    } else if (!strcmp(key, "input_player1_start")) {
-        isMap = true;
-        port = 0;
-        index = RETRO_DEVICE_ID_JOYPAD_START;
-    }
-
-    if (!strcmp(key, "input_player2_a")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_A;
-    } else if (!strcmp(key, "input_player2_b")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_B;
-    } else if (!strcmp(key, "input_player2_x")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_X;
-    } else if (!strcmp(key, "input_player2_y")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_Y;
-    } else if (!strcmp(key, "input_player2_l")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_L;
-    } else if (!strcmp(key, "input_player2_r")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_R;
-    } else if (!strcmp(key, "input_player2_left")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_LEFT;
-    } else if (!strcmp(key, "input_player2_right")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_RIGHT;
-    } else if (!strcmp(key, "input_player2_up")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_UP;
-    } else if (!strcmp(key, "input_player2_down")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_DOWN;
-    } else if (!strcmp(key, "input_player2_select")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_SELECT;
-    } else if (!strcmp(key, "input_player2_start")) {
-        isMap = true;
-        port = 1;
-        index = RETRO_DEVICE_ID_JOYPAD_START;
-    }
-
-
-    //  CURSOR_UP, CURSOR_RIGHT, CURSOR_DOWN, F9, F6, F3, SMALL_ENTER, FDOT, CURSOR_LEFT, COPY, F7, F8, F5, F1, F2, F0, CLR, OPEN_SQUARE_BRACKET, RETURN, CLOSE_SQUARE_BRACKET, F4, SHIFT, FORWARD_SLASH, CONTROL, HAT, MINUS, AT, P, SEMICOLON, COLON, BACKSLASH, DOT, ZERO, 9, O, I, L, K, M, COMMA, 8, 7, U, Y, H, J, N, SPACE, 6, 5, R, T, G, F, B, V, 4, 3, E, W, S, D, C, X, 1, 2, ESC, Q, TAB, A, CAPS_LOCK, Z, JOY_UP, JOY_DOWN, JOY_LEFT, JOY_RIGHT, JOY_FIRE1, JOY_FIRE2, SPARE, DEL */
-
-
-    if (!strcmp(value, "CURSOR_UP")) {
-        scanCode = CPC_CURSOR_UP;
-    } else if (!strcmp(value, "CURSOR_RIGHT")) {
-        scanCode = CPC_CURSOR_RIGHT;
-    } else if (!strcmp(value, "CURSOR_DOWN")) {
-        scanCode = CPC_CURSOR_DOWN;
-    } else if (!strcmp(value, "F9")) {
-        scanCode = CPC_F9;
-    } else if (!strcmp(value, "F6")) {
-        scanCode = CPC_F6;
-    } else if (!strcmp(value, "F3")) {
-        scanCode = CPC_F3;
-    } else if (!strcmp(value, "SMALL_ENTER")) {
-        scanCode = CPC_SMALL_ENTER;
-    } else if (!strcmp(value, "FDOT")) {
-        scanCode = CPC_FDOT;
-    } else if (!strcmp(value, "CURSOR_LEFT")) {
-        scanCode = CPC_CURSOR_LEFT;
-    } else if (!strcmp(value, "COPY")) {
-        scanCode = CPC_COPY;
-    } else if (!strcmp(value, "F7")) {
-        scanCode = CPC_F7;
-    } else if (!strcmp(value, "F8")) {
-        scanCode = CPC_F8;
-    } else if (!strcmp(value, "F5")) {
-        scanCode = CPC_F5;
-    } else if (!strcmp(value, "F1")) {
-        scanCode = CPC_F1;
-    } else if (!strcmp(value, "F2")) {
-        scanCode = CPC_F2;
-    } else if (!strcmp(value, "F0")) {
-        scanCode = CPC_F0;
-    } else if (!strcmp(value, "CLR")) {
-        scanCode = CPC_CLR;
-    } else if (!strcmp(value, "OPEN_SQUARE_BRACKET")) {
-        scanCode = CPC_OPEN_SQUARE_BRACKET;
-    } else if (!strcmp(value, "RETURN")) {
-        scanCode = CPC_RETURN;
-    } else if (!strcmp(value, "CLOSE_SQUARE_BRACKET")) {
-        scanCode = CPC_CLOSE_SQUARE_BRACKET;
-    } else if (!strcmp(value, "F4")) {
-        scanCode = CPC_F4;
-    } else if (!strcmp(value, "SHIFT")) {
-        scanCode = CPC_SHIFT;
-    } else if (!strcmp(value, "FORWARD_SLASH")) {
-        scanCode = CPC_FORWARD_SLASH;
-    } else if (!strcmp(value, "CONTROL")) {
-        scanCode = CPC_CONTROL;
-    } else if (!strcmp(value, "HAT")) {
-        scanCode = CPC_HAT;
-    } else if (!strcmp(value, "MINUS")) {
-        scanCode = CPC_MINUS;
-    } else if (!strcmp(value, "AT")) {
-        scanCode = CPC_AT;
-    } else if (!strcmp(value, "P")) {
-        scanCode = CPC_P;
-    } else if (!strcmp(value, "SEMICOLON")) {
-        scanCode = CPC_SEMICOLON;
-    } else if (!strcmp(value, "COLON")) {
-        scanCode = CPC_COLON;
-    } else if (!strcmp(value, "BACKSLASH")) {
-        scanCode = CPC_BACKSLASH;
-    } else if (!strcmp(value, "DOT")) {
-        scanCode = CPC_DOT;
-    } else if (!strcmp(value, "ZERO")) {
-        scanCode = CPC_ZERO;
-    } else if (!strcmp(value, "9")) {
-        scanCode = CPC_9;
-    } else if (!strcmp(value, "O")) {
-        scanCode = CPC_O;
-    } else if (!strcmp(value, "I")) {
-        scanCode = CPC_I;
-    } else if (!strcmp(value, "L")) {
-        scanCode = CPC_L;
-    } else if (!strcmp(value, "K")) {
-        scanCode = CPC_K;
-    } else if (!strcmp(value, "M")) {
-        scanCode = CPC_M;
-    } else if (!strcmp(value, "COMMA")) {
-        scanCode = CPC_COMMA;
-    } else if (!strcmp(value, "8")) {
-        scanCode = CPC_8;
-    } else if (!strcmp(value, "7")) {
-        scanCode = CPC_7;
-    } else if (!strcmp(value, "U")) {
-        scanCode = CPC_U;
-    } else if (!strcmp(value, "Y")) {
-        scanCode = CPC_Y;
-    } else if (!strcmp(value, "H")) {
-        scanCode = CPC_H;
-    } else if (!strcmp(value, "J")) {
-        scanCode = CPC_J;
-    } else if (!strcmp(value, "N")) {
-        scanCode = CPC_N;
-    } else if (!strcmp(value, "SPACE")) {
-        scanCode = CPC_SPACE;
-    } else if (!strcmp(value, "6")) {
-        scanCode = CPC_6;
-    } else if (!strcmp(value, "5")) {
-        scanCode = CPC_5;
-    } else if (!strcmp(value, "R")) {
-        scanCode = CPC_R;
-    } else if (!strcmp(value, "T")) {
-        scanCode = CPC_T;
-    } else if (!strcmp(value, "G")) {
-        scanCode = CPC_G;
-    } else if (!strcmp(value, "F")) {
-        scanCode = CPC_F;
-    } else if (!strcmp(value, "B")) {
-        scanCode = CPC_B;
-    } else if (!strcmp(value, "V")) {
-        scanCode = CPC_V;
-    } else if (!strcmp(value, "4")) {
-        scanCode = CPC_4;
-    } else if (!strcmp(value, "3")) {
-        scanCode = CPC_3;
-    } else if (!strcmp(value, "E")) {
-        scanCode = CPC_E;
-    } else if (!strcmp(value, "W")) {
-        scanCode = CPC_W;
-    } else if (!strcmp(value, "S")) {
-        scanCode = CPC_S;
-    } else if (!strcmp(value, "D")) {
-        scanCode = CPC_D;
-    } else if (!strcmp(value, "C")) {
-        scanCode = CPC_C;
-    } else if (!strcmp(value, "X")) {
-        scanCode = CPC_X;
-    } else if (!strcmp(value, "1")) {
-        scanCode = CPC_1;
-    } else if (!strcmp(value, "2")) {
-        scanCode = CPC_2;
-    } else if (!strcmp(value, "ESC")) {
-        scanCode = CPC_ESC;
-    } else if (!strcmp(value, "Q")) {
-        scanCode = CPC_Q;
-    } else if (!strcmp(value, "TAB")) {
-        scanCode = CPC_TAB;
-    } else if (!strcmp(value, "A")) {
-        scanCode = CPC_A;
-    } else if (!strcmp(value, "CAPS_LOCK")) {
-        scanCode = CPC_CAPS_LOCK;
-    } else if (!strcmp(value, "Z")) {
-        scanCode = CPC_Z;
-    } else if (!strcmp(value, "JOY_UP")) {
-        scanCode = CPC_JOY_UP;
-    } else if (!strcmp(value, "JOY_DOWN")) {
-        scanCode = CPC_JOY_DOWN;
-    } else if (!strcmp(value, "JOY_LEFT")) {
-        scanCode = CPC_JOY_LEFT;
-    } else if (!strcmp(value, "JOY_RIGHT")) {
-        scanCode = CPC_JOY_RIGHT;
-    } else if (!strcmp(value, "JOY_FIRE1")) {
-        scanCode = CPC_JOY_FIRE1;
-    } else if (!strcmp(value, "JOY_FIRE2")) {
-        scanCode = CPC_JOY_FIRE2;
-    } else if (!strcmp(value, "SPARE")) {
-        scanCode = CPC_SPACE;
-    } else if (!strcmp(value, "DEL")) {
-        scanCode = CPC_DEL;
-    }
-
-
-    if (isMap) {
-        int i;
-        for (i = 0; i < sizeof(crocokeymap) / sizeof(struct CrocoKeyMap); i++) {
-
-            if ((crocokeymap[i].port == port) && (crocokeymap[i].index == index)) {
-                crocokeymap[i].scanCode = scanCode;
-            }
-        }
-
-    }
-} /* setVariable */
-
-bool loadGame(void)
-{
-    ExecuteMenu(&gb, ID_AUTORUN, NULL);                             // Do: open disk & autorun // TODO
-    return 1;
-
-} /* loadGame */
-
-
-
 
 bool retro_load_game(const struct retro_game_info *info)
 {
@@ -1562,8 +918,6 @@ bool retro_load_game(const struct retro_game_info *info)
     old_width = 0;
     old_height = 0;
 
-    log_cb(RETRO_LOG_INFO, "begin of load games\n");
-
     environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
     // Init pixel format
@@ -1576,14 +930,10 @@ bool retro_load_game(const struct retro_game_info *info)
     }
 
     // Load .dsk or .sna
-
     strcpy(gb.openFilename, info->path);
-    ExecuteMenu(&gb, ID_AUTORUN, NULL);                         // Do: open disk & autorun // TODO
-
-    log_cb(RETRO_LOG_INFO, "open file: %s\n", info->path);
-
+    ExecuteMenu(&gb, ID_AUTORUN, NULL); // Do: open disk & autorun // TODO
     return 1;
-} /* retro_load_game */
+}
 
 void retro_unload_game(void)
 {

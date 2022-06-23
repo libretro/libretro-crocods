@@ -104,8 +104,6 @@ kFctVoidVoid ResetCRTC;
 kFctVoidVoid GateArray_Cycle;
 kFctVoidVoid ResetVGA;
 
-void guestExit(void); // In guest.h
-
 /*
  * inline char toupper(const char toLower)
  * {
@@ -153,11 +151,6 @@ static int frame = 0, msgframe = 0;
 static char msgbuf[33] = { 0 };
 
 u16 *kbdBuffer;
-
-#ifdef USE_DEBUG
-int DebugMode = 0;
-int Cont = 1;
-#endif
 
 char *keyname0[] = {
     "CURSOR_UP", // = 0
@@ -469,8 +462,6 @@ void UseResources(void *core0, void *bytes, int len)
 {
     core_crocods_t *core = (core_crocods_t *)core0;
 
-    printf("use Resources\n");
-
     core->resources = (char *)malloc(len); // +1); // Crash (heap buffer overflow) when omitting +1. Why ???
     memcpy(core->resources, bytes, len);
     core->resources_len = len;
@@ -683,13 +674,6 @@ void RedefineKey(core_crocods_t *core, int key)
 
 void UpdateTitlePalette(struct kmenu *current)
 {
-    /*
-     * if (lastcolour==1) {
-     * sprintf(current->title,"Monitor: [COLOR] - Green");
-     * } else {
-     * sprintf(current->title,"Monitor: Color - [GREEN]");
-     * }
-     */
 }
 
 // Retour: 1 -> return emulator  (Default)
@@ -698,11 +682,6 @@ void UpdateTitlePalette(struct kmenu *current)
 
 int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
 {
-    if (n == 37) {
-        printf("ExecuteMenu: ID_MENU_ENTER\n");
-    } else {
-        printf("ExecuteMenu: %d\n", n);
-    }
     switch (n) {
         case ID_SWITCH_MONITOR:
             return 0;
@@ -750,8 +729,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
         case ID_SCREEN_NORESIZE:
             core->resize = 3;
             core->DrawFct = TraceLigne8B512;
-            //     BG3_XDX = 256; // 256; // 360 - 54;  // 360 = DISPLAY_X // Taille d'affichage
-            //     BG3_CX = (XStart*4) << 8;
             core->x0 = (core->XStart * 4);
             core->y0 = 40;
             core->maxy = 80;
@@ -864,7 +841,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             return 0;
             break;
         case ID_RESET:
-            // myprintf("Reset CPC");
             ExecuteMenu(core, ID_MENU_EXIT, NULL);
             HardResetCPC(core);
             ExecuteMenu(core, ID_AUTORUN, NULL);
@@ -875,14 +851,8 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             LoadSlotSnap(core, core->currentsnap);
             break;
         case ID_SAVESNAP: {
-//            char *buf;
             char snap[MAX_PATH + 1];
             char snapFile[MAX_PATH + 1];
-
-            // sprintf(snap, "%s/%s_i.%d.gif", core->home_dir, core->openFilenam, core->currentsnap + 1);
-            // buf = strchr(snap, '.');
-            // *buf = '_';
-            // SauveScreen(snap);
 
             strcpy(snap, core->home_dir);
             sprintf(snapFile, "%s_%d.sna", core->filename, core->currentsnap);
@@ -890,7 +860,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             apps_disk_path2Abs(snap, "snap");
             apps_disk_path2Abs(snap, snapFile);
 
-            // mydebug("Save snap: %s\n", snap);
             SauveSnap(core, snap);
 
             return 1;
@@ -899,7 +868,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
 
         case ID_EXIT:
             ExecuteMenu(core, ID_SAVE_SETTINGS, NULL);
-            guestExit();
             exit(EXIT_SUCCESS);
             break;
 
@@ -983,12 +951,8 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             SetPalette(core, 3);
             break;
         case ID_PAUSE_EXIT:
-//            if (core->runApplication==DispAutorun) {
-//                break;
-//            }
             core->isPaused = 0;
             core->inMenu = 0;
-//            core->runApplication = NULL;
             SetPalette(core, -1);
             break;
         case ID_DEBUG_ENTER:
@@ -1349,7 +1313,6 @@ void updateScreenBuffer(core_crocods_t *core, unsigned short *screen, u16 screen
 ********************************************************** !0! ****************/
 void Erreur(char *Msg)
 {
-    myprintf("Error: %s", Msg);
 }
 
 /********************************************************* !NAME! **************
@@ -1369,7 +1332,6 @@ void Erreur(char *Msg)
 ********************************************************** !0! ****************/
 void Info(char *Msg)
 {
-    myprintf("Info: %s", Msg);
 }
 
 // Draw line (used by the old WINCPC CRTC core)
@@ -1516,11 +1478,6 @@ void calcSize(core_crocods_t *core)
     y2 = min(y1 + (core->RegsCRTC[6] << 3), 272);
 
     core->DrawFct = TraceLigne8B512;
-
-    //            height = (y2 - y1);
-    //            if (height < 192) height = 192;
-
-    printf("Change top to %d\n", y1);
 
     core->x0 = x1;
     core->y0 = y1;             // Redbug
@@ -1806,10 +1763,6 @@ int nds_ReadKey(core_crocods_t *core)
     return 0;
 } /* nds_ReadKey */
 
-void videoinit(void)
-{
-}
-
 void nds_initBorder(core_crocods_t *core, int *_borderX, int *_borderY)
 {
     core->borderX = _borderX;
@@ -1818,8 +1771,6 @@ void nds_initBorder(core_crocods_t *core, int *_borderX, int *_borderY)
 
 void nds_init(core_crocods_t *core)
 {
-    core->mustLeave = 0;
-
     core->icons = (u16 *)malloc(448 * 320 * 2);
     ReadBackgroundGif16(core->icons, (unsigned char *)&icons_gif, icons_gif_length);
 
@@ -1857,27 +1808,11 @@ void nds_init(core_crocods_t *core)
 
     AutoType_Init(core);
 
-// Default Config
-
-//    ExecuteMenu(core, ID_USE_CRTC_WINCPC, NULL);  // 9200% on my iMac
-//    ExecuteMenu(core, ID_USE_CRTC_ARNOLD, NULL);  // 1800% on my iMac
+    // Default Config
     ExecuteMenu(core, ID_USE_CRTC_CAP32, NULL);
-
     ExecuteMenu(core, ID_COLOR_MONITOR, NULL);
-    //   ExecuteMenu(ID_SCREEN_AUTO, NULL);
-
-    //   ExecuteMenu(core, ID_SCREEN_320, NULL);
     ExecuteMenu(core, ID_SCREEN_OVERSCAN, NULL);        // ID_SCREEN_AUTO
     ExecuteMenu(core, ID_KEY_JOYSTICK, NULL);
-//    ExecuteMenu(core, ID_KEY_KEYPAD, NULL);
-
-//    ExecuteMenu(core, ID_NODISPFRAMERATE, NULL);
-//    ExecuteMenu(core, ID_DISPFRAMERATE, NULL);
-
-    //   ExecuteMenu(core, ID_HACK_TABCOUL, NULL);
-
-    //    ExecuteMenu(core, ID_DEBUG_ENTER, NULL);
-
     ExecuteMenu(core, ID_SCREEN_OVERSCAN, NULL);
     ExecuteMenu(core, ID_KEY_JOYSTICK, NULL);
 
@@ -1901,8 +1836,6 @@ void nds_init(core_crocods_t *core)
 #endif
 
         apps_disk_path2Abs(core->home_dir, ".crocods");
-
-        printf("Homedir final: %s\n", core->home_dir);
 
 #ifdef _WIN32
         mkdir(core->home_dir);
@@ -1940,23 +1873,6 @@ void Autoexec(core_crocods_t *core)
         SetPalette(core, -1);
         return;
     }
-    if (core->Fmnbr == 1) {
-        //   LireRom(FirstROM,1);
-    }
-}
-
-int nds_video_unlock(void)
-{
-    return 1; // OK
-}
-
-int nds_video_lock(void)
-{
-    return 1; // OK
-}
-
-void nds_video_close(void)
-{
 }
 
 void myconsoleClear(core_crocods_t *core)
@@ -1964,63 +1880,6 @@ void myconsoleClear(core_crocods_t *core)
     memset(core->consolestring, 0, 1024);
     core->consolepos = 0;
 }
-
-void myprintf0(core_crocods_t *core, const char *fmt, ...)
-{
-    char tmp[512];
-
-    va_list args;
-
-    va_start(args, fmt);
-    vsprintf(tmp, fmt, args);
-    va_end(args);
-
-    if (tmp[0] == '\n') {
-        core->consolepos++;
-        if (core->consolepos == 8) {
-            memcpy(core->consolestring, core->consolestring + 128, 1024 - 128);
-            core->consolepos = 7;
-        }
-    }
-
-    memcpy(core->consolestring + core->consolepos * 128, tmp, 128);
-    core->consolestring[core->consolepos * 128 - 1] = 0;
-}
-
-void myprintf(const char *fmt, ...)
-{
-    char tmp[512];
-    int n;
-
-    va_list args;
-
-    va_start(args, fmt);
-    vsprintf(tmp, fmt, args);
-    va_end(args);
-
-    strncpy(msgbuf, tmp, 32);
-    msgbuf[32] = 0;
-    msgframe = frame;
-    for (n = (int)strlen(msgbuf); n < 32; n++) {
-        msgbuf[n] = ' ';
-    }
-
-#ifdef USE_CONSOLE
-    printf("%s\n", tmp);
-#else
-
-    if (backBuffer == NULL) {
-        return;
-    } else {
-        consolepos++;
-        if (consolepos == 8) {
-            memcpy(consolestring, consolestring + 128, 1024 - 128);
-            consolepos = 7;
-        }
-        // for(n=0;n<20;n++) swiWaitForVBlank();
-    }
-#endif /* ifdef USE_CONSOLE */
-} /* myprintf */
 
 u16 computeColor(int x, int y, int frame)
 {
@@ -2590,16 +2449,7 @@ void mydebug(core_crocods_t *core, const char *fmt, ...);
 
 u8 * MyAlloc(int size, char *title)
 {
-    u8 *mem;
-
-    mem = (u8 *)malloc(size);
-    if (mem == NULL) {
-        myprintf("Allocate %s (%d): FAILED", title, size);
-        // while(1) swiWaitForVBlank();
-    } else {
-        //    myprintf("Allocate %s (%d): OK", title, size);
-    }
-    return mem;
+    return (u8 *)malloc(size);
 }
 
 // FileSystem
@@ -3139,8 +2989,6 @@ void saveIni(core_crocods_t *core, int local)
             strcpy(iniFile, core->home_dir);
             apps_disk_path2Abs(iniFile, "crocods.ini");
         }
-
-        printf("Save ini to %s\n", iniFile);
 
         fic = fopen(iniFile, "wb");
         iniparser_dump_ini(ini, fic);

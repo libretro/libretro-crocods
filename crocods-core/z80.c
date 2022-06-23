@@ -479,7 +479,6 @@ void Poke8Ext(core_crocods_t *core, USHORT adr, UBYTE val)
 
 static u8 PEEK8(core_crocods_t *core, u16 adr)
 {
-    // myprintf("R8: %d", adr);
     return(core->TabPEEK[ adr >> 14 ][ adr & MASK_14BIT ]);
 }
 
@@ -525,7 +524,6 @@ static void POKE8(core_crocods_t *core, u16 adr, u8 val)
  ********************************************************** !0! ****************/
 static u16 PEEK16(core_crocods_t *core, u16 adr)
 {
-    // myprintf("R16: %d", adr);
     u16 p = adr & MASK_14BIT;
     u16 q = adr >> 14;
     return( (USHORT)(core->TabPEEK[ q ][ p ] | (core->TabPEEK[ q ][ p + 1 ] << 8) ) );
@@ -2657,12 +2655,7 @@ static int CB_FF(core_crocods_t *core)        /* SET 7, A */
  ********************************************************** !0! ****************/
 static int ed___(core_crocods_t *core)
 {
-    printf("Instruction ED%02X a l'adresse %04X rencontree."
-           , PEEK8(core, (USHORT)(RegPC - 1) )
-           , RegPC - 2
-           );
-
-    return(2);
+    return 2;
 }
 
 static int ED_40(core_crocods_t *core)   /* IN B, ( C ) */
@@ -3183,8 +3176,7 @@ static int ED_BB(core_crocods_t *core)   /* OTDR */
 
 static int ED_FF(core_crocods_t *core)   /* LDDR */
 {
-    // printf("Breakpoint");
-    return(2);
+    return 2;
 }
 
 /************
@@ -3206,13 +3198,8 @@ static int ED_FF(core_crocods_t *core)   /* LDDR */
  ********************************************************** !0! ****************/
 static int dd___(core_crocods_t *core)
 {
-    printf("Instruction DD%02X a l'adresse %04X rencontree."
-           , PEEK8(core, (USHORT)(RegPC - 1) )
-           , RegPC - 2
-           );
-
     RegPC++;
-    return(2);
+    return 2;
 }
 
 static USHORT GetIXdd(core_crocods_t *core)
@@ -3781,13 +3768,8 @@ static int DD_FD(core_crocods_t *core)   /* special DD_FD */
  ********************************************************** !0! ****************/
 static int fd___(core_crocods_t *core)
 {
-    printf("Instruction FD%02X a l'adresse %04X rencontree.\n"
-           , PEEK8(core, (USHORT)(RegPC - 1) )
-           , RegPC - 2
-           );
-
     RegPC++;
-    return(2);
+    return 2;
 }
 
 static USHORT GetIYdd(core_crocods_t *core)
@@ -6419,10 +6401,6 @@ void VerifyIRQ(core_crocods_t *core)
             RegSP -= 2;
             POKE16(core, RegSP, RegPC);
 
-            if (core->Z80.InterruptMode == 0) {
-                printf("interrupt: %d\n", core->Z80.InterruptMode);
-            }
-
             switch (core->Z80.InterruptMode) {
                 case 0:
                 case 1:
@@ -6446,43 +6424,3 @@ void VerifyIRQ(core_crocods_t *core)
         }
     }
 }
-
-//void WriteZ80(SRegs *z0)
-//{
-//    Z80.AF.Word = z0->AF.Word;
-//    Z80.BC.Word = z0->BC.Word;
-//    Z80.DE.Word = z0->DE.Word;
-//    Z80.HL.Word = z0->HL.Word;
-//    Z80.IR.Word = z0->IR.Word;
-//    Z80.IFF1 = z0->IFF1;
-//    Z80.IFF2 = z0->IFF2;
-//    Z80.IX.Word = z0->IX.Word;
-//    Z80.IY.Word = z0->IY.Word;
-//    Z80.SP.Word = z0->SP.Word;
-//    Z80.PC.Word = z0->PC.Word;
-//    Z80.InterruptMode = z0->InterruptMode;
-//    Z80._AF.Word = z0->_AF.Word;
-//    Z80._BC.Word = z0->_BC.Word;
-//    Z80._DE.Word = z0->_DE.Word;
-//    Z80._HL.Word = z0->_HL.Word;
-//}
-//
-//void ReadZ80(SRegs *z0)
-//{
-//    z0->AF.Word = Z80.AF.Word;
-//    z0->BC.Word = Z80.BC.Word;
-//    z0->DE.Word = Z80.DE.Word;
-//    z0->HL.Word = Z80.HL.Word;
-//    z0->IR.Word = Z80.IR.Word;
-//    z0->IFF1 = Z80.IFF1;
-//    z0->IFF2 = Z80.IFF2;
-//    z0->IX.Word = Z80.IX.Word;
-//    z0->IY.Word = Z80.IY.Word;
-//    z0->SP.Word = Z80.SP.Word;
-//    z0->PC.Word = Z80.PC.Word;
-//    z0->InterruptMode = Z80.InterruptMode;
-//    z0->_AF.Word = Z80._AF.Word;
-//    z0->_BC.Word = Z80._BC.Word;
-//    z0->_DE.Word = Z80._DE.Word;
-//    z0->_HL.Word = Z80._HL.Word;
-//}

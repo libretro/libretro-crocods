@@ -95,8 +95,6 @@ void WriteVGA(core_crocods_t *core, u16 port, u8 val)
     u8 newVal = val & 0x1F;
     u8 Use512Ko = 1;
 
-    //    myprintf("VGA: %d %d", val&0x1F, val >> 6);
-
     switch (val >> 6) {
         case 0: // function 00xxxxxx
             core->PenSelection = val;
@@ -118,16 +116,9 @@ void WriteVGA(core_crocods_t *core, u16 port, u8 val)
             break;
 
         case 2: // function 10xxxxxx
-
-            if (core->DecodeurAdresse != val) {
-//                printf("Change decodeur: %d\n", core->DecodeurAdresse);
-            }
-
             core->DecodeurAdresse = val;
             core->lastMode = val & 3;  // requested_scr_mode
             core->changeFilter = 1;
-
-            // printf("WriteVGA 2\n");
 
             SetMemCPC(core);
             if (val & 0x10) {
@@ -142,8 +133,6 @@ void WriteVGA(core_crocods_t *core, u16 port, u8 val)
 
             core->RamSelect = val & 7;
             core->Bloc = Use512Ko * ( (val >> 3) & 7);
-
-//            printf("Change ram: %d\n", core->RamSelect);
 
             SetMemCPC(core);
             core->UpdateInk = 1;    
@@ -171,16 +160,11 @@ void WriteROM(core_crocods_t *core, int val)
 {
     core->NumRomExt = val;
     SetMemCPC(core);
-
-//    printf("Change rom (writeRom): %d\n", core->NumRomExt);
 }
 
 void AddRom(core_crocods_t *core, const char *rom, int i)
 {
     memcpy(core->ROMEXT[ i ], rom, sizeof(core->ROMEXT[ i ]) );
-
-//    WriteVGA(core, 0, 0x89);
-//    WriteVGA(core, 0, 0xC0);
 }
 
 /********************************************************* !NAME! **************

@@ -268,7 +268,6 @@ static void UpdatePSG(core_crocods_t *core)
             break;
 
         default:
-            //            printf("Unknown PSG: %d\n", core->modePSG);
             break;
     }
 } // UpdatePSG

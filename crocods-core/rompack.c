@@ -59,8 +59,6 @@ int ED_0A( core_crocods_t *core ) { // SSH
     
     Argument[ i ] = 0;
     
-    printf("%s\n%s\n", Nom, Argument);
-    
     memcpy(core->runParam[0], Nom, 258);
     memcpy(core->runParam[1], Argument, 258);
     strcpy(core->runApp, "ssh");

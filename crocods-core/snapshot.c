@@ -12,17 +12,6 @@ extern t_z80regs z80; // in cap32
 
 #ifdef USE_SNAPSHOT
 
-/********************************************************* !NAME! **************
-* Nom : StSnapShot
-********************************************************** !PATHS! *************
-* !./V1!\!./V2!\!./V3!\!./V4!\Structures
-********************************************************** !1! *****************
-*
-* Fichier     : !./FPTH\/FLE!, ligne : !./LN!
-*
-* Description : Structure en-t�te fichier snapshot
-*
-********************************************************** !0! ****************/
 #pragma pack(1)
 typedef struct {
     u16 AF;
@@ -184,23 +173,8 @@ char * getSnapshot(core_crocods_t *core, int *len)
     memcpy(buffer + sizeof(StSnapShot), core->MemCPC, 0x20000);
 
     return buffer;
-} /* getSnapshot */
+}
 
-/********************************************************* !NAME! **************
-* Nom : SauveSnap
-********************************************************** !PATHS! *************
-* !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
-********************************************************** !1! *****************
-*
-* Fichier     : !./FPTH\/FLE!, ligne : !./LN!
-*
-* Description : Sauvegarde d'un fichier snapshot
-*
-* R�sultat    : /
-*
-* Variables globales modifi�es : /
-*
-********************************************************** !0! ****************/
 void SauveSnap(core_crocods_t *core, char *Nom)
 {
     FILE *fp = fopen(Nom, "wb");
@@ -216,48 +190,6 @@ void SauveSnap(core_crocods_t *core, char *Nom)
     }
 }
 
-void SauveScreen(char *Nom)
-{
-    // FILE *fp;
-    // fp = fopen( "Nom", "w" );
-    // fwrite( MemCPC, 1, 80*50, fp );
-    // fclose( fp );
-    // fp = fopen( "Nom2", "w" );
-    // fwrite( MemCPC, 1, 0x20000, fp );
-    // fclose( fp );
-}
-
-/********************************************************* !NAME! **************
-* Nom : LireSnap
-********************************************************** !PATHS! *************
-* !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
-********************************************************** !1! *****************
-*
-* Fichier     : !./FPTH\/FLE!, ligne : !./LN!
-*
-* Description : Lecture d'un fichier snapshot
-*
-* R�sultat    : /
-*
-* Variables globales modifi�es : Z80, PenSenect, RegPSGSel, RomExt, RegCRTCSel
-*
-********************************************************** !0! ****************/
-
-/********************************************************* !NAME! **************
-* Nom : LireSnap
-********************************************************** !PATHS! *************
-* !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
-********************************************************** !1! *****************
-*
-* Fichier     : !./FPTH\/FLE!, ligne : !./LN!
-*
-* Description : Lecture d'un fichier snapshot
-*
-* R�sultat    : /
-*
-* Variables globales modifi�es : Z80, PenSenect, RegPSGSel, RomExt, RegCRTCSel
-*
-********************************************************** !0! ****************/
 void LireSnapshotMem(core_crocods_t *core, u8 *snap)
 {
     int i;
@@ -275,10 +207,8 @@ void LireSnapshotMem(core_crocods_t *core, u8 *snap)
         dwSnapSize = SnapShot.ram_size[0] + (SnapShot.ram_size[1] * 256); // memory dump size
         dwSnapSize &= ~0x3f; // limit to multiples of 64
 
-        if (dwSnapSize != 0) {
+        if (dwSnapSize != 0)
             memcpy(core->MemCPC, snap + sizeof(SnapShot), dwSnapSize * 1024);
-        } else {  // We have compressed chunk after the header
-        }
 
         if (SnapShot.Version >= 1) {        // Load v1 specific
             if ((croco_cpu_doFrame == cap32_cpu_doFrame) || (croco_cpu_doFrame == cap32_cpu_doFrame_debug)) {
@@ -357,36 +287,21 @@ void LireSnapshotMem(core_crocods_t *core, u8 *snap)
 
             core->UpdateInk = 1;
         }
-        if (SnapShot.Version >= 2) {        // Load v2 specific
-        }
-        if (SnapShot.Version >= 3) {        // Load v3 specific
-        }
     }
 }     /* LireSnapshotMem */
 
 int HaveSlotSnap(core_crocods_t *core, char *file, int c)
 {
-    // char snap[256];
-    // char *buf;
-
-    // sprintf(snap, "/%s.%d", file, c + 1);
-    // buf = strchr(snap, '.');
-    // *buf = '_';
-
-    // return FileExists(snap);
-
     return 0;
 }
 
 void LoadSlotSnap(core_crocods_t *core, int c)
 {
     char snap[MAX_PATH + 1];
-//    char *buf;
     u8 *rom = NULL;
     u32 romsize = 0;
 
     sprintf(snap, "%s/snap/%s_%d.sna", core->home_dir, core->filename, c);
-//    mydebug(core, "Loading snap: %s\n", snap);
 
     rom = FS_Readfile(snap, &romsize);
 

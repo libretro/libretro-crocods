@@ -13,9 +13,6 @@
 
 int CRTC_GetRAOutput(core_crocods_t *core);
 
-// static int lastRegsCRTC;
-// static int diffX;
-
 void Monitor_Reset(core_crocods_t *core)
 {
     core->MonitorVCount = 0;
@@ -29,31 +26,15 @@ void Monitor_Reset(core_crocods_t *core)
     core->MonitorHTraceCount = 0;
 }
 
-#if 1
-
-void RenderFunction(core_crocods_t *core)
+static void RenderFunction(core_crocods_t *core)
 {
-    int x = core->MonitorHCount - 1; // from 0 to 52
-    int y = core->MonitorScanLineCount;
-
-    //    x = core->HCount; // <-- TODO - marche mieux.. Preuve que MonitorHCount n'est pas totalement correct.
-//    printf("(%d,%d)",x,y);
-
+    int x       = core->MonitorHCount - 1; // from 0 to 52
+    int y       = core->MonitorScanLineCount;
     int LocalMA = core->MA << 1;
-
-    if ((x == 20) && (y == 20)) {
-//        printf("Render %d,%d,%d,%d\n", core->MonitorHCount, core->HCount, core->RegsCRTC[1], core->RegsCRTC[2]);
-    }
-
-    int Adr = ((LocalMA & 0x06000) << 1) | ((CRTC_GetRAOutput(core) & 0x07) << 11) | (LocalMA & 0x07ff);
+    int Adr     = ((LocalMA & 0x06000) << 1) | ((CRTC_GetRAOutput(core) & 0x07) << 11) | (LocalMA & 0x07ff);
 
     TraceWord8B512(core, x, y, Adr);
-
-
-} // RenderFunction
-
-
-
+}
 
 void Monitor_DoVsyncStart(core_crocods_t *core)
 {
@@ -74,10 +55,9 @@ void Monitor_DoVsyncStart(core_crocods_t *core)
 /* called when vsync input ends */
 void Monitor_DoVsyncEnd(core_crocods_t *core)
 {
-    if ((core->MonitorSyncInputs & VSYNC_INPUT) != 0) {
-        /* indicate vsync input inactive */
+    /* indicate vsync input inactive */
+    if ((core->MonitorSyncInputs & VSYNC_INPUT) != 0)
         core->MonitorSyncInputs &= ~VSYNC_INPUT;
-    }
 }
 
 /* ---------------------------------------------------------------------------------------------------------- */
@@ -115,13 +95,11 @@ void Monitor_DoHsyncEnd(core_crocods_t *core)
 
 }
 
-void Monitor_Cycle(core_crocods_t *core)
+static void Monitor_Cycle(core_crocods_t *core)
 {
     /* horizontal trace and vertical trace operate at the same time */
     /* TODO: Change vertical trace to be cycles and not lines */
     /* monitor does go black if hsync goes missing */
-
-    core->MonitorCyclesDebug++;
 
     if (core->MonitorVTraceActive) {
         core->MonitorVTraceCount--;
@@ -129,10 +107,6 @@ void Monitor_Cycle(core_crocods_t *core)
             core->MonitorVCount = 0;
             core->MonitorVTraceActive = FALSE;
             core->MonitorScanLineCount = -1;
-
-            printf("End of frame: MonitorScanLineCount (%d):-1\n", core->MonitorCyclesDebug);
-
-
         }
     }
 
@@ -174,9 +148,7 @@ void Monitor_Cycle(core_crocods_t *core)
     if (core->MonitorHTraceActive) {
         core->MonitorHorizontalCount = 63;
     }
-} // Monitor_Cycle
-
-
+}
 
 void Graphics_Update(core_crocods_t *core)
 {
@@ -185,7 +157,3 @@ void Graphics_Update(core_crocods_t *core)
     RenderFunction(core);
 
 }
-
-
-
-#endif // if 1

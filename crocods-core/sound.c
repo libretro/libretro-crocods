@@ -42,8 +42,6 @@ int Read8912(core_crocods_t *gb, int r)
 
 void initSound(core_crocods_t *gb, int r)
 {
-    printf("\nSound V2vi\n");
-
     // PSG initialize
 
     sndbuf = malloc(sizeof(GB_sample_t) * SNDBUFSIZE);
@@ -95,12 +93,6 @@ void crocods_copy_sound_buffer(core_crocods_t *gb, GB_sample_t *dest, unsigned i
         }
     } else {
         int i;
-
-        if (/* DISABLES CODE */ (1) == 0) {
-            u32 have = (sndbufend + SNDBUFSIZE - sndbufbeg) % SNDBUFSIZE;
-            printf("sound %d to %d (have %d ask %d)\n", sndbufbeg, sndbufend, have, snd_bufsize);
-        }
-
         int sndbufpos = sndbufbeg;
 
         for (i = 0; i < snd_bufsize; i++) {
@@ -112,10 +104,8 @@ void crocods_copy_sound_buffer(core_crocods_t *gb, GB_sample_t *dest, unsigned i
                 sndbufpos = 0;
             }
             if (sndbufpos == sndbufend) {  // Hope that never occurs
-                if (sndbufpos >0) {
+                if (sndbufpos >0)
                     sndbufpos--;
-                }
-//                procSound(gb);
             }
         }
 

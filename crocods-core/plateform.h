@@ -238,8 +238,6 @@ typedef struct core_crocods_s {
 
     int resize;     // 1: auto, 2: 320, 3: no resize, 4: overscan
 
-    char mustLeave;     // When main loop have to leave.
-
     char currentfile[256];
     int currentsnap;     // 0,1 ou 2
     int snapsave;
@@ -402,8 +400,6 @@ typedef struct core_crocods_s {
     /* if monitor is actively htracing and for how many scanlines */
     BOOL MonitorHTraceActive;
     int MonitorHTraceCount;
-
-    int MonitorCyclesDebug;
 
     /* number of scan-lines since end of VSYNC */
     int LinesAfterVTrace;     // a effacer (todo)
@@ -634,18 +630,12 @@ void UpdateTitlePalette(struct kmenu *current);
 int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current);
 void InitCalcPoints(core_crocods_t *core);
 
-void videoinit(void);
-
 int emulator_patch_ROM(core_crocods_t *core, u8 *pbROMlo);
 
 int nds_ReadKey(core_crocods_t *core);
 
 void nds_init(core_crocods_t *core);
 void nds_initBorder(core_crocods_t *core, int *borderX, int *borderY);
-
-int nds_video_unlock(void);
-int nds_video_lock(void);
-void nds_video_close(void);
 
 void LoopMenu(core_crocods_t *core, struct kmenu *parent);
 
@@ -772,8 +762,6 @@ void HardResetCPC(core_crocods_t *core); // Reset CPC AND modifiy ROM
 
 void CalcPoints(core_crocods_t *core);
 
-void myprintf(const char *fmt, ...);
-void myprintf0(core_crocods_t *core, const char *fmt, ...);
 void drawconsole(void);
 
 void cpcprint16_6w(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent);

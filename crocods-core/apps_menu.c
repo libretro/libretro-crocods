@@ -80,7 +80,6 @@ apps_menu_publicmenu apps_menu_publicmenus[APPS_MENU_PUBLICMENU_COUNT] = {
     {ID_SOUND_ENABLE, "Enable",    NULL,    0 },
     {ID_SOUND_DISABLE,    "Disable",   NULL,    0 },
     {ID_DEVMENU,  "Developer",     NULL,    0 },
-    {ID_SHOW_DEBUGGER,    "Debugger",  NULL,    0 },
     {ID_SHOW_GUESTINFO,   "Guest Info",    NULL,    0 },
     {ID_EXIT, "Quit",  NULL,    0 }
 };
@@ -442,14 +441,11 @@ void apps_menu_init(core_crocods_t *core)
 #ifdef REDBUG
   if (1 == 1) {
   id = AddMenu(&root, ID_DEVMENU, 8, 0);
-  AddMenu(id, ID_SHOW_DEBUGGER, 8, 1);
   AddMenu(id,  ID_SHOW_GUESTINFO, 8, 1);
   }
 #endif
 
   AddMenu(&root,  ID_EXIT, 7, 2);
-
-//  AddMenu(&root, "Test", ID_SHOW_INFOPANEL, -1, -1);
 
   if (core->resources == NULL) {
   core->selectedMenu = menuDiskId;

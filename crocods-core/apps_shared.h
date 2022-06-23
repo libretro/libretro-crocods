@@ -15,7 +15,6 @@ extern "C"
 #include "apps_disk.h"
 #include "apps_infopanel.h"
 #include "apps_guestinfo.h"
-#include "apps_debugger.h"
 #include "apps_browser.h"
 
     u16 appli_begin(core_crocods_t *core, u16 keys_pressed);

@@ -823,11 +823,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             apps_disk_init(core, 0);
             return 2;
 
-        case ID_SHOW_DEBUGGER:
-            ExecuteMenu(core, ID_MENU_EXIT, NULL);  // Un-pause
-            apps_debugger_init(core, 0);
-            return 2;
-
         case ID_SHOW_INFOPANEL:
             apps_infopanel_init(core, 0);
             return 2;

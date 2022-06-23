@@ -51,14 +51,8 @@ void    ASIC_Reset(void);
 void    ASIC_EnableDisable(int);
 int     ASIC_DMA_GetChannelAddr(int);
 int     ASIC_DMA_GetChannelPrescale(int);
-unsigned char   *ASIC_GetCartPage(int);
 void    ASIC_SetRasterInterrupt(void);
 void    ASIC_ClearRasterInterrupt(void);
-
-/*char    *ASIC_DebugDMACommand(int,int); */
-
-unsigned char *ASIC_GetRamPtr(void);
-
 
 unsigned long ASIC_BuildDisplayReturnMaskWithPixels(int Line, int HCount, /*int MonitorHorizontalCount, int ActualY,*/ int *pPixels);
 
@@ -71,13 +65,10 @@ void    ASIC_HTot(int);
 
 int             ASIC_CalculateInterruptVector(void);
 
-/* get lock state of ASIC (features locked/unlocked) for snapshot */
-BOOL    ASIC_GetUnLockState(void);
 /* set lock state of ASIC (features locked/unlocked) for snapshot */
 void ASIC_SetUnLockState(BOOL);
 
 void    ASIC_SetSecondaryRomMapping(unsigned char Data);
-int ASIC_GetSecondaryRomMapping(void);
 
 /* reset gate array in ASIC */
 void    ASIC_GateArray_Reset(void);
@@ -99,12 +90,6 @@ void    ASIC_DoRomSelection(void);
 void    ASIC_AcknowledgeInterrupt(void);
 
 void    ASIC_DMA_EnableChannels(unsigned char);
-
-/* debugger */
-unsigned char   ASIC_GetRed(int);
-unsigned char ASIC_GetGreen(int);
-unsigned char ASIC_GetBlue(int);
-unsigned char ASIC_GetSpritePixel(int SpriteIndex, int X, int Y);
 
 typedef struct
 {

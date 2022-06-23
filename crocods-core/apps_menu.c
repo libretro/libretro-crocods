@@ -352,9 +352,6 @@ void apps_menu_init(core_crocods_t *core)
   AddMenu(menuDiskId, ID_AUTODISK, 0, 1);
   AddMenu(menuDiskId, ID_DISK, 0, 2);
   AddMenu(menuDiskId,  ID_SAVE_LOCALSETTINGS, 0, 5);
-  #ifdef REDBUG
-  AddMenu(menuDiskId, ID_SHOW_BROWSER, 8, 0);
-  #endif
   }
 
   menuMonitor = AddMenu(&root,  ID_MONITOR_MENU, 2, 4);
@@ -400,24 +397,6 @@ void apps_menu_init(core_crocods_t *core)
   AddMenu(keyMenu, ID_REDEFINE_L2, 0, 0);
   AddMenu(keyMenu,  ID_REDEFINE_R2, 0, 0);
 
-#ifdef REDBUG
-  if (core->resources == NULL) {
-  struct kmenu *menuDebug = NULL;
-
-  menuDebug = AddMenu(&root,  ID_DEBUG_MENU, 0, 0);
-
-  id = AddMenu(menuDebug,  ID_FRAMERATEMENU, -1, 0);
-  AddMenu(id,  ID_DISPFRAMERATE, 4, 0);
-  AddMenu(id,  ID_NODISPFRAMERATE, 4, 1);
-  }
-#endif
-
-  //  id=AddMenu(&root,"Hack", ID_MENU, 0, 0);
-  //  AddMenu(id, "Only one ink refresh per frame: N", ID_HACK_TABCOUL, 5, 0);
-  //  AddMenu(id, "Normal ink refresh per frame: N", ID_NOHACK_TABCOUL, 5, 0);
-
-  //  AddMenu(&root, "Reset CPC", ID_RESET);
-
   if (core->resources == NULL) {
   id = AddMenu(&root,  ID_SNAP_MENU, 6, 0);
   AddMenu(id, ID_SAVESNAP, 6, 1);
@@ -428,22 +407,10 @@ void apps_menu_init(core_crocods_t *core)
   AddMenu(id, ID_RESET, 7, 1);
 
   menuAdvanced = AddMenu(&root,  ID_ADVANCED_MENU, 8, 0);
-#ifdef REDBUG
-  id = AddMenu(menuAdvanced,  ID_TURBOMENU, -1, 0);
-  AddMenu(id,  ID_ENABLE_TURBO, 4, 2);
-  AddMenu(id,  ID_DISABLE_TURBO, 4, 3);
-#endif
 
   id = AddMenu(menuAdvanced, ID_SOUNDMENU, -1, 0);
   AddMenu(id,  ID_SOUND_ENABLE, 4, 2);
   AddMenu(id,  ID_SOUND_DISABLE, 4, 3);
-
-#ifdef REDBUG
-  if (1 == 1) {
-  id = AddMenu(&root, ID_DEVMENU, 8, 0);
-  AddMenu(id,  ID_SHOW_GUESTINFO, 8, 1);
-  }
-#endif
 
   AddMenu(&root,  ID_EXIT, 7, 2);
 

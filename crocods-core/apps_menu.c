@@ -107,12 +107,7 @@ void DispMenu(core_crocods_t *core, u16 keys_pressed0)
   core->overlayBitmap_posy = 0;
   core->overlayBitmap_center = 1;
 
-  // u16 n;
-  // for (n = 0; n < 320 * 192; n++) {
-  // core->overlayBitmap[n] = 63519;
-  // }
-
-  u16 *pdwAddr = core->overlayBitmap; // + ((j * 32) * core->MemBitmap_width) + (i * 32);
+  u16 *pdwAddr = core->overlayBitmap;
   u16 y;
 
   for (y = 0; y < 168; y++) {
@@ -329,17 +324,11 @@ struct kmenu * AddMenu(struct kmenu *parent, int id, int x, int y)
   return kcur;
 } /* AddMenu */
 
-void apps_menu_geticon(core_crocods_t *core, int id, int *x, int *y)
-{
-}
-
 void apps_menu_init(core_crocods_t *core)
 {
   struct kmenu *menuMonitor = NULL;
   struct kmenu *menuAdvanced = NULL;
   struct kmenu *menuDiskId = NULL;
-
-  printf("apps_menu_init\n");
 
   struct kmenu *id;
 

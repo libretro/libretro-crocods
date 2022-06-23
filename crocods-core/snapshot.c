@@ -290,11 +290,6 @@ void LireSnapshotMem(core_crocods_t *core, u8 *snap)
     }
 }     /* LireSnapshotMem */
 
-int HaveSlotSnap(core_crocods_t *core, char *file, int c)
-{
-    return 0;
-}
-
 void LoadSlotSnap(core_crocods_t *core, int c)
 {
     char snap[MAX_PATH + 1];

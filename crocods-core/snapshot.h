@@ -40,7 +40,6 @@ extern "C"
     void LireSnapshotMem(core_crocods_t *core, u8 *snap);
 
     void LoadSlotSnap(core_crocods_t *core, int c);
-    int HaveSlotSnap(core_crocods_t *core, char *file, int c);
 
 #ifdef __cplusplus
 }

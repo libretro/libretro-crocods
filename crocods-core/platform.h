@@ -236,10 +236,6 @@ typedef struct core_crocods_s {
 
     int resize;     // 1: auto, 2: 320, 3: no resize, 4: overscan
 
-    char currentfile[256];
-    int currentsnap;     // 0,1 ou 2
-    int snapsave;
-
     u16 *menubuffer;
     u16 *menubufferlow;
 
@@ -401,10 +397,8 @@ typedef struct core_crocods_s {
 
     /* number of scan-lines since end of VSYNC */
     int LinesAfterVTrace;     // a effacer (todo)
-    //	int CharsAfterVSync;
 
     /* number of chars since end of hsync */
-    //	int CharsAfterHSync;
     int CharsAfterHTrace;     // a effacer (todo)
 
     // --- New CRTC
@@ -588,8 +582,6 @@ struct kmenu {
 
 void updateScreenBuffer(core_crocods_t *core, u16 *screen, u16 screen_width);
 
-void LoadROMFile(char *filename);
-
 typedef void (*kFctVoidVoid)(core_crocods_t *core);
 typedef void (*kFctVoidU8)(core_crocods_t *core, u8);
 typedef void (*kFctVoidU32)(core_crocods_t *core, u32);
@@ -613,7 +605,6 @@ extern kFctVoidVoid GateArray_Cycle;
 extern kFctVoidVoid ResetVGA;
 
 void UpdateScreen(core_crocods_t *core);
-int TraceLigneCrit(void);
 
 int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current);
 
@@ -623,12 +614,6 @@ int nds_ReadKey(core_crocods_t *core);
 
 void nds_init(core_crocods_t *core);
 void nds_initBorder(core_crocods_t *core, int *borderX, int *borderY);
-
-void LoopMenu(core_crocods_t *core, struct kmenu *parent);
-
-int nds_MapRGB(int r, int g, int b);
-
-void LireRom(struct kmenu *FM, int autostart);
 
 #define MOD_CPC_SHIFT (0x01 << 8)
 #define MOD_CPC_CTRL  (0x02 << 8)
@@ -749,12 +734,9 @@ void HardResetCPC(core_crocods_t *core); // Reset CPC AND modifiy ROM
 
 void CalcPoints(core_crocods_t *core);
 
-void drawconsole(void);
-
 void cpcprint16_6w(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent);
 void cpcprint16_6w_limit(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent, int miny, int maxy);
 void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent);
-void cpcprint(core_crocods_t *core, int x, int y, char *pchStr, u16 Colour);
 
 void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result);     // z80.h
 
@@ -878,6 +860,5 @@ u8 * FS_Readfile(char *filename, u32 *romsize);
 void appendIcon(core_crocods_t *core, int x, int y, int timer);
 
 void loadIni(core_crocods_t *core, int local);
-void saveIni(core_crocods_t *core, int local);
 
 #endif // ifndef PLATEFORM_H

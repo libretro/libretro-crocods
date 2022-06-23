@@ -140,8 +140,7 @@ void UpdateKeyMenu(void);
 
 // 384
 
-static int frame = 0, msgframe = 0;
-static char msgbuf[33] = { 0 };
+static int frame = 0;
 
 u16 *kbdBuffer;
 
@@ -281,109 +280,21 @@ typedef struct {
     int normal;
 } CPC_MAP;
 
-/*
- * RECT keypos[NBCPCKEY] = {
- *      {2,116,15,130},    // (0)
- *      {16,116,29,130},   //    0x80 | MOD_CPC_SHIFT,   // CPC_1
- *      {30,116,43,130},   //    0x81 | MOD_CPC_SHIFT,   // CPC_2
- *      {44,116,57,130}, //    0x71 | MOD_CPC_SHIFT,   // CPC_3
- *      {58,116,71,130}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {72,116,85,130}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {86,116,99,130}, //    0x60 | MOD_CPC_SHIFT,   // CPC_6
- *      {100,116,113,130}, //    0x51 | MOD_CPC_SHIFT,   // CPC_7
- *      {114,116,127,130}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {128,116,141,130}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {142,116,155,130}, // (10)  0x40 | MOD_CPC_SHIFT,   // CPC_0
- *      {156,116,169,130}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {170,116,183,130}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {184,116,197,130}, //    0x60 | MOD_CPC_SHIFT,   // CPC_6
- *      {198,116,211,130}, //    0x51 | MOD_CPC_SHIFT,   // CPC_7
- *      {213,116,226,130}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {227,116,240,130}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {241,116,254,130}, // 17    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *
- *      {2,131,19,145},
- *      {20,131,33,145}, //    0x83,                   // CPC_a
- *      {34,131,47,145}, //    0x73,                   // CPC_z
- *      {48,131,61,145}, //    0x71 | MOD_CPC_SHIFT,   // CPC_3
- *      {62,131,75,145}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {76,131,89,145}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {90,131,103,145}, //    0x60 | MOD_CPC_SHIFT,   // CPC_6
- *      {104,131,117,145}, //    0x51 | MOD_CPC_SHIFT,   // CPC_7
- *      {118,131,131,145}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {132,131,145,145}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {146,131,159,145}, //    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *      {160,131,173,145}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {174,131,187,145}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {191,131,211,160},//    0x22,                   // CPC_RETURN
- *      {213,131,226,145}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {227,131,240,145}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {241,131,254,145}, //    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *
- *      {2,146,22,160},
- *      {23,146,36,160}, //    0x83,                   // CPC_a
- *      {37,146,50,160}, //    0x73,                   // CPC_z
- *      {51,146,64,160}, //    0x71 | MOD_CPC_SHIFT,   // CPC_3
- *      {65,146,78,160}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {79,146,92,160}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {93,146,106,160}, //    0x60 | MOD_CPC_SHIFT,   // CPC_6
- *      {107,146,120,160}, //    0x51 | MOD_CPC_SHIFT,   // CPC_7
- *      {121,146,134,160}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {135,146,148,160}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {149,146,162,160}, //    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *      {163,146,176,160}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {177,146,190,160}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {213,146,226,160}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {227,146,240,160}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {241,146,254,160}, //    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *
- *      {2,161,29,175},
- *      {30,161,43,175}, //    0x81 | MOD_CPC_SHIFT,   // CPC_2
- *      {44,161,57,175}, //    0x71 | MOD_CPC_SHIFT,   // CPC_3
- *      {58,161,71,175}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {72,161,85,175}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {86,161,99,175}, //    0x60 | MOD_CPC_SHIFT,   // CPC_6
- *      {100,161,113,175}, //    0x51 | MOD_CPC_SHIFT,   // CPC_7
- *      {114,161,127,175}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {128,161,141,175}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {142,161,155,175}, //    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *      {156,161,169,175}, //    0x70 | MOD_CPC_SHIFT,   // CPC_4
- *      {170,161,183,175}, //    0x61 | MOD_CPC_SHIFT,   // CPC_5
- *      {184,161,211,175}, //    0x60 | MOD_CPC_SHIFT,   // CPC_6
- *      {213,161,227,175}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {228,161,240,175}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {241,161,254,175}, //    0x40 | MOD_CPC_SHIFT,   // CPC_0
- *
- *      {1,176,34,190}, //    0x55,                   // CPC_j
- *      {35,176,55,190}, //    0x55,                   // CPC_j
- *      {56,176,167,190}, //    0x55,                   // CPC_j
- *      {168,176,211,190}, //    0x55,                   // CPC_j
- *      {213,176,227,190}, //    0x50 | MOD_CPC_SHIFT,   // CPC_8
- *      {228,176,240,190}, //    0x41 | MOD_CPC_SHIFT,   // CPC_9
- *      {241,176,254,190}
- * };
- */
-
 CPC_SCANCODE keyown[13];
 int keymenu[13];
 
 static void calcSize(core_crocods_t *core)
 {
-    int x1, x2, y1, y2;
+    int x1 = max( (50 - core->RegsCRTC[2]) << 3, 0);
+    int x2 = min(x1 + (core->RegsCRTC[1] << 3), 384);
+    int y1 = max( (35 - core->RegsCRTC[7]) << 3, 0);
+    int y2 = min(y1 + (core->RegsCRTC[6] << 3), 272);
 
-    //            int height;
+    core->DrawFct    = TraceLigne8B512;
 
-    x1 = max( (50 - core->RegsCRTC[2]) << 3, 0);
-    x2 = min(x1 + (core->RegsCRTC[1] << 3), 384);
-
-    y1 = max( (35 - core->RegsCRTC[7]) << 3, 0);
-    y2 = min(y1 + (core->RegsCRTC[6] << 3), 272);
-
-    core->DrawFct = TraceLigne8B512;
-
-    core->x0 = x1;
-    core->y0 = y1;             // Redbug
-    core->maxy = 0;
+    core->x0         = x1;
+    core->y0         = y1;             // Redbug
+    core->maxy       = 0;
 
     (*core->borderX) = (TAILLE_X_LOW - (x2 - x1)) / 2;
     (*core->borderY) = (TAILLE_Y_LOW - (y2 - y1)) / 2;
@@ -490,7 +401,142 @@ static void RedefineKey(core_crocods_t *core, int key)
     }
     UpdateKeyMenu();
 #endif
-} /* RedefineKey */
+}
+
+static void saveIni(core_crocods_t *core, int local)
+{
+    if (core->home_dir != NULL) {
+        char s[32];
+
+        dictionary *ini = dictionary_new(0);
+
+        iniparser_set(ini, "display", NULL);
+
+        if (core->lastcolour == 0) {
+            iniparser_set(ini, "display:color", "0");
+        } else {
+            iniparser_set(ini, "display:color", "1");
+        }
+
+        if (core->resize == 1) {         // AUTO
+            iniparser_set(ini, "display:resize", "1");
+        } else if (core->resize == 2) {  // 320
+            iniparser_set(ini, "display:resize", "2");
+        } else if (core->resize == 3) {  // NO-RESIZE
+            iniparser_set(ini, "display:resize", "3");
+        } else if (core->resize == 4) {  // OVERSCAN
+            iniparser_set(ini, "display:resize", "4");
+        }
+
+        sprintf(s, "%d", core->scanline);
+        iniparser_set(ini, "display:scanline", s);
+
+        iniparser_set(ini, "sound", NULL);
+
+        if (core->soundEnabled == 1) {
+            iniparser_set(ini, "sound:enabled", "1");
+        } else {
+            iniparser_set(ini, "sound:enabled", "0");
+        }
+
+        iniparser_set(ini, "joy", NULL);
+
+        sprintf(s, "%d", keyown[0]);
+        iniparser_set(ini, "joy:up", s);
+        sprintf(s, "%d", keyown[1]);
+        iniparser_set(ini, "joy:down", s);
+        sprintf(s, "%d", keyown[2]);
+        iniparser_set(ini, "joy:left", s);
+        sprintf(s, "%d", keyown[3]);
+        iniparser_set(ini, "joy:right", s);
+        sprintf(s, "%d", keyown[4]);
+        iniparser_set(ini, "joy:start", s);
+        sprintf(s, "%d", keyown[5]);
+        iniparser_set(ini, "joy:a", s);
+        sprintf(s, "%d", keyown[6]);
+        iniparser_set(ini, "joy:b", s);
+        sprintf(s, "%d", keyown[7]);
+        iniparser_set(ini, "joy:x", s);
+        sprintf(s, "%d", keyown[8]);
+        iniparser_set(ini, "joy:y", s);
+        sprintf(s, "%d", keyown[9]);
+        iniparser_set(ini, "joy:l", s);
+        sprintf(s, "%d", keyown[10]);
+        iniparser_set(ini, "joy:r", s);
+        sprintf(s, "%d", keyown[11]);
+        iniparser_set(ini, "joy:l2", s);
+        sprintf(s, "%d", keyown[12]);
+        iniparser_set(ini, "joy:r2", s);
+
+        iniparser_set(ini, "menu", NULL);
+
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[0]));
+        iniparser_set(ini, "menu:up", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[1]));
+        iniparser_set(ini, "menu:down", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[2]));
+        iniparser_set(ini, "menu:left", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[3]));
+        iniparser_set(ini, "menu:right", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[4]));
+        iniparser_set(ini, "menu:start", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[5]));
+        iniparser_set(ini, "menu:a", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[6]));
+        iniparser_set(ini, "menu:b", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[7]));
+        iniparser_set(ini, "menu:x", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[8]));
+        iniparser_set(ini, "menu:y", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[9]));
+        iniparser_set(ini, "menu:l", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[10]));
+        iniparser_set(ini, "menu:r", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[11]));
+        iniparser_set(ini, "menu:l2", s);
+        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[12]));
+        iniparser_set(ini, "menu:r2", s);
+
+        iniparser_set(ini, "key", NULL);
+
+        if (core->keyEmul == 2) {
+            iniparser_set(ini, "key:emulation", "2");       // Use the true keyboard
+        } else if (core->keyEmul == 3) {
+            iniparser_set(ini, "key:emulation", "3");       // Use joystick emulation
+        }
+
+        iniparser_set(ini, "path", NULL);
+        iniparser_set(ini, "path:file", core->file_dir);
+
+        char iniFile[MAX_PATH + 1];
+
+        // Use global only if local file doesn't exist & local == 0
+
+        char iniFile0[MAX_PATH + 1];
+        sprintf(iniFile0, "%s.ini", core->filename);
+
+        strcpy(iniFile, core->home_dir);
+        apps_disk_path2Abs(iniFile, "cfg");
+        apps_disk_path2Abs(iniFile, iniFile0);
+
+        FILE *fic = fopen(iniFile, "rb");
+        if (fic != NULL) {
+            fclose(fic);
+            local = 1;
+        }
+
+        if (local == 0) {
+            strcpy(iniFile, core->home_dir);
+            apps_disk_path2Abs(iniFile, "crocods.ini");
+        }
+
+        fic = fopen(iniFile, "wb");
+        iniparser_dump_ini(ini, fic);
+        fclose(fic);
+
+        iniparser_freedict(ini);
+    }
+}
 
 // Retour: 1 -> return emulator  (Default)
 //         0 -> return to parent
@@ -641,14 +687,14 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
 
             return 0;
         case ID_LOADSNAP:
-            LoadSlotSnap(core, core->currentsnap);
+            LoadSlotSnap(core, 0);
             break;
         case ID_SAVESNAP: {
             char snap[MAX_PATH + 1];
             char snapFile[MAX_PATH + 1];
 
             strcpy(snap, core->home_dir);
-            sprintf(snapFile, "%s_%d.sna", core->filename, core->currentsnap);
+            sprintf(snapFile, "%s_0.sna", core->filename);
 
             apps_disk_path2Abs(snap, "snap");
             apps_disk_path2Abs(snap, snapFile);
@@ -1134,10 +1180,6 @@ void UpdateScreen(core_crocods_t *core)
         }
     }
 
-    if (msgframe > frame - 50 * 3) {
-        cpcprint(core, 0, 40, msgbuf, 1);
-    }
-
     if (core->crtc_updated) {
         core->crtc_updated = 0;
 
@@ -1454,7 +1496,6 @@ void nds_init(core_crocods_t *core)
 #endif
 
     loadIni(core, 0);
-    strcpy(core->currentfile, "nofile");
 
     free(tmp_directory);
 } /* nds_init */
@@ -1555,11 +1596,6 @@ void cpcprint16_6w_limit(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_wid
                 bRow = bFont6x8[iIdx]; // get the bitmap information for one row
                 for (iCol = 0; iCol < 8; iCol++) { // loop for all columns in the font character
                     for (mx = 0; mx < multi; mx++) {
-                        // bColor = computeColor(iCol + n*8, iRow, frame);
-//                        bColor = 255; // computeColor((n) * 8 * multi + iCol * multi + mx, multi + iRow * multi + my, frame);
-
-// transparent=0;      backgroundColor = bColor;
-
                         if ((iRow >= miny) && (iRow < maxy)) {
                             if (bRow & 0x80) {
                                 *pdPixel = bColor;
@@ -1680,13 +1716,6 @@ void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x
         pdwAddr += FNT_CHAR_WIDTH * multi; // set screen address to next character position
     }
 } /* cpcprint16 */
-
-void cpcprint(core_crocods_t *core, int x, int y, char *pchStr, u16 bColor)
-{
-    if (bColor == 1)
-        bColor = RGB565(0xFF, 0xFF, 0);
-    cpcprint16(core, core->MemBitmap, core->MemBitmap_width, x, y, pchStr, bColor, RGB565(0, 0, 0x7F), 1, 0);
-}
 
 void dispIcon(core_crocods_t *core, int i, int j, int dispiconX, int dispiconY, char select)
 {
@@ -2144,137 +2173,3 @@ void loadIni(core_crocods_t *core, int local)
     }
 }
 
-void saveIni(core_crocods_t *core, int local)
-{
-    if (core->home_dir != NULL) {
-        char s[32];
-
-        dictionary *ini = dictionary_new(0);
-
-        iniparser_set(ini, "display", NULL);
-
-        if (core->lastcolour == 0) {
-            iniparser_set(ini, "display:color", "0");
-        } else {
-            iniparser_set(ini, "display:color", "1");
-        }
-
-        if (core->resize == 1) {         // AUTO
-            iniparser_set(ini, "display:resize", "1");
-        } else if (core->resize == 2) {  // 320
-            iniparser_set(ini, "display:resize", "2");
-        } else if (core->resize == 3) {  // NO-RESIZE
-            iniparser_set(ini, "display:resize", "3");
-        } else if (core->resize == 4) {  // OVERSCAN
-            iniparser_set(ini, "display:resize", "4");
-        }
-
-        sprintf(s, "%d", core->scanline);
-        iniparser_set(ini, "display:scanline", s);
-
-        iniparser_set(ini, "sound", NULL);
-
-        if (core->soundEnabled == 1) {
-            iniparser_set(ini, "sound:enabled", "1");
-        } else {
-            iniparser_set(ini, "sound:enabled", "0");
-        }
-
-        iniparser_set(ini, "joy", NULL);
-
-        sprintf(s, "%d", keyown[0]);
-        iniparser_set(ini, "joy:up", s);
-        sprintf(s, "%d", keyown[1]);
-        iniparser_set(ini, "joy:down", s);
-        sprintf(s, "%d", keyown[2]);
-        iniparser_set(ini, "joy:left", s);
-        sprintf(s, "%d", keyown[3]);
-        iniparser_set(ini, "joy:right", s);
-        sprintf(s, "%d", keyown[4]);
-        iniparser_set(ini, "joy:start", s);
-        sprintf(s, "%d", keyown[5]);
-        iniparser_set(ini, "joy:a", s);
-        sprintf(s, "%d", keyown[6]);
-        iniparser_set(ini, "joy:b", s);
-        sprintf(s, "%d", keyown[7]);
-        iniparser_set(ini, "joy:x", s);
-        sprintf(s, "%d", keyown[8]);
-        iniparser_set(ini, "joy:y", s);
-        sprintf(s, "%d", keyown[9]);
-        iniparser_set(ini, "joy:l", s);
-        sprintf(s, "%d", keyown[10]);
-        iniparser_set(ini, "joy:r", s);
-        sprintf(s, "%d", keyown[11]);
-        iniparser_set(ini, "joy:l2", s);
-        sprintf(s, "%d", keyown[12]);
-        iniparser_set(ini, "joy:r2", s);
-
-        iniparser_set(ini, "menu", NULL);
-
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[0]));
-        iniparser_set(ini, "menu:up", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[1]));
-        iniparser_set(ini, "menu:down", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[2]));
-        iniparser_set(ini, "menu:left", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[3]));
-        iniparser_set(ini, "menu:right", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[4]));
-        iniparser_set(ini, "menu:start", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[5]));
-        iniparser_set(ini, "menu:a", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[6]));
-        iniparser_set(ini, "menu:b", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[7]));
-        iniparser_set(ini, "menu:x", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[8]));
-        iniparser_set(ini, "menu:y", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[9]));
-        iniparser_set(ini, "menu:l", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[10]));
-        iniparser_set(ini, "menu:r", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[11]));
-        iniparser_set(ini, "menu:l2", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[12]));
-        iniparser_set(ini, "menu:r2", s);
-
-        iniparser_set(ini, "key", NULL);
-
-        if (core->keyEmul == 2) {
-            iniparser_set(ini, "key:emulation", "2");       // Use the true keyboard
-        } else if (core->keyEmul == 3) {
-            iniparser_set(ini, "key:emulation", "3");       // Use joystick emulation
-        }
-
-        iniparser_set(ini, "path", NULL);
-        iniparser_set(ini, "path:file", core->file_dir);
-
-        char iniFile[MAX_PATH + 1];
-
-        // Use global only if local file doesn't exist & local == 0
-
-        char iniFile0[MAX_PATH + 1];
-        sprintf(iniFile0, "%s.ini", core->filename);
-
-        strcpy(iniFile, core->home_dir);
-        apps_disk_path2Abs(iniFile, "cfg");
-        apps_disk_path2Abs(iniFile, iniFile0);
-
-        FILE *fic = fopen(iniFile, "rb");
-        if (fic != NULL) {
-            fclose(fic);
-            local = 1;
-        }
-
-        if (local == 0) {
-            strcpy(iniFile, core->home_dir);
-            apps_disk_path2Abs(iniFile, "crocods.ini");
-        }
-
-        fic = fopen(iniFile, "wb");
-        iniparser_dump_ini(ini, fic);
-        fclose(fic);
-
-        iniparser_freedict(ini);
-    }
-} /* saveIni */

@@ -592,9 +592,6 @@ struct kmenu {
     int x, y;
 };
 
-void Erreur(char *Msg);
-void Info(char *Msg);
-void InitPlateforme(core_crocods_t *core, u16 screen_width);
 void updateScreenBuffer(core_crocods_t *core, u16 *screen, u16 screen_width);
 
 void LoadROMFile(char *filename);
@@ -624,11 +621,7 @@ extern kFctVoidVoid ResetVGA;
 void UpdateScreen(core_crocods_t *core);
 int TraceLigneCrit(void);
 
-void SetPalette(core_crocods_t *core, int color);
-void RedefineKey(core_crocods_t *core, int key);
-void UpdateTitlePalette(struct kmenu *current);
 int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current);
-void InitCalcPoints(core_crocods_t *core);
 
 int emulator_patch_ROM(core_crocods_t *core, u8 *pbROMlo);
 
@@ -768,9 +761,6 @@ void cpcprint16_6w(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, in
 void cpcprint16_6w_limit(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent, int miny, int maxy);
 void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent);
 void cpcprint(core_crocods_t *core, int x, int y, char *pchStr, u16 Colour);
-void cpcprintOnScreen(core_crocods_t *core, char *pchStr);
-
-u16 MyReadKey(void);
 
 void ExecZ80Code(core_crocods_t *core, char *code, int len, SRegs *result);     // z80.h
 
@@ -778,16 +768,12 @@ typedef struct {
     int left, top, right, bottom;
 } RECT;
 
-void DispDisk(core_crocods_t *core, int reading);
 void Autoexec(core_crocods_t *core);
 
 void dispIcon(core_crocods_t *core, int i, int j, int dispiconX, int dispiconY, char select);
 void dispIcon8(core_crocods_t *core, int i, int j, int icon);
 
-u8 * MyAlloc(int size, char *title);
-//
 // Tailles affichage �cran suivant la r�solution voulue
-//
 
 #define TAILLE_X_LOW  384
 #define TAILLE_Y_LOW  272
@@ -896,91 +882,6 @@ typedef enum {
     ID_ACTIONMENU,
     ID_DEVMENU
 } PLATEFORM_MENU;
-
-//#define ID_NULL                 0
-//#define ID_ROM                  1
-//#define ID_MONITOR_MENU         2
-//#define ID_COLOR_MONITOR        3
-//#define ID_GREEN_MONITOR        4
-//#define ID_SCREEN_MENU          5
-//#define ID_SCREEN_320           6
-//#define ID_SCREEN_NORESIZE      7
-//#define ID_SCREEN_OVERSCAN      8
-//#define ID_KEY_MENU             9
-//#define ID_KEY_KEYBOARD         10
-//#define ID_KEY_KEYPAD           11
-//#define ID_KEY_JOYSTICK         12
-//#define ID_DISPFRAMERATE        13
-//#define ID_NODISPFRAMERATE      14
-//#define ID_RESET                15
-//#define ID_SAVESNAP             16
-//#define ID_AUTODISK             17
-//#define ID_DISK                 18
-//#define ID_REDEFINE_UP          20
-//#define ID_REDEFINE_DOWN        21
-//#define ID_REDEFINE_LEFT        22
-//#define ID_REDEFINE_RIGHT       23
-//#define ID_REDEFINE_A           24
-//#define ID_REDEFINE_B           25
-//#define ID_REDEFINE_X           26
-//#define ID_REDEFINE_Y           27
-//#define ID_REDEFINE_L           28
-//#define ID_REDEFINE_R           29
-//#define ID_REDEFINE_START       30
-//#define ID_SCREEN_AUTO          31
-//#define ID_HACK_TABCOUL         32
-//#define ID_SWITCH_MONITOR       33
-//#define ID_ACTIVE_STYLUS        34
-//#define ID_DEACTIVE_STYLUS      35
-//#define ID_ACTIVE_MAGNUM        36
-//#define ID_MENU_ENTER           37
-//#define ID_MENU_EXIT            38
-//#define ID_PAUSE_ENTER          39
-//#define ID_PAUSE_EXIT           40
-//#define ID_NOHACK_TABCOUL       41
-//#define ID_DEBUG_ENTER          42
-//#define ID_DEBUG_EXIT           43
-//#define ID_USE_CRTC_WINCPC      44
-//#define ID_USE_CRTC_ARNOLD      45
-//#define ID_EXIT                 46
-//#define ID_DEBUG_MENU           47
-//#define ID_SNAP_MENU            48
-//#define ID_LOADSNAP             49
-//#define ID_DISK_MENU            50
-//#define ID_SAVE_SETTINGS        51
-//#define ID_SAVE_LOCALSETTINGS   52
-//#define ID_PLAY_TAPE            53
-//#define ID_AUTORUN              54
-//#define ID_INSERTDISK           55
-//#define ID_USE_CRTC_CAP32       56
-//#define ID_SOUND_ENABLE         57
-//#define ID_SOUND_DISABLE        58
-//#define ID_SHOW_VIRTUALKEYBOARD 59
-//#define ID_SHOW_DEBUGGER        60
-//#define ID_SHOW_INFOPANEL       61
-//#define ID_NO_SCANLINE          62
-//#define ID_SCANLINE_5           63
-//#define ID_SCANLINE_10          64
-//#define ID_SCANLINE_15          65
-//#define ID_SCANLINE_20          66
-//#define ID_SCANLINEMENU         67
-//#define ID_SHOW_GUESTINFO       68
-//#define ID_REDEFINE_L2          69
-//#define ID_REDEFINE_R2          70
-//#define ID_ENABLE_TURBO         71
-//#define ID_DISABLE_TURBO        72
-//#define ID_TURBOMENU            73
-//#define ID_SOUNDMENU            74
-//#define ID_SHOW_BROWSER         75
-//#define ID_FRAMERATEMENU        76
-//#define ID_MENU                 77
-//#define ID_SCREEN_NEXT          78
-//#define ID_COLORMONITOR_MENU 79
-//#define ID_REDEFINE_MENU  80
-//#define ID_ADVANCED_MENU  81
-//#define ID_HACKMENU 82
-//#define ID_ACTIONMENU 83
-//#define ID_DEVMENU 84
 
 u8 * FS_Readfile(char *filename, u32 *romsize);
 

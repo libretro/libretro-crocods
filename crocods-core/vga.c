@@ -184,7 +184,7 @@ void AddRom(core_crocods_t *core, const char *rom, int i)
 ********************************************************** !0! ****************/
 BOOL InitMemCPC(core_crocods_t *core, const char *cpc6128_bin, const char *romdisc_bin)
 {
-    core->MemCPC = MyAlloc(0x20000, "Memory CPC"); // 128Ko
+    core->MemCPC = (u8*)malloc(0x20000); // 128Ko
 
     memcpy(core->ROMINF, cpc6128_bin, sizeof(core->ROMINF));
 

@@ -39,7 +39,6 @@ extern "C"
     void SauveSnap(core_crocods_t *core, char *Nom);
     void LireSnapshotMem(core_crocods_t *core, u8 *snap);
 
-    void SelectSNAP(core_crocods_t *core);
     void LoadSlotSnap(core_crocods_t *core, int c);
     int HaveSlotSnap(core_crocods_t *core, char *file, int c);
 

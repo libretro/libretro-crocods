@@ -137,12 +137,6 @@ int emulator_patch_ROM(core_crocods_t *core, u8 *pbROMlo)
 
 void myconsoleClear(core_crocods_t *core);
 
-void SetRect(RECT *R, int left, int top, int right, int bottom);
-void FillRect(RECT *R, u16 color);
-void DrawRect(RECT *R, u16 color);
-
-void calcSize(core_crocods_t *core);
-
 void UpdateKeyMenu(void);
 
 // 384
@@ -374,89 +368,40 @@ typedef struct {
 CPC_SCANCODE keyown[13];
 int keymenu[13];
 
-void SelectSNAP(core_crocods_t *core);
-
-void SelectSNAP(core_crocods_t *core)
+static void calcSize(core_crocods_t *core)
 {
-#ifdef USE_FAT
-#ifndef USE_CONSOLE
-    u16 keys_pressed;
+    int x1, x2, y1, y2;
 
-    dmaCopy(menubufferlow, backBuffer, 256 * 192 * 2);
+    //            int height;
 
-    currentsnap = 0;
+    x1 = max( (50 - core->RegsCRTC[2]) << 3, 0);
+    x2 = min(x1 + (core->RegsCRTC[1] << 3), 384);
 
-    // Wait key off
-    do {
-        keys_pressed = ~(REG_KEYINPUT);
-    } while ((keys_pressed & (KEY_DOWN | KEY_UP | KEY_A | KEY_B | KEY_L | KEY_R)) != 0);
+    y1 = max( (35 - core->RegsCRTC[7]) << 3, 0);
+    y2 = min(y1 + (core->RegsCRTC[6] << 3), 272);
 
-    DrawTextLeft(backBuffer, filefont, RGB565(31, 31, 0) | 0x8000, 15,  1, "Select Save Slot");
+    core->DrawFct = TraceLigne8B512;
 
-    int x;
-    RECT r;
+    core->x0 = x1;
+    core->y0 = y1;             // Redbug
+    core->maxy = 0;
 
-    for (x = 0; x < 3; x++) {
-        char id[2];
-        char *buf;
-        char snap[256];
-        int haveimg, havesnap;
+    (*core->borderX) = (TAILLE_X_LOW - (x2 - x1)) / 2;
+    (*core->borderY) = (TAILLE_Y_LOW - (y2 - y1)) / 2;
 
-        sprintf(snap, "/%s.%d", currentfile, currentsnap + 1);
-        buf = strchr(snap, '.');
-        *buf = '_';
-        havesnap = FileExists(snap);
+    core->Regs1 = core->RegsCRTC[1];
+    core->Regs2 = core->RegsCRTC[2];
+    core->Regs6 = core->RegsCRTC[6];
+    core->Regs7 = core->RegsCRTC[7];
 
-        sprintf(snap, "/%s_i.%d", currentfile, currentsnap + 1);
-        buf = strchr(snap, '.');
-        *buf = '_';
-        haveimg = FileExists(snap);
+    core->screenBufferWidth = x2 - x1;
+    core->screenBufferHeight = y2 - y1;
 
-        sprintf(id, "%d", x + 1);
-        SetRect(&r, 5 + x * 83, 130, 5 + x * 83 + 80, 50 + 130);
-        FillRect(&r, RGB565((156 >> 3), (178 >> 3), (165 >> 3)) | 0x8000);
-        DrawText(backBuffer, font, 7 + x * 83, 132, id);
-        if (!havesnap) {
-            DrawText(backBuffer, font, 7 + x * 83, 152, "Empty");
-        }
-    }
+    core->MemBitmap_width = x2 - x1;
 
-    while (1) {
-        for (x = 0; x < 3; x++) {
-            SetRect(&r, 4 + x * 83, 129, 6 + x * 83 + 80, 51 + 130);
+    core->changeFilter = 1;
+} /* calcSize */
 
-            if (x == currentsnap) {
-                DrawRect(&r,  RGB565(0, 31, 31) | 0x8000);
-            } else {
-                DrawRect(&r,  RGB565(16, 0, 0) | 0x8000);
-            }
-        }
-
-        keys_pressed = MyReadKey();
-
-        if ((keys_pressed & KEY_LEFT) == KEY_LEFT) {
-            if (currentsnap == 0) {
-                currentsnap = 2;
-            } else {
-                currentsnap--;
-            }
-        }
-        if ((keys_pressed & KEY_RIGHT) == KEY_RIGHT) {
-            if (currentsnap == 2) {
-                currentsnap = 0;
-            } else {
-                currentsnap++;
-            }
-        }
-
-        if ((keys_pressed & KEY_A) == KEY_A) {
-            break;
-        }
-    }
-#endif /* ifndef USE_CONSOLE */
-#endif /* ifdef USE_FAT */
-    return;
-} /* SelectSNAP */
 
 void UseResources(void *core0, void *bytes, int len)
 {
@@ -467,124 +412,6 @@ void UseResources(void *core0, void *bytes, int len)
     core->resources_len = len;
 }
 
-void SetRect(RECT *R, int left, int top, int right, int bottom)
-{
-    R->left = left;
-    R->top = top;
-    R->right = right;
-    R->bottom = bottom;
-}
-
-#ifndef USE_CONSOLE
-void FillRect(RECT *R, u16 color)
-{
-    int x, y;
-
-    for (y = R->top; y < R->bottom; y++) {
-        for (x = R->left; x < R->right; x++) {
-            backBuffer[x + y * 256] = color;
-        }
-    }
-}
-
-void DrawRect(RECT *R, u16 color)
-{
-    int x, y;
-
-    for (y = R->top; y < R->bottom; y++) {
-        backBuffer[R->left + y * 256] = color;
-        backBuffer[(R->right - 1) + y * 256] = color;
-    }
-    for (x = R->left; x < R->right; x++) {
-        backBuffer[x + R->top * 256] = color;
-        backBuffer[x + (R->bottom - 1) * 256] = color;
-    }
-}
-
-void DrawLift(RECT *max, RECT *dest, u16 coloron, u16 coloroff)
-{
-    int sizelift = 8;
-    RECT *r;
-    RECT r0;
-
-    /*
-     * if ( (max->right-max->left) > (dest->right-dest->left) ) {
-     * int x1,x2;
-     *
-     * int dr0,dr,dl,mr,ml;
-     *
-     * dr=dest->right;
-     * if ( (max->bottom-max->top) > (dest->bottom-dest->top) ) {
-     * dr0=dest->right-sizelift;
-     * } else {
-     * dr0=dr;
-     * }
-     * dl=dest->left;
-     * mr=max->right;
-     * ml=max->left;
-     *
-     * x1=dl+((dl-ml)*(dr0-dl))/(mr-ml);
-     * x2=dr0-((mr-dr)*(dr0-dl))/(mr-ml);
-     *
-     * r=&r0;
-     *
-     * SetRect(r, x1, dest->top, x2, dest->top+sizelift);
-     * FillRect(r, coloroff);
-     *
-     * SetRect(r, x1, dest->top, x2, dest->top+sizelift);
-     * FillRect(r, coloron);
-     *
-     *             SetRect(r, x1, dest->top, x2, dest->top+sizelift);
-     *             FillRect(r, coloroff);
-     *             }
-     */
-
-    if ( (max->bottom - max->top) > (dest->bottom - dest->top) ) {
-        int y1, y2;
-
-        int dt0, dt, db, mt, mb;
-
-        db = dest->bottom;
-        dt = dest->top;
-
-        if ( (max->right - max->left) > (dest->right - dest->left) ) {
-            dt0 = dest->top + sizelift;
-        } else {
-            dt0 = dt;
-        }
-        mb = max->bottom;
-        mt = max->top;
-
-        y1 = dt0 + ((dt - mt) * (db - dt0)) / (mb - mt);
-        y2 = db - ((mb - db) * (db - dt)) / (mb - mt);
-
-        //  y2=y1+((db-dt)*(db-dt))/(mb-mt);
-
-        if (y2 > mb) {
-            y2 = mb; // pas normal... mais ca arrive :(
-        }
-
-        r = &r0;
-
-        if (dest->top < y1) {
-            SetRect(r, dest->right - sizelift, dest->top, dest->right, y1);
-            FillRect(r, coloroff);
-        }
-
-        SetRect(r, dest->right - sizelift, y1, dest->right, y2);
-        FillRect(r, coloron);
-
-        if (dest->bottom > y2) {
-            SetRect(r, dest->right - sizelift, y2, dest->right, dest->bottom);
-            FillRect(r, coloroff);
-        }
-    }
-
-    return;
-} /* DrawLift */
-
-#endif /* ifndef USE_CONSOLE */
-
 // -1: dernier couleur
 // 0: vert
 // 1: couleur
@@ -592,18 +419,12 @@ void DrawLift(RECT *max, RECT *dest, u16 coloron, u16 coloroff)
 
 #define RGB565(R, G, B) ((((R) & 0xF8) << 8) | (((G) & 0xFC) << 3) | (((B) & 0xF8) >> 3))
 
-void SetPalette(core_crocods_t *core, int color)
+static void SetPalette(core_crocods_t *core, int color)
 {
     int i;
 
-    //    if ( (color==0) || (color==1) ) {
-    //        core->lastcolour=color;
-    //        return;
-    //    }
-
-    if (color == -1) {
+    if (color == -1)
         color = core->lastcolour;
-    }
 
     if (color == 1) {
         for (i = 0; i < 32; i++) {
@@ -644,9 +465,9 @@ void SetPalette(core_crocods_t *core, int color)
     }
 
     core->UpdateInk = 1;
-} /* SetPalette */
+}
 
-void RedefineKey(core_crocods_t *core, int key)
+static void RedefineKey(core_crocods_t *core, int key)
 {
     core->redefineKey = 1;
     core->redefineKeyKey = key;
@@ -672,10 +493,6 @@ void RedefineKey(core_crocods_t *core, int key)
 #endif
 } /* RedefineKey */
 
-void UpdateTitlePalette(struct kmenu *current)
-{
-}
-
 // Retour: 1 -> return emulator  (Default)
 //         0 -> return to parent
 //         2 -> return to item (switch)
@@ -685,15 +502,12 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
     switch (n) {
         case ID_SWITCH_MONITOR:
             return 0;
-            break;
         case ID_COLOR_MONITOR:
             SetPalette(core, 1);
             return 0;
-            break;
         case ID_GREEN_MONITOR:
             SetPalette(core, 0);
             return 0;
-            break;
         case ID_SCREEN_AUTO:
             calcSize(core);
 
@@ -708,7 +522,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             core->changeFilter = 1; // Flag to ask to the display to change the resolution
 
             return 1;
-            break;
         case ID_SCREEN_320:
             core->screenBufferWidth = 320;
             core->screenBufferHeight = 200;
@@ -717,15 +530,12 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
 
             core->resize = 2;
             core->DrawFct = TraceLigne8B512;
-            //     BG3_XDX = 320; // 256; // 360 - 54;  // 360 = DISPLAY_X // Taille d'affichage
-            //     BG3_CX = (XStart*4) << 8;
             core->x0 = (core->XStart * 4);
             core->y0 = 40;
             core->maxy = 64;
             core->changeFilter = 1; // Flag to ask to the display to change the resolution
 
             return 0;
-            break;
         case ID_SCREEN_NORESIZE:
             core->resize = 3;
             core->DrawFct = TraceLigne8B512;
@@ -735,22 +545,16 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             core->changeFilter = 1; // Flag to ask to the display to change the resolution
 
             return 0;
-            break;
         case ID_SCREEN_OVERSCAN:
             core->screenBufferWidth = 384;
             core->screenBufferHeight = 272;
 
             core->resize = 4;
             core->DrawFct = TraceLigne8B512;
-            //   BG3_XDX = 384; // 256; // 360 - 54;  // 360 = DISPLAY_X // Taille d'affichage
-            //   BG3_CX = 0;
             core->x0 = (core->XStart * 4);
             core->y0 = 0;
             core->changeFilter = 1; // Flag to ask to the display to change the resolution
-
             return 0;
-            break;
-
         case ID_SCREEN_NEXT:
             if (core->resize == 1) {
                 appendIcon(core, 2, 3, 60);
@@ -777,14 +581,10 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             core->inKeyboard = 1;
             core->runApplication = DispKeyboard;
             return 0;
-            break;
 
         case ID_KEY_KEYBOARD:
-//            core->last_keys_pressed = core->ipc.keys_pressed;
-
             core->keyEmul = 2; //  Emul du clavier
             return 0;
-            break;
 
         case ID_PLAY_TAPE:
             core->last_keys_pressed = core->ipc.keys_pressed;
@@ -794,7 +594,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             core->inKeyboard = 1;
             core->runApplication = DispTapePlayer;
             return 0;
-            break;
 
         case ID_KEY_KEYPAD:
             keyown[0] = CPC_CURSOR_UP;
@@ -813,7 +612,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
 
             core->keyEmul = 3; //  Emul du clavier fleche
             return 0;
-            break;
         case ID_KEY_JOYSTICK:
             keyown[0] = CPC_JOY_UP;
             keyown[1] = CPC_JOY_DOWN;
@@ -831,22 +629,18 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
 
             core->keyEmul = 3; //  Emul du joystick
             return 0;
-            break;
         case ID_DISPFRAMERATE:
             core->dispframerate = 1;
             return 0;
-            break;
         case ID_NODISPFRAMERATE:
             core->dispframerate = 0;
             return 0;
-            break;
         case ID_RESET:
             ExecuteMenu(core, ID_MENU_EXIT, NULL);
             HardResetCPC(core);
             ExecuteMenu(core, ID_AUTORUN, NULL);
 
             return 0;
-            break;
         case ID_LOADSNAP:
             LoadSlotSnap(core, core->currentsnap);
             break;
@@ -863,7 +657,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             SauveSnap(core, snap);
 
             return 1;
-            break;
         }
 
         case ID_EXIT:
@@ -874,63 +667,48 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
         case ID_REDEFINE_UP:
             RedefineKey(core, 0);
             return 2;
-            break;
         case ID_REDEFINE_DOWN:
             RedefineKey(core, 1);
             return 2;
-            break;
         case ID_REDEFINE_LEFT:
             RedefineKey(core, 2);
             return 2;
-            break;
         case ID_REDEFINE_RIGHT:
             RedefineKey(core, 3);
             return 2;
-            break;
         case ID_REDEFINE_START:
             RedefineKey(core, 4);
             return 2;
-            break;
         case ID_REDEFINE_A:
             RedefineKey(core, 5);
             return 2;
-            break;
         case ID_REDEFINE_B:
             RedefineKey(core, 6);
             return 2;
-            break;
         case ID_REDEFINE_X:
             RedefineKey(core, 7);
             return 2;
-            break;
         case ID_REDEFINE_Y:
             RedefineKey(core, 8);
             return 2;
-            break;
         case ID_REDEFINE_L:
             RedefineKey(core, 9);
             return 2;
-            break;
         case ID_REDEFINE_R:
             RedefineKey(core, 10);
             return 2;
-            break;
         case ID_REDEFINE_L2:
             RedefineKey(core, 11);
             return 2;
-            break;
         case ID_REDEFINE_R2:
             RedefineKey(core, 12);
             return 2;
-            break;
         case ID_HACK_TABCOUL:
             core->hack_tabcoul = 1;
             return 2;
-            break;
         case ID_NOHACK_TABCOUL:
             core->hack_tabcoul =  0;
             return 2;
-            break;
         case ID_ACTIVE_MAGNUM:
             core->usemagnum = 1;
             break;
@@ -1033,7 +811,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
         case ID_AUTORUN:
             apps_autorun_init(core, 1);
             return 2;
-            break;
 
         case ID_INSERTDISK:
             apps_autorun_init(core, 0);
@@ -1042,65 +819,54 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
         case ID_AUTODISK:
             apps_disk_init(core, 1);
             return 2;
-            break;
         case ID_DISK:
             apps_disk_init(core, 0);
             return 2;
-            break;
 
         case ID_SHOW_DEBUGGER:
             ExecuteMenu(core, ID_MENU_EXIT, NULL);  // Un-pause
             apps_debugger_init(core, 0);
             return 2;
-            break;
 
         case ID_SHOW_INFOPANEL:
             apps_infopanel_init(core, 0);
             return 2;
-            break;
 
         case ID_SHOW_GUESTINFO:
             apps_guestinfo_init(core, 0);
             return 2;
-            break;
 
         case ID_SHOW_BROWSER:
             apps_browser_init(core, 0);
             return 2;
-            break;
 
         case ID_NO_SCANLINE:
             core->scanline = 0;
             return 2;
-            break;
 
         case ID_SCANLINE_5:
             core->scanline = 1;
             return 2;
-            break;
 
         case ID_SCANLINE_10:
             core->scanline = 2;
             return 2;
-            break;
         case ID_SCANLINE_15:
             core->scanline = 3;
             return 2;
-            break;
         case ID_SCANLINE_20:
             core->scanline = 4;
             return 2;
-            break;
 
         case ID_ENABLE_TURBO:
             core->turbo = 1;
             core->soundEnabled = 0;
-            return 1;
+	    break;
 
         case ID_DISABLE_TURBO:
             core->turbo = 0;
             core->soundEnabled = 1;
-            return 1;
+	    break;
 
         default:
             break;
@@ -1108,25 +874,7 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
     return 1;
 } /* ExecuteMenu */
 
-u16 MyReadKey(void)
-{
-    /*
-     * u16 keys_pressed, my_keys_pressed;
-     *
-     * do {
-     * keys_pressed = ~(REG_KEYINPUT);
-     * } while ((keys_pressed & (KEY_LEFT | KEY_RIGHT | KEY_DOWN | KEY_UP | KEY_A | KEY_B | KEY_L | KEY_R))==0);
-     *
-     * my_keys_pressed = keys_pressed;
-     *
-     * do {
-     * keys_pressed = ~(REG_KEYINPUT);
-     * } while ((keys_pressed & (KEY_LEFT | KEY_RIGHT | KEY_DOWN | KEY_UP | KEY_A | KEY_B | KEY_L | KEY_R))!=0);
-     */
-    return 0; // my_keys_pressed;
-}
-
-void InitCalcPoints(core_crocods_t *core)
+static void InitCalcPoints(core_crocods_t *core)
 {
     int a, b, c, d, i;
 
@@ -1183,44 +931,13 @@ void CalcPoints(core_crocods_t *core)
             for (j = 0; j < 4; j++) {
                 core->TabPoints[core->lastMode][i][j] = core->BG_PALETTE[core->TabCoul[ core->TabPointsDef[core->lastMode][i][j]]];
             }
-            /* *(u32*)(&core->TabPoints[lastMode][i][0]) = (TabCoul[ core->TabPointsDef[lastMode][i][0] ] << 0) + (TabCoul[ core->TabPointsDef[lastMode][i][1] ] << 8) + (TabCoul[ core->TabPointsDef[lastMode][i][2] ] << 16) + (TabCoul[ core->TabPointsDef[lastMode][i][3] ] << 24);
-             */
         }
     }
     core->UpdateInk = 0;
 }
 
-void checkVersioAbout(core_crocods_t *core)
-{
-    char dispAbout = 0;
-    char tmp_directory[256];
-
-    FILE *verFile;
-
-    strcpy(tmp_directory, core->home_dir);
-    apps_disk_path2Abs(tmp_directory, "version");
-    verFile = fopen(tmp_directory, "rb");
-    if (verFile == NULL) {
-        dispAbout = 1;
-    } else {
-        char ver[256];
-        fread(ver, strlen(CROCOVERSION), 1, verFile);
-        if (strcmp(ver, CROCOVERSION) != 0) {
-            fclose(verFile);
-            dispAbout = 1;
-        }
-    }
-
-    if (dispAbout == 1) {
-        verFile = fopen(tmp_directory, "wb");
-        fwrite(CROCOVERSION, strlen(CROCOVERSION), 1, verFile);
-        fclose(verFile);
-        ExecuteMenu(core, ID_SHOW_INFOPANEL, NULL);
-    }
-} /* checkVersioAbout */
-
 /********************************************************* !NAME! **************
-* Nom : InitPlateforme
+* Nom : InitPlatform
 ********************************************************** !PATHS! *************
 * !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
 ********************************************************** !1! *****************
@@ -1234,7 +951,7 @@ void checkVersioAbout(core_crocods_t *core)
 * Variables globales modifi�es : JoyKey, clav
 *
 ********************************************************** !0! ****************/
-void InitPlateforme(core_crocods_t *core,  u16 screen_width)
+static void InitPlatform(core_crocods_t *core,  u16 screen_width)
 {
     core->MemBitmap_width = screen_width;
 
@@ -1254,9 +971,7 @@ void InitPlateforme(core_crocods_t *core,  u16 screen_width)
     core->runApplication = NULL;
 
     SoftResetCPC(core);
-
-//    checkVersionAbout(core);      // Display about ?
-} /* InitPlateforme */
+}
 
 void SoftResetCPC(core_crocods_t *core)
 {
@@ -1285,7 +1000,7 @@ void HardResetCPC(core_crocods_t *core)
         ResetUPD(core);
         ResetCRTC(core);
 
-        InitPlateforme(core, 320);
+        InitPlatform(core, 320);
 
         Autoexec(core);
     }
@@ -1296,60 +1011,18 @@ void updateScreenBuffer(core_crocods_t *core, unsigned short *screen, u16 screen
     core->MemBitmap_width = screen_width;
 }
 
-/********************************************************* !NAME! **************
-* Nom : Erreur
-********************************************************** !PATHS! *************
-* !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
-********************************************************** !1! *****************
-*
-* Fichier     : !./FPTH\/FLE!, ligne : !./LN!
-*
-* Description : Affichage d'un message d'erreur
-*
-* R�sultat    : /
-*
-* Variables globales modifi�es : /
-*
-********************************************************** !0! ****************/
-void Erreur(char *Msg)
-{
-}
-
-/********************************************************* !NAME! **************
-* Nom : Info
-********************************************************** !PATHS! *************
-* !./V1!\!./V2!\!./V3!\!./V4!\Fonctions
-********************************************************** !1! *****************
-*
-* Fichier     : !./FPTH\/FLE!, ligne : !./LN!
-*
-* Description : Affichage d'un message d'information
-*
-* R�sultat    : /
-*
-* Variables globales modifi�es : /
-*
-********************************************************** !0! ****************/
-void Info(char *Msg)
-{
-}
-
 // Draw line (used by the old WINCPC CRTC core)
 
 void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
 {
-    // if (y>yMax) yMax=y;
-    // if (y<yMin) yMin=y;
-
     y -= core->y0;
 
-    if ((y < 0) || (y >= TAILLE_Y_LOW)) {
+    if ((y < 0) || (y >= TAILLE_Y_LOW))
         return;
-    }
 
-    if ((!core->hack_tabcoul) && (core->UpdateInk == 1)) { // It's would be beter to put before each lines
+    // It would be beter to put before each lines
+    if ((!core->hack_tabcoul) && (core->UpdateInk == 1)) 
         CalcPoints(core);
-    }
 
     core->crtc_updated = 1;
 
@@ -1463,41 +1136,7 @@ void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
             }
         }
     }
-} /* TraceLigne8B512 */
-
-void calcSize(core_crocods_t *core)
-{
-    int x1, x2, y1, y2;
-
-    //            int height;
-
-    x1 = max( (50 - core->RegsCRTC[2]) << 3, 0);
-    x2 = min(x1 + (core->RegsCRTC[1] << 3), 384);
-
-    y1 = max( (35 - core->RegsCRTC[7]) << 3, 0);
-    y2 = min(y1 + (core->RegsCRTC[6] << 3), 272);
-
-    core->DrawFct = TraceLigne8B512;
-
-    core->x0 = x1;
-    core->y0 = y1;             // Redbug
-    core->maxy = 0;
-
-    (*core->borderX) = (TAILLE_X_LOW - (x2 - x1)) / 2;
-    (*core->borderY) = (TAILLE_Y_LOW - (y2 - y1)) / 2;
-
-    core->Regs1 = core->RegsCRTC[1];
-    core->Regs2 = core->RegsCRTC[2];
-    core->Regs6 = core->RegsCRTC[6];
-    core->Regs7 = core->RegsCRTC[7];
-
-    core->screenBufferWidth = x2 - x1;
-    core->screenBufferHeight = y2 - y1;
-
-    core->MemBitmap_width = x2 - x1;
-
-    core->changeFilter = 1;
-} /* calcSize */
+}
 
 void UpdateScreen(core_crocods_t *core)
 {
@@ -1520,40 +1159,7 @@ void UpdateScreen(core_crocods_t *core)
             CalcPoints(core);
         }
     }
-} /* UpdateScreen */
-
-void DispDisk(core_crocods_t *core, int reading)
-{
-    dispIcon(core, 0, 0, 0, 0, 0);
-
-#ifndef USE_CONSOLE
-    int x, y;
-    RECT r;
-    u16 color;
-
-    // SetRect(&r, 222,88,254,113);
-    SetRect(&r, 230, 1, 254, 33);
-
-    switch (reading) {
-        case 0:
-            for (y = r.top; y < r.bottom; y++) {
-                for (x = r.left; x < r.right; x++) {
-                    backBuffer[x + y * 256] = kbdBuffer[x + y * 256];
-                }
-            }
-            break;
-        case 1:
-            color = RGB565(15, 0, 0);
-            for (y = r.top; y < r.bottom; y++) {
-                for (x = r.left; x < r.right; x++) {
-                    // backBuffer[x+y*256]=AlphaBlendFast(kbdBuffer[x+y*256], color);
-                    backBuffer[x + y * 256] = ~kbdBuffer[x + y * 256] | 0x8000;
-                }
-            }
-            break;
-    }
-#endif /* ifndef USE_CONSOLE */
-} /* DispDisk */
+}
 
 void appendIcon(core_crocods_t *core, int x, int y, int timer)
 {
@@ -2091,114 +1697,17 @@ void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x
 
 void cpcprint(core_crocods_t *core, int x, int y, char *pchStr, u16 bColor)
 {
-    if (bColor == 1) {
+    if (bColor == 1)
         bColor = RGB565(0xFF, 0xFF, 0);
-    }
-
     cpcprint16(core, core->MemBitmap, core->MemBitmap_width, x, y, pchStr, bColor, RGB565(0, 0, 0x7F), 1, 0);
-}
-
-void cpcprintOnScreen(core_crocods_t *core, char *pchStr)
-{
-    u16 *MemBitmap = core->MemBitmap;
-    u32 MemBitmap_width = core->MemBitmap_width;
-    u16 bColor = RGB565(0xFF, 0xFF, 0x00);
-    u16 backgroundColor = RGB565(0x00, 0x00, 0xFF);
-    int multi = 1;
-
-    int iLen, iIdx, iRow, iCol;
-    u8 bRow;
-    u16 *pdwAddr;
-    int n;
-    int mx;
-
-    int dbl = 2;
-    if (core->screenIsOptimized) {
-        dbl = (core->lastMode == 2) ? 2 : 1;
-    }
-
-    pdwAddr = (u16 *)MemBitmap;
-
-    if (!core->screenIsOptimized) {
-        int top = 0;
-        MemBitmap_width = 384;
-
-        switch (core->resize) {
-            case 2:     // 320x200
-                top = 40;
-                pdwAddr += (40 * MemBitmap_width * dbl) + (32 * 2);
-                break;
-            case 1:     // Auto
-                top = core->y0;
-                pdwAddr += (core->y0 * MemBitmap_width * dbl) + (core->x0 * 2);
-                break;
-            case 4:     // Overscan - do nothing
-                top = 0;
-                break;
-        }
-        multi = 2;
-
-        // Background the 8 first line
-
-        u16 *screenAdr = core->MemBitmap + top * MemBitmap_width * dbl;
-        int x, y;
-        for (y = 0; y < 8; y++) {
-            for (x = 0; x < 384 * 2; x++) {
-                *screenAdr =  backgroundColor; // AlphaBlendFast((*screenAdr), backgroundColor); backgroundColor;
-                screenAdr++;
-            }
-        }
-    }
-
-    iLen = (int)strlen(pchStr);
-
-    for (n = 0; n < iLen; n++) {
-        u16 *pdwLine;
-
-        iIdx = (int)pchStr[n];
-        if ((iIdx < FNT_MIN_CHAR) || (iIdx > FNT_MAX_CHAR)) {
-            iIdx = FNT_BAD_CHAR;
-        }
-
-        iIdx -= FNT_MIN_CHAR;
-        pdwLine = pdwAddr;
-
-        iIdx = iIdx * 8;
-
-        for (iRow = 0; iRow < FNT_CHAR_HEIGHT; iRow++) { // loop for all rows in the font character
-            u16 *pdPixel;
-
-            pdPixel = pdwLine;
-            bRow = bFont[iIdx];
-            for (iCol = 0; iCol < 8; iCol++) {
-                for (mx = 0; mx < multi; mx++) {        // Multi for screen not optimized
-                    if (bRow & 0x80) {
-                        *pdPixel = bColor;
-                    }
-                    pdPixel++;
-                }
-
-                bRow <<= 1;
-            }
-            pdwLine += MemBitmap_width * dbl;
-
-            iIdx++;
-        }
-        pdwAddr += FNT_CHAR_WIDTH * multi; // set screen address to next character position
-    }
 }
 
 void dispIcon(core_crocods_t *core, int i, int j, int dispiconX, int dispiconY, char select)
 {
     int x, y;
 
-    if ((dispiconX == -1) || (dispiconY == -1)) {
+    if ((dispiconX == -1) || (dispiconY == -1))
         return;
-    }
-
-    //    u16 *pdwAddr = (u16*)core->MemBitmap + ((j*32)*core->MemBitmap_width) + (224+x) - (i*32);
-
-    //    printf("%d %d\n", i, j);
 
     u16 *pdwAddr = (u16 *)core->overlayBitmap + (j * 320) + i;
 
@@ -2212,13 +1721,10 @@ void dispIcon(core_crocods_t *core, int i, int j, int dispiconX, int dispiconY, 
             car = core->icons[(x + dispiconX * 32) + (y + dispiconY * 32) * 448];
 
             if (select != 0) {
-                // car = AlphaBlendFast(car, 0);
-
                 int16_t red = ((car & 0xF800) >> 11);
                 int16_t green = ((car & 0x07E0) >> 5);
                 int16_t blue = (car & 0x001F);
                 int16_t grayscale = (0.2126 * red) + (0.7152 * green / 2.0) + (0.0722 * blue);
-                //                                                   ^^^^^
                 car = (grayscale << 11) + (grayscale << 6) + grayscale;
             }
             *pdPixel = car;
@@ -2254,215 +1760,15 @@ void dispIcon8(core_crocods_t *core, int i, int j, int icon)
     }
 } /* dispIcon */
 
-void mydebug(core_crocods_t *core, const char *fmt, ...);
-
-/*
- * void LoopMenu(core_crocods_t *core, struct kmenu *parent)
- * {
- * PauseSound();
- *
- * menubuffer=(u16*)malloc(256*192*2);
- *
- *
- *
- * if (parent==NULL) {
- * iconAutoInsert=-1;
- * LoadMenu(&root);
- * } else {
- * LoadMenu(parent);
- * }
- * SetPalette(-1);
- *
- *
- #ifndef USE_CONSOLE
- * dmaCopy(menubuffer, backBuffer, 256*192*2);
- *
- #ifdef USE_ALTERSCREEN
- * int x,y,width,n;
- *
- * for(n=0;n<8;n++) {
- * if (n<=consolepos) {
- * if (consolestring[n*128]==1) {
- * width = DrawText(backBuffer, fontred, 110, 5+n*10, consolestring+n*128+1);
- * } else {
- * width = DrawText(backBuffer, font, 110, n*10+5, consolestring+n*128);
- * }
- * } else {
- * width = 0;
- * }
- * for(y=5+n*10;y<5+(n+1)*10;y++) {
- * for(x=110+width;x<253;x++) {
- * backBuffer[x+y*256]=RGB565((156>>3), (178>>3), (165>>3))|0x8000;  // 156, 178, 165
- * }
- * }
- * }
- #endif
- #endif
- *
- * free(menubuffer);
- *
- * DispIcons();
- *
- * inMenu=0;
- *
- * if (dispframerate==0) {
- * cpcprint16i(0,192-8, "                                  ", 255);
- * }
- *
- * PlaySound();
- * }
- *
- */
-
-// retour 1 si on doit revenir a l'emulator
-// retour 0 si on doit revenir au parent
-
-/*
- * int LoadMenu(core_crocods_t *core, struct kmenu *parent)
- * {
- * // RECT r, ralbum;
- * struct kmenu *first;
- *
- * if (parent->nbr==0) {
- * return 1;
- * }
- *
- * // SetRect(&ralbum,248,4,253,85);   // 4, 110
- *
- *
- * while(1) {
- * int i,n;
- * struct kmenu *selected=NULL;
- * char *bufpos[7];
- *
- * swiWaitForVBlank();
- * myconsoleClear();
- *
- * first=parent->firstchild;
- * i=0;
- * n=0;
- *
- * memset(bufpos, 0, sizeof(u8*)*7);
- *
- * while(1) {
- * if ( ((i-parent->pos+3)>=0) & ((i-parent->pos+3)<7) ) {
- * bufpos[i-parent->pos+3]=first->title;
- * }
- * if (i==parent->pos) {
- * selected=first;
- * }
- * i++;
- * first=first->next;
- * if (first==NULL) {
- * break;
- * }
- * }
- #ifndef USE_CONSOLE
- * dmaCopy(menubufferlow, backBuffer, 256*192*2);
- *
- * {
- * u32 n;
- * char buffer[256];
- *
- *
- *
- * for(n=0;n<7;n++) {
- * if (bufpos[n]!=NULL) {
- * u16 color;
- * color = RGB565((31 - abs(3-n)*6), (31 - abs(3-n)*6), (31 - abs(3-n)*6)) | 0x8000;
- * DrawTextLeft(backBuffer, filefont, color, 2, (n*20)+26, bufpos[n]);
- * }
- * }
- * sprintf(buffer,"\x03 Select \x04 Back");
- * DrawTextCenter(backBuffer, filefont, RGB565(0,0,31) | 0x8000,  176, buffer);
- * if (parent!=&root) {
- * DrawTextLeft(backBuffer, filefont, RGB565(31,31,0) | 0x8000, 15, 1, parent->title);
- * } else {
- * DrawTextLeft(backBuffer, filefont, RGB565(31,31,0) | 0x8000, 15, 1, "Root");
- * }
- * }
- #endif
- *
- *
- *
- * keys_pressed = MyReadKey();
- *
- * if ((keys_pressed & KEY_UP)==KEY_UP) {
- * parent->pos--;
- * if(parent->pos<0) {
- * parent->pos=parent->nbr-1;
- * parent->beg=parent->nbr-7;
- * }
- * while(parent->pos-parent->beg<0) {
- * parent->beg--;
- * }
- * }
- * if ((keys_pressed & KEY_DOWN)==KEY_DOWN)  {
- * parent->pos++;
- * if (parent->pos>=parent->nbr) {
- * parent->pos=0;
- * parent->beg=0;
- * }
- * while(parent->pos-parent->beg>=7) {
- * parent->beg++;
- * }
- * }
- * if ((keys_pressed & KEY_A)==KEY_A) {
- * int retour;
- * if (selected->firstchild!=NULL) {
- * if (LoadMenu(selected)==1) {
- * return 1;
- * }
- * }
- * retour=ExecuteMenu(selected->id, selected);
- * if (retour!=2) {
- * return retour;
- * }
- * }
- * if ((keys_pressed & KEY_L)==KEY_L) {
- * parent->pos-=8;
- * if(parent->pos<0) {
- * parent->pos=parent->nbr-1;
- * parent->beg=parent->nbr-7;
- * }
- * while(parent->pos-parent->beg<0) {
- * parent->beg--;
- * }
- * }
- * if ((keys_pressed & KEY_R)==KEY_R)  {
- * parent->pos+=7;
- * if (parent->pos>=parent->nbr) {
- * parent->pos=0;
- * parent->beg=0;
- * }
- * while(parent->pos-parent->beg>=7) {
- * parent->beg++;
- * }
- * }
- *
- * if ((keys_pressed & KEY_B)==KEY_B) {
- * return 0;
- * }
- * }
- * }
- */
-
-u8 * MyAlloc(int size, char *title)
-{
-    return (u8 *)malloc(size);
-}
-
 // FileSystem
 
 u8 * FS_Readfile(char *filename, u32 *romsize)
 {
-    u8 *rom = NULL;
+    u8 *rom       = NULL;
+    FILE *romfile = fopen(filename, "rb");
 
-    FILE *romfile;
-
-    romfile = fopen(filename, "rb");
-
-    if (romfile != NULL) {
+    if (romfile != NULL)
+    {
         fseek(romfile, 0, SEEK_END);
         *romsize = ftell(romfile);
 
@@ -2474,17 +1780,14 @@ u8 * FS_Readfile(char *filename, u32 *romsize)
         fclose(romfile);
     }
 
-    if (*romsize == 0) {
+    if (*romsize == 0)
         rom = NULL;
-    }
 
     return rom;
-} /* FS_Readfile */
-
-// ---
+}
 
 // Create empty ini file
-void createDefaultIni(core_crocods_t *core, int local)
+static void createDefaultIni(core_crocods_t *core, int local)
 {
     FILE *ini;
 
@@ -2502,12 +1805,8 @@ void createDefaultIni(core_crocods_t *core, int local)
         apps_disk_path2Abs(iniFile, "crocods.ini");
     }
 
-    printf("Create default ini in %s\n", iniFile);
-
-    if ((ini = fopen(iniFile, "w")) == NULL) {
-        fprintf(stderr, "iniparser: cannot create example.ini\n");
+    if ((ini = fopen(iniFile, "w")) == NULL)
         return;
-    }
 
     fprintf(ini,
             "#\n"
@@ -2515,7 +1814,7 @@ void createDefaultIni(core_crocods_t *core, int local)
             "#\n"
             "\n");
     fclose(ini);
-} /* createDefaultIni */
+}
 
 // local: 1 -> load custom ini
 void loadIni(core_crocods_t *core, int local)
@@ -2544,15 +1843,11 @@ void loadIni(core_crocods_t *core, int local)
             apps_disk_path2Abs(iniFile, "crocods.ini");
         }
 
-        printf("Load ini from %s\n", iniFile);
-
-//    mydebug(core, "Load ini: %s\n", iniFile);
-
         ini = iniparser_load(iniFile);
-        if (ini == NULL) {
-            if (local == 1) {
+        if (ini == NULL)
+	{
+            if (local == 1)
                 return;
-            }
             createDefaultIni(core, local);
             ini = iniparser_load(iniFile);
             if (ini == NULL) {
@@ -2861,7 +2156,7 @@ void loadIni(core_crocods_t *core, int local)
 
         iniparser_freedict(ini);
     }
-} /* loadIni */
+}
 
 void saveIni(core_crocods_t *core, int local)
 {
@@ -3001,7 +2296,6 @@ void saveIni(core_crocods_t *core, int local)
 u32 getTicks(void)
 {
     struct timeval tval; /* timing */
-
     gettimeofday(&tval, 0);
     return (u32)(((tval.tv_sec * 1000000) + (tval.tv_usec)));
 }

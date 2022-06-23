@@ -893,7 +893,7 @@ void SetDiskUPD(core_crocods_t *core, char *n)
      * handle = fopen( NomFic, "rb" );
      * FAT_fseek(handle,0,SEEK_END);
      * LongFic = ftell(handle) - sizeof(Infos);
-     * ImgDsk = (u8*)MyAlloc(dsksize, "UPD Disk");
+     * ImgDsk = (u8*)malloc(dsksize);
      * FAT_fseek(handle,0,SEEK_SET);
      *
      * if ( handle )

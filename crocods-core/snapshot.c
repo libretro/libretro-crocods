@@ -101,7 +101,7 @@ char * getSnapshot(core_crocods_t *core, int *len)
     strcpy(SnapShot.Id, "MV - SNA");
     SnapShot.Version = 1;
 
-    if ((croco_cpu_doFrame == cap32_cpu_doFrame) || (croco_cpu_doFrame == cap32_cpu_doFrame_debug)) {
+    if (croco_cpu_doFrame == cap32_cpu_doFrame) {
         SnapShot.Z80.AF = z80.AF.w.l;
         SnapShot.Z80.BC = z80.BC.w.l;
         SnapShot.Z80.DE = z80.DE.w.l;
@@ -211,7 +211,7 @@ void LireSnapshotMem(core_crocods_t *core, u8 *snap)
             memcpy(core->MemCPC, snap + sizeof(SnapShot), dwSnapSize * 1024);
 
         if (SnapShot.Version >= 1) {        // Load v1 specific
-            if ((croco_cpu_doFrame == cap32_cpu_doFrame) || (croco_cpu_doFrame == cap32_cpu_doFrame_debug)) {
+            if (croco_cpu_doFrame == cap32_cpu_doFrame) {
                 z80.AF.w.l = SnapShot.Z80.AF;
                 z80.BC.w.l = SnapShot.Z80.BC;
                 z80.DE.w.l = SnapShot.Z80.DE;

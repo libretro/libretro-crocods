@@ -1510,30 +1510,6 @@ void cap32_ResetVGA(core_crocods_t *core)
     GateArray.hs_count = 0;
 }
 
-u16 cap32_cpu_doFrame_debug(core_crocods_t *core)
-{
-    long TimeOut = 0;
-    long tz80 = 0;
-
-    int retour = 0;
-
-    tz80 -= getTicks(); // TODO("replace this function")
-
-    do {
-        retour = z80_execute_debug();  // Ignore EC_CYCLE_COUNT, EC_BREAKPOINT
-
-        cap32_endofline(core);
-    } while (retour != EC_FRAME_COMPLETE);
-
-    tz80 += getTicks();
-
-    TimeOut = 20000; // core->CPC_cycle_count;
-    
-    core->framecount++;
-
-    return TimeOut;
-}
-
 u16 cap32_cpu_doFrame(core_crocods_t *core)
 {
     long TimeOut = 0;

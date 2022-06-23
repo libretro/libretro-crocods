@@ -113,7 +113,6 @@ void cap32_ResetVGA(core_crocods_t *core);
 void cap32_endofline(core_crocods_t *core);
 
 u16 cap32_cpu_doFrame(core_crocods_t *core);
-u16 cap32_cpu_doFrame_debug(core_crocods_t *core);
 
 #ifdef __cplusplus
 }

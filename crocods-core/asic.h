@@ -102,8 +102,6 @@ typedef struct
 
     unsigned int XMagShift,YMagShift;
     unsigned long x, y;
-
-//  unsigned long    SpriteMaxXPixel, SpriteMaxYPixel;
 } ASIC_SPRITE_RENDER_INFO;
 
 #define ASIC_RAM_ENABLED    0x0002

@@ -12,15 +12,6 @@ PSG psg;
 GB_sample_t *sndbuf;
 int sndbufend, sndbufbeg;
 
-u8 PlaySound(core_crocods_t *gb)
-{
-    return 1;
-}
-
-void PauseSound(core_crocods_t *gb)
-{
-}
-
 void Reset8912(core_crocods_t *gb)
 {
     PSG_reset(&psg);
@@ -29,8 +20,6 @@ void Reset8912(core_crocods_t *gb)
 void Write8912(core_crocods_t *gb, int reg, int val)
 {
     PSG_writeReg(&psg, reg, val);
-
-    return;
 }
 
 int Read8912(core_crocods_t *gb, int r)
@@ -53,8 +42,6 @@ void initSound(core_crocods_t *gb, int r)
     PSG *_psg = PSG_new(CPC_CLK, r);
     memcpy(&psg, _psg, sizeof(PSG));
 
-//    PSG_set_quality(&psg, 1);
-
     PSG_reset(&psg);
 }
 
@@ -64,13 +51,11 @@ char useProcSound = 0;
 
 void crocods_copy_sound_buffer(core_crocods_t *gb, GB_sample_t *dest, unsigned int snd_bufsize)
 {
-    if (gb->soundEnabled == 0) {
+    if (gb->soundEnabled == 0)
         return;
-    }
 
     if (useProcSound == 0) {     // procsound never used
         int i;
-//        u8 cl, cr, cc;
 
         for (i = 0; i < snd_bufsize; i++) {
             s32 left, right;
@@ -79,17 +64,6 @@ void crocods_copy_sound_buffer(core_crocods_t *gb, GB_sample_t *dest, unsigned i
 
             dest[i].left = (s16)left;
             dest[i].right = (s16)right;
-
-//            PSG_calc_stereo(&psg, &dest[i].left, &dest[i].right);
-
-//            PSG_calc(&psg, &cr, &cc, &cl);
-
-//            // <<6 because gbaudioclient wait for signed.... (<<7 for unsigned)
-//
-////            dest[i].left = (((e_uint16)cl) + (((e_uint16)cc) >> 1)) << 7;
-////            dest[i].right =  (((e_uint16)cr) + (((e_uint16)cc) >> 1)) << 7;
-//            dest[i].left = (((e_uint16)cl) + (((e_uint16)cc) << 1)) << 6;
-//            dest[i].right =  (((e_uint16)cr) + (((e_uint16)cc) << 1)) << 6;
         }
     } else {
         int i;
@@ -111,13 +85,13 @@ void crocods_copy_sound_buffer(core_crocods_t *gb, GB_sample_t *dest, unsigned i
 
         sndbufbeg = sndbufpos;
     }
-} /* crocods_copy_sound_buffer */
+}
 
 void procSound(core_crocods_t *gb)
 {
     // TODO: FIX! Slow down CPU if too much sound sample are available - Not needed if cpu accuracy was good!
 
-    if (/* DISABLES CODE */ (1) == 0) {
+    if ((1) == 0) {
         u32 have;
 
         do {
@@ -128,9 +102,8 @@ void procSound(core_crocods_t *gb)
     useProcSound = 1;
     sndbufend++;
 
-    if (sndbufend == SNDBUFSIZE) {
+    if (sndbufend == SNDBUFSIZE)
         sndbufend = 0;
-    }
 
     s32 left, right;
 

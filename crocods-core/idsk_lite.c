@@ -13,9 +13,7 @@ enum { ERR_NO_ERR = 0, ERR_NO_DIRENTRY, ERR_NO_BLOCK, ERR_FILE_EXIST };
 
 #pragma pack(1) //evite le padding des structures qui sont utilisées dans des memcpy par la suite
 
-//
 // Structure d'une entree AMSDOS
-//
 typedef struct {
     u8 UserNumber;     // 00 User
     u8 FileName[15];   // 01-0F Nom + extension
@@ -75,72 +73,28 @@ typedef struct {
 
 #pragma pack()
 
-
-
-/*
-int main(int argc, char **argv)
-{
-    u8 *ImgDsk = idsk_createNewDisk();
-
-    // TODO: check 0x0A, 0x0D for carriage return
-
-    FILE *Hfile;
-
-    u8 buf[0x20000];
-    if ((Hfile = fopen("/Users/miguelvanhove/Dropbox/Sources/cpc/sampleDisk/test.bas", "rb")) == NULL) {
-        return 0;
-    }
-    u32 len = (u32)fread(buf, 1, 0x20000, Hfile);
-    fclose(Hfile);
-
-    idsk_importFile(ImgDsk, buf, len, "redbug.bas");
-
-    if (1 == 1) {
-        u32 length;
-        char *buf = idsk_getDiskBuffer(ImgDsk, &length);
-
-        if (buf != NULL) {
-            FILE *fic;
-            fic = fopen("/Users/miguelvanhove/Dropbox/Sources/cpc/sampleDisk/basic.dsk", "wb+");
-            fwrite(buf, 1, length, fic);
-            fclose(fic);
-        }
-        free(buf);
-    }
-
-    free(ImgDsk);
-
-    return (EXIT_SUCCESS);
-}
-*/
-
 // iDsk functions
 //
 // Calcule et positionne le checksum AMSDOS
-//
 void idsk_setChecksum(idsk_StAmsdos *pEntete)
 {
     int i, Checksum = 0;
     u8 *p = (u8 *)pEntete;
-    for (i = 0; i < 67; i++) {
+    for (i = 0; i < 67; i++)
         Checksum += *(p + i);
-    }
 
     pEntete->CheckSum = retro_cpu_to_le16((u16)Checksum);
 }
 
-//
 // Verifie si en-tete AMSDOS est valide
-//
 char idsk_checkAmsdos(u8 *Buf)
 {
     int i, Checksum = 0;
     char ModeAmsdos = 0;
     u16 CheckSumFile;
     CheckSumFile = Buf[ 0x43 ] + Buf[ 0x43 + 1 ] * 256;
-    for (i = 0; i < 67; i++) {
+    for (i = 0; i < 67; i++)
         Checksum += Buf[ i ];
-    }
 
     if ( (CheckSumFile == (u16)Checksum) && Checksum) ModeAmsdos = 1;
 
@@ -187,8 +141,8 @@ idsk_StAmsdos * idsk_creeEnteteAmsdos(char *NomFic, u16 Longueur)
     return(&Entete);
 }
 
-/// Return the filename formated to AMSDOS (8+3)
-/// Need to be freed!
+/// Return the filename formatted to AMSDOS (8+3)
+/// Needs to be freed!
 /// @param AmsName <#AmsName description#>
 char * idsk_getNomAmsdos(const char *AmsName)
 {
@@ -420,12 +374,10 @@ idsk_StDirEntry * idsk_getNomDir(char *NomFic)
     } else {
         memcpy(DirLoc.Nom, NomFic, (strlen(NomFic) > 8) ? 8 : strlen(NomFic));
     }
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < 8; i++)
         DirLoc.Nom[ i ] = (u8)toupper(DirLoc.Nom[ i ]);
-    }
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 3; i++)
         DirLoc.Ext[ i ] = (u8)toupper(DirLoc.Ext[ i ]);
-    }
 
     return(&DirLoc);
 }
@@ -543,8 +495,6 @@ int idsk_copieFichier(u8 *ImgDsk, u8 *BufFile, char *NomFic, u32 TailleFic, u32 
     return(ERR_NO_ERR);
 }
 
-// MyDsk.PutFileInDsk(*iter, AmsdosType, loadAdress, exeAdress, UserNumber, System_file, Read_only);
-
 /// Import file in disk
 /// @param ImgDsk disk image
 /// @param Masque filename
@@ -599,9 +549,7 @@ char idsk_importFile(u8 *ImgDsk, u8 *buf, u32 len, char *Masque)
     } else {
 //        cout << "Le fichier a d�j� une en-t�te\n";
     }
-    //
     // En fonction du mode d'importation...
-    //
     switch (TypeModeImport) {
         case ASCII_MODE:    // Import ASCII
             if (IsAmsdos) {
@@ -612,15 +560,12 @@ char idsk_importFile(u8 *ImgDsk, u8 *buf, u32 len, char *Masque)
             break;
 
         case BINARY_MODE:  // Import Binary
-            if (!IsAmsdos) { // Add Header
+            if (!IsAmsdos) // Add Header
                 AddHeader = 1;
-            }
             break;
     }
 
-    //
     // Si fichier ok pour etre import
-    //
     if (AddHeader) {
         // Ajoute l'en-tete amsdos si necessaire
 
@@ -629,13 +574,10 @@ char idsk_importFile(u8 *ImgDsk, u8 *buf, u32 len, char *Masque)
         Lg += sizeof(idsk_StAmsdos);
     }
 
-    //if (MODE_BINAIRE) ClearAmsdos(Buff); //Remplace les octets inutilis�s par des 0 dans l'en-t�te
-
-    if (idsk_copieFichier(ImgDsk, Buff, cFileName, Lg, 256, UserNumber, System_file, Read_only) != ERR_NO_ERR) {
+    if (idsk_copieFichier(ImgDsk, Buff, cFileName, Lg, 256, UserNumber, System_file, Read_only) != ERR_NO_ERR)
         ret = 0;
-    } else {
+    else
         ret = 1;
-    }
 
     free(cFileName);
 

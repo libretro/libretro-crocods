@@ -8,19 +8,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-//
-//#ifndef FALSE
-//enum { FALSE, TRUE };
-//#endif
-
 struct ColorEntry
 {
 	u8 red, green, blue;
 };
-
-// RETOUR
-
-
 
 #define RGB565(R, G, B) ((((R)&0xF8) << 8) | (((G)&0xFC) << 3) | (((B)&0xF8) >> 3))
 
@@ -38,8 +29,6 @@ pfctWritePixel WritePixel;
 int gif_format;
 
 void OpenGif(u8 *buf, int size);
-
-s16 SkipObject(void);
 
 s16 WritePixel16(u8 Pixel);
 s16 WritePixel8(u8 Pixel);
@@ -106,19 +95,10 @@ struct code_entry *code_table;
 
 s16 mask[12];
 
-/*
-            int r = ( RgbCPCdef[ i ] >> 19 ) & 0x1F;
-            int g = ( RgbCPCdef[ i ] >> 11 ) & 0x1F;
-            int b = ( RgbCPCdef[ i ] >> 3 ) & 0x1F;
-
-            BG_PALETTE[i]=RGB565(r,g,b);
- */
-
 void InitGif(u8 *buf, int size);
 
 void ReadBackgroundGifInfo(u32 *w, u32 *h, unsigned char *pImageFileMem, int dwImageFileSize)
 {
-
 	InitGif(pImageFileMem, dwImageFileSize);
 
 	*w = dwWidth;
@@ -205,6 +185,34 @@ void InitGif(u8 *buf, int size)
 	}
 }
 
+/*
+ * Skip over an extended GIF object.
+ */
+
+static s16 SkipObject(void)
+{
+	s16 Count;
+
+	while ((Count = ReadByte()) > 0)
+		do
+		{
+			if (ReadByte() < 0) /* Error reading data stream */
+			{
+				dwWidth = 0;
+				dwHeight = 0;
+				return FALSE;
+			}
+		} while (--Count > 0);
+
+	if (Count < 0) /* Error reading data stream */
+	{
+		dwWidth = 0;
+		dwHeight = 0;
+		return FALSE;
+	}
+	return TRUE;
+}
+
 void OpenGif(u8 *buf, int size)
 {
 	s16 Width, Height;
@@ -240,13 +248,6 @@ void OpenGif(u8 *buf, int size)
 			dwHeight = Height;
 			dwWidth = Width;
 
-			if (LocalNumColors > 0) // Change the palette table
-			{
-			}
-			else if (DefaultNumColors > 0) // Reset the palette table back to the default setting
-			{
-			}
-
 			X = LeftEdge;
 			Y = TopEdge;
 			RightEdge = (u16)(LeftEdge + Width - 1);
@@ -260,7 +261,6 @@ void OpenGif(u8 *buf, int size)
 				dwWidth = 0;
 				dwHeight = 0;
 				return;
-				// Done = TRUE;
 			}
 
 			break;
@@ -275,8 +275,6 @@ void OpenGif(u8 *buf, int size)
 				dwWidth = 0;
 				dwHeight = 0;
 				return;
-				//      Done = TRUE;
-				break;
 			}
 
 			/* Since there no extented objects defined in rev 87a, we
@@ -292,8 +290,6 @@ void OpenGif(u8 *buf, int size)
 			dwWidth = 0;
 			dwHeight = 0;
 			return;
-			// Done = TRUE;
-			break;
 		}
 	}
 }
@@ -321,9 +317,7 @@ s16 read_code(void)
 		bytes_to_move = (s16)(64 - byte_offset);
 
 		for (i = 0; i < bytes_to_move; i++)
-		{
 			code_buffer[i] = code_buffer[byte_offset + i];
-		}
 
 		while (i < 64)
 		{
@@ -335,20 +329,15 @@ s16 read_code(void)
 				{
 					if (bytes_unread == 0) /* end of data */
 						break;
-					else
-					{
-						free((char *)code_table);
-						return (s16)(bytes_unread);
-					}
+					free((char *)code_table);
+					return (s16)(bytes_unread);
 				}
 			}
 
 			ch = ReadByte();
 
 			if (ch < 0)
-			{
 				return (s16)(ch);
-			}
 			code_buffer[i++] = (unsigned char)ch;
 			bytes_unread--;
 		}
@@ -392,9 +381,7 @@ s16 Expand_Data(void)
 	code_table = (struct code_entry *)malloc(sizeof(struct code_entry) * (largest_code + 1));
 
 	if (code_table == NULL)
-	{
 		return -2;
-	}
 
 	/* Get the minimum code size (2 to 9) */
 
@@ -478,7 +465,6 @@ s16 Expand_Data(void)
 				}
 			}
 		}
-		// if (code==0) break; // ADD BY REDBUG ?
 	}
 
 	free((char *)code_table);
@@ -499,9 +485,7 @@ s16 ReadScreenDesc(u32 *w, u32 *h, s16 *ColorRez, s16 *FillColor, u16 *NumColors
 	{
 		Status = ReadByte();
 		if (Status < 0)
-		{
 			return FALSE;
-		}
 		Buffer[I] = (u8)Status;
 	}
 
@@ -509,22 +493,14 @@ s16 ReadScreenDesc(u32 *w, u32 *h, s16 *ColorRez, s16 *FillColor, u16 *NumColors
 
 	for (I = 0; I < 6; I++)
 		if ((Buffer[I] != GIFsignature[I]) & (I != 4))
-		{
 			return FALSE;
-		}
 
 	if (Buffer[4] == '7')
-	{
 		gif_format = 87;
-	}
 	if (Buffer[4] == '9')
-	{
 		gif_format = 89;
-	}
 	if (gif_format == 0)
-	{
 		return FALSE;
-	}
 
 	*w = (u32)(Buffer[6] | Buffer[7] << 8);
 	*h = (u32)(Buffer[8] | Buffer[9] << 8);
@@ -536,9 +512,7 @@ s16 ReadScreenDesc(u32 *w, u32 *h, s16 *ColorRez, s16 *FillColor, u16 *NumColors
 	HaveColorMap = (Buffer[10] & 0x80) != 0;
 	*NumColors = (u16)(1 << NumPlanes);
 	if (*NumColors > 256)
-	{
 		*NumColors = 256;
-	}
 	*FillColor = Buffer[11];
 	/*  Reserved = Buffer[12]; */
 
@@ -563,9 +537,7 @@ s16 ReadScreenDesc(u32 *w, u32 *h, s16 *ColorRez, s16 *FillColor, u16 *NumColors
 		}
 	}
 	else
-	{
 		*NumColors = 0;
-	}
 
 	return TRUE;
 }
@@ -638,9 +610,7 @@ s16 ReadByte(void)
 	s16 a;
 
 	if (inpos >= insize)
-	{
 		return -1;
-	}
 
 	a = inbuf[inpos];
 	inpos++;
@@ -650,13 +620,8 @@ s16 ReadByte(void)
 
 s16 WritePixel16(u8 Pixel)
 {
-	// outbuf[outpos] = RGB565( DefaultColorMap[Pixel].red, DefaultColorMap[Pixel].green, DefaultColorMap[Pixel].blue);
 	if (outpos >= dwHeight * dwWidth)
-	{
 		return 1;
-	}
-
-	// Pixel=outpos&255;
 
 	outbuf16[outpos] = RGB565(DefaultColorMap[Pixel].red, DefaultColorMap[Pixel].green, DefaultColorMap[Pixel].blue); //  | 0x8000;
 	outpos++;
@@ -688,13 +653,8 @@ s16 WritePixel16(u8 Pixel)
 
 s16 WritePixel8(u8 Pixel)
 {
-	// outbuf[outpos] = RGB565( DefaultColorMap[Pixel].red, DefaultColorMap[Pixel].green, DefaultColorMap[Pixel].blue);
 	if (outpos >= dwHeight * dwWidth)
-	{
 		return 1;
-	}
-
-	// Pixel=outpos&255;
 
 	outbuf8[outpos] = Pixel;
 	outpos++;
@@ -726,31 +686,3 @@ s16 WritePixel8(u8 Pixel)
 	return 0;
 }
 
-/*
- * Skip over an extended GIF object.
- */
-
-s16 SkipObject(void)
-{
-	s16 Count;
-
-	while ((Count = ReadByte()) > 0)
-		do
-		{
-			if (ReadByte() < 0) /* Error reading data stream */
-			{
-				dwWidth = 0;
-				dwHeight = 0;
-				return FALSE;
-			}
-		} while (--Count > 0);
-
-	if (Count < 0) /* Error reading data stream */
-	{
-		dwWidth = 0;
-		dwHeight = 0;
-		return FALSE;
-	}
-	else
-		return TRUE;
-}

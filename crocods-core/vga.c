@@ -2,7 +2,7 @@
 
 #include "z80.h"
 
-#include "plateform.h"
+#include "platform.h"
 #include "monitor.h"
 
 #define   ROMINF_OFF 0x04

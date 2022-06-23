@@ -106,7 +106,7 @@
 #include  "vga.h"
 #include  "crtc.h"
 #include  "gestport.h"
-#include  "plateform.h"
+#include  "platform.h"
 #include  "rompack.h"
 
 #define MASK_14BIT 0x3FFF

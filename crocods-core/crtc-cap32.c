@@ -20,7 +20,7 @@
  * based on the CRTC emulation of WinAPE32 v2.0a5b by Richard Wilson
  */
 
-#include "plateform.h"
+#include "platform.h"
 #include "z80_cap32.h"
 #include "crtc.h"
 #include "vga.h"
@@ -1517,7 +1517,7 @@ u16 cap32_cpu_doFrame_debug(core_crocods_t *core)
 
     int retour = 0;
 
-    tz80 -= getTicks();                                             // TODO("replace this function")
+    tz80 -= getTicks(); // TODO("replace this function")
 
     do {
         retour = z80_execute_debug();  // Ignore EC_CYCLE_COUNT, EC_BREAKPOINT
@@ -1541,28 +1541,18 @@ u16 cap32_cpu_doFrame(core_crocods_t *core)
 
     int retour = 0;
 
-    tz80 -= getTicks();                                             // TODO("replace this function")
+    tz80 -= getTicks(); // TODO("replace this function")
 
     do {
         retour = z80_execute();  // Ignore EC_CYCLE_COUNT, EC_BREAKPOINT
-        
-        if (retour==EC_FRAME_COMPLETE) {
-//            printf("EC_FRAME_COMPLETE: ");
-//             printf("F%d - T%d/80000\n", core->framecount, core->CPC_cycle_count );
-        }
-        if (retour==EC_CYCLE_COUNT) {
-//            printf("EC_CYCLE_COUNT: ");
-//             printf("F%d - T%d/80000\n", core->framecount, core->CPC_cycle_count );
-        }
-        
         cap32_endofline(core);
     } while (retour != EC_FRAME_COMPLETE);
 
     tz80 += getTicks();
 
-    TimeOut = 20000; // core->CPC_cycle_count;
+    TimeOut = 20000;
 
-        core->framecount++;
+    core->framecount++;
     
     return TimeOut;
 }

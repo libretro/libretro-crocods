@@ -3,8 +3,7 @@
 #include "sound.h"
 #include "crtc.h"
 
-#include "plateform.h"
-
+#include "platform.h"
 
 #define PRINTER_BUSY 0x40       // Printer busy
 

@@ -1,11 +1,7 @@
 #include "apps_tapeplayer.h"
 
-
-
 void DispTapePlayer(core_crocods_t *core, u16 keys_pressed0)
 {
-//    static int key = 0;
-
     int y;
 
     core->ipc.keys_pressed = 0;
@@ -41,4 +37,4 @@ void DispTapePlayer(core_crocods_t *core, u16 keys_pressed0)
         core->wait_key_released = 1;
     }
 
-} /* DispKeyboard */
+}

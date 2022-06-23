@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-#include "plateform.h"
+#include "platform.h"
 
 #include "apps_keyboard.h"
 #include "apps_tapeplayer.h"

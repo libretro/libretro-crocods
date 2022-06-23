@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 #include "z80.h"
 #include "crtc.h"
 #include "vga.h"
@@ -16,8 +16,7 @@ void wincpc_ResetCRTC(core_crocods_t *core)
     core->MaCRTC = 0;
     core->SyncCount = 0;
     
-            core->screenIsOptimized = 1;
-
+    core->screenIsOptimized = 1;
 
     core->RegsCRTC[0] = 0;
 }
@@ -158,11 +157,9 @@ void wincpc_WriteCRTC(core_crocods_t *core, u8 val)
 ********************************************************** !0! ****************/
 u8 wincpc_CRTC_DoLine(core_crocods_t *core)
 {
-    if (!--core->TailleVBL) {
+    if (!--core->TailleVBL)
         CRTC_ClearFlag(CRTC_VS_FLAG);
-    }
 
-    // if ( ++LigneCRTC >= RegsCRTC[ 5 ] )
     if (++core->LigneCRTC) {
         if (core->NumLigneChar == core->RegsCRTC[ 9 ]) {
             core->NumLigneChar = 0;
@@ -182,7 +179,6 @@ u8 wincpc_CRTC_DoLine(core_crocods_t *core)
             core->LigneCRTC = 0;
             core->TailleVBL = 16;
             core->SyncCount = 2;
-            // core->DoResync = 1;
             CRTC_SetFlag(CRTC_VS_FLAG);
         } else {
             int y = core->LigneCRTC - 32;
@@ -192,36 +188,25 @@ u8 wincpc_CRTC_DoLine(core_crocods_t *core)
                               , ( (core->NumLigneChar) << 11) | ( (core->MaCRTC & 0x3000) << 2)
                               );
             } else
-            if (core->LigneCRTC > 312) {
+            if (core->LigneCRTC > 312)
                 core->LigneCRTC = 0;
-                //    core->DoResync = 0;
-            }
         }
     }
 
-// ASIC HSync
+    // ASIC HSync
 
-    if (core->hw == CPC_HW_CPCPLUS) {
-        /* yes. See if ASIC interrupts are required */
-        // ASIC_HSync(CRTC_InternalState.LineCounter, CRTC_InternalState.RasterCounter);
-    }
-
-// VGA Update
+    // VGA Update
 
     VGA_Update(core);
 
     return(core->LigneCRTC);
-
-//    return( core->DoResync == 0); // core->LigneCRTC );
 }
 
 void VGA_Update(core_crocods_t *core)
 {
     core->CntHSync++;
     if (!core->SyncCount) {
-        //
         // Si 52 lignes comptée -> Génération d'une interruption
-        //
         if (core->CntHSync == 52) {
             core->CntHSync = 0;
 
@@ -253,12 +238,11 @@ u16 wincpc_cpu_doFrame(core_crocods_t *core)
 
     // Do CRTC by lines
     do {
-        int cycle = ExecInstZ80(core);                 // Run one CRTC Line of Z80
+        int cycle = ExecInstZ80(core); // Run one CRTC Line of Z80
         byCycle += cycle;
 
-        for (i = 0; i < cycle / 6; i++) {        // Why 6 ???
+        for (i = 0; i < cycle / 6; i++)       // Why 6 ???
             procSound(core);
-        }
 
         TimeOut += core->RegsCRTC[ 0 ] + 1;
     }  while (CRTC_DoLine(core) != 0);

@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 #include "z80.h"
 #include "crtc.h"
 #include "vga.h"

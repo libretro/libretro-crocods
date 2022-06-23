@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 #include "z80_cap32.h"
 
 #include <string.h>

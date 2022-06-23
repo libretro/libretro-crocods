@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 
 #ifdef ZIP_SUPPORT
 #include "miniz.h"

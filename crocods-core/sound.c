@@ -1,5 +1,5 @@
 #include "sound.h"
-#include "plateform.h"
+#include "platform.h"
 
 #include "emu2149.h"
 

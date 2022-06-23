@@ -2,10 +2,9 @@
 
 #include "z80.h"
 
-#include "plateform.h"
+#include "platform.h"
 
 #define ASIC_UNUSED_RAM_DATA 0x0b0
-
 
 BOOL InitASIC(core_crocods_t *core) {
 

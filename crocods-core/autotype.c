@@ -1,6 +1,6 @@
 #include "autotype.h"
 
-#include "plateform.h"
+#include "platform.h"
 #include "vga.h"
 #include "ppi.h"
 

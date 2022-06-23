@@ -1,5 +1,4 @@
-#include "plateform.h"
-
+#include "platform.h"
 
 void guestGetAllKeyPressed(core_crocods_t *core, char *string); // In guest.h
 void guestGetJoystick(core_crocods_t *core, char *string);

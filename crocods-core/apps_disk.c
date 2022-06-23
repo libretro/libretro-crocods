@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 #include <dirent.h>
 
 void DispAppsDisk(core_crocods_t *core, u16 keys_pressed0);

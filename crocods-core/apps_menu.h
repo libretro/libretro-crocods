@@ -1,7 +1,7 @@
-#include "plateform.h"
-
 #ifndef _APPS_MENU_H_
 #define _APPS_MENU_H_
+
+#include "platform.h"
 
 typedef struct {
     int id;

@@ -1,7 +1,7 @@
 #include "monitor.h"
 #include "z80.h"
 
-#include "plateform.h"
+#include "platform.h"
 
 #define MONITOR_HORIZONTAL_RATE 64
 #define MONITOR_VERTICAL_RATE   312     /* change to cycles */

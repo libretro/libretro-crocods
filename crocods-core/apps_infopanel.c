@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 
 void DispInfopanel(core_crocods_t *core, u16 keys_pressed0);
 

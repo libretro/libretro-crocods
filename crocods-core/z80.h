@@ -61,15 +61,9 @@
 *
 ********************************************************** !0! ****************/
 
-#include "plateform.h"
-
-//struct SRegs_s;
-//typedef struct  SRegs;
+#include "platform.h"
 
 typedef int ( * pfct )( core_crocods_t *core );
-
-//void ReadZ80(SRegs *z0);
-//void WriteZ80(SRegs *z0);
 
 #define     RegAF           core->Z80.AF.Word
 #define     RegBC           core->Z80.BC.Word

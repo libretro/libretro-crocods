@@ -11,7 +11,7 @@
 
 #include "deps/ziptool.h"
 
-#include "crocods-core/plateform.h"
+#include "crocods-core/platform.h"
 #include "crocods-core/gif.h"
 
 int Sound = 1;

@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 
 void Dispkey(core_crocods_t *core, CPC_KEY n, int status);
 void DispScanCode(core_crocods_t *core, CPC_SCANCODE n, int status);

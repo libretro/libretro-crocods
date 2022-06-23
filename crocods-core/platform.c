@@ -1,4 +1,4 @@
-#include "plateform.h"
+#include "platform.h"
 
 #include <string.h>
 #include <stdarg.h>

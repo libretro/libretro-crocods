@@ -29,7 +29,7 @@
 #define Z80_CAP32_H
 
 #include  "crocods.h"
-#include  "plateform.h"
+#include  "platform.h"
 #include  "retro_endianness.h"
 
 

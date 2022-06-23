@@ -1,2 +1,2 @@
-#include "plateform.h"
+#include "platform.h"
 #include "crtc.h"

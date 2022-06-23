@@ -66,9 +66,6 @@ apps_menu_publicmenu apps_menu_publicmenus[APPS_MENU_PUBLICMENU_COUNT] = {
     {ID_HACK_TABCOUL, "Only one ink refresh per frame: N", NULL,    0 },
     {ID_NOHACK_TABCOUL,   "Normal ink refresh per frame: N",   NULL,    0 },
     {ID_RESET,    "Reset CPC",     NULL,    0 },
-    {ID_SNAP_MENU,    "State",     NULL,    0 },
-    {ID_SAVESNAP, "Save State",    NULL,    0 },
-    {ID_LOADSNAP, "Load State",    NULL,    0 },
     {ID_MENU, "Action",    NULL,    0 },
     {ID_RESET,    "Reset",     NULL,    0 },
     {ID_ADVANCED_MENU,    "Advanced",  NULL,    0 },
@@ -384,12 +381,6 @@ void apps_menu_init(core_crocods_t *core)
   AddMenu(keyMenu, ID_REDEFINE_R, 0, 0);
   AddMenu(keyMenu, ID_REDEFINE_L2, 0, 0);
   AddMenu(keyMenu,  ID_REDEFINE_R2, 0, 0);
-
-  if (core->resources == NULL) {
-  id = AddMenu(&root,  ID_SNAP_MENU, 6, 0);
-  AddMenu(id, ID_SAVESNAP, 6, 1);
-  AddMenu(id,  ID_LOADSNAP, 6, 2);
-  }
 
   id = AddMenu(&root,  ID_ACTIONMENU, 7, 0);
   AddMenu(id, ID_RESET, 7, 1);

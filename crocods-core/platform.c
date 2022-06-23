@@ -686,24 +686,6 @@ int ExecuteMenu(core_crocods_t *core, int n, struct kmenu *current)
             ExecuteMenu(core, ID_AUTORUN, NULL);
 
             return 0;
-        case ID_LOADSNAP:
-            LoadSlotSnap(core, 0);
-            break;
-        case ID_SAVESNAP: {
-            char snap[MAX_PATH + 1];
-            char snapFile[MAX_PATH + 1];
-
-            strcpy(snap, core->home_dir);
-            sprintf(snapFile, "%s_0.sna", core->filename);
-
-            apps_disk_path2Abs(snap, "snap");
-            apps_disk_path2Abs(snap, snapFile);
-
-            SauveSnap(core, snap);
-
-            return 1;
-        }
-
         case ID_EXIT:
             ExecuteMenu(core, ID_SAVE_SETTINGS, NULL);
             exit(EXIT_SUCCESS);
@@ -1774,32 +1756,6 @@ void dispIcon8(core_crocods_t *core, int i, int j, int icon)
         pdwAddr += 320;
     }
 } /* dispIcon */
-
-// FileSystem
-
-u8 * FS_Readfile(char *filename, u32 *romsize)
-{
-    u8 *rom       = NULL;
-    FILE *romfile = fopen(filename, "rb");
-
-    if (romfile != NULL)
-    {
-        fseek(romfile, 0, SEEK_END);
-        *romsize = ftell(romfile);
-
-        rom = (u8 *)malloc(*romsize);
-
-        fseek(romfile, 0, SEEK_SET);
-        fread(rom, 1, *romsize, romfile);
-
-        fclose(romfile);
-    }
-
-    if (*romsize == 0)
-        rom = NULL;
-
-    return rom;
-}
 
 // Create empty ini file
 static void createDefaultIni(core_crocods_t *core, int local)

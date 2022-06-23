@@ -778,7 +778,6 @@ typedef enum {
     ID_DISPFRAMERATE,
     ID_NODISPFRAMERATE,
     ID_RESET,
-    ID_SAVESNAP,
     ID_AUTODISK,
     ID_DISK,
     ID_REDEFINE_UP,
@@ -807,8 +806,6 @@ typedef enum {
     ID_USE_CRTC_ARNOLD,
 
     ID_EXIT,
-    ID_SNAP_MENU,
-    ID_LOADSNAP,
     ID_DISK_MENU,
     ID_SAVE_SETTINGS,
     ID_SAVE_LOCALSETTINGS,
@@ -854,8 +851,6 @@ typedef enum {
     ID_ACTIONMENU,
     ID_DEVMENU
 } PLATEFORM_MENU;
-
-u8 * FS_Readfile(char *filename, u32 *romsize);
 
 void appendIcon(core_crocods_t *core, int x, int y, int timer);
 

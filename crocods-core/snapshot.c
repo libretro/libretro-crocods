@@ -175,21 +175,6 @@ char * getSnapshot(core_crocods_t *core, int *len)
     return buffer;
 }
 
-void SauveSnap(core_crocods_t *core, char *Nom)
-{
-    FILE *fp = fopen(Nom, "wb");
-
-    if (fp) {
-        int len;
-        char *buffer = getSnapshot(core, &len);
-        if (buffer != NULL) {
-            fwrite(buffer, 1, len, fp);
-            free(buffer);
-        }
-        fclose(fp);
-    }
-}
-
 void LireSnapshotMem(core_crocods_t *core, u8 *snap)
 {
     int i;
@@ -289,21 +274,5 @@ void LireSnapshotMem(core_crocods_t *core, u8 *snap)
         }
     }
 }     /* LireSnapshotMem */
-
-void LoadSlotSnap(core_crocods_t *core, int c)
-{
-    char snap[MAX_PATH + 1];
-    u8 *rom = NULL;
-    u32 romsize = 0;
-
-    sprintf(snap, "%s/snap/%s_%d.sna", core->home_dir, core->filename, c);
-
-    rom = FS_Readfile(snap, &romsize);
-
-    if (rom != NULL) {
-        LireSnapshotMem(core, rom);
-        free(rom);
-    }
-}
 
 #endif /* ifdef USE_SNAPSHOT */

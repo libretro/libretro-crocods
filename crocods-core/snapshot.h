@@ -36,10 +36,7 @@ extern "C"
     int getSnapshotSize(core_crocods_t *core);
     char *getSnapshot(core_crocods_t *core, int *len);
 
-    void SauveSnap(core_crocods_t *core, char *Nom);
     void LireSnapshotMem(core_crocods_t *core, u8 *snap);
-
-    void LoadSlotSnap(core_crocods_t *core, int c);
 
 #ifdef __cplusplus
 }

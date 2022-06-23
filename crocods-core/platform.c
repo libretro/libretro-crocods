@@ -134,13 +134,9 @@ int emulator_patch_ROM(core_crocods_t *core, u8 *pbROMlo)
 
 #define MAXFILE 1024
 
-void myconsoleClear(core_crocods_t *core);
-
 void UpdateKeyMenu(void);
 
 // 384
-
-static int frame = 0;
 
 u16 *kbdBuffer;
 
@@ -276,7 +272,8 @@ int RgbCPCdef[ 32 ] =  {
 
 void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi);
 
-typedef struct {
+typedef struct
+{
     int normal;
 } CPC_MAP;
 
@@ -310,8 +307,7 @@ static void calcSize(core_crocods_t *core)
     core->MemBitmap_width = x2 - x1;
 
     core->changeFilter = 1;
-} /* calcSize */
-
+}
 
 void UseResources(void *core0, void *bytes, int len)
 {
@@ -405,136 +401,139 @@ static void RedefineKey(core_crocods_t *core, int key)
 
 static void saveIni(core_crocods_t *core, int local)
 {
-    if (core->home_dir != NULL) {
-        char s[32];
+    if (core->home_dir == NULL)
+	    return;
 
-        dictionary *ini = dictionary_new(0);
+    {
+	    char s[32];
 
-        iniparser_set(ini, "display", NULL);
+	    dictionary *ini = dictionary_new(0);
 
-        if (core->lastcolour == 0) {
-            iniparser_set(ini, "display:color", "0");
-        } else {
-            iniparser_set(ini, "display:color", "1");
-        }
+	    iniparser_set(ini, "display", NULL);
 
-        if (core->resize == 1) {         // AUTO
-            iniparser_set(ini, "display:resize", "1");
-        } else if (core->resize == 2) {  // 320
-            iniparser_set(ini, "display:resize", "2");
-        } else if (core->resize == 3) {  // NO-RESIZE
-            iniparser_set(ini, "display:resize", "3");
-        } else if (core->resize == 4) {  // OVERSCAN
-            iniparser_set(ini, "display:resize", "4");
-        }
+	    if (core->lastcolour == 0) {
+		    iniparser_set(ini, "display:color", "0");
+	    } else {
+		    iniparser_set(ini, "display:color", "1");
+	    }
 
-        sprintf(s, "%d", core->scanline);
-        iniparser_set(ini, "display:scanline", s);
+	    if (core->resize == 1) {         // AUTO
+		    iniparser_set(ini, "display:resize", "1");
+	    } else if (core->resize == 2) {  // 320
+		    iniparser_set(ini, "display:resize", "2");
+	    } else if (core->resize == 3) {  // NO-RESIZE
+		    iniparser_set(ini, "display:resize", "3");
+	    } else if (core->resize == 4) {  // OVERSCAN
+		    iniparser_set(ini, "display:resize", "4");
+	    }
 
-        iniparser_set(ini, "sound", NULL);
+	    sprintf(s, "%d", core->scanline);
+	    iniparser_set(ini, "display:scanline", s);
 
-        if (core->soundEnabled == 1) {
-            iniparser_set(ini, "sound:enabled", "1");
-        } else {
-            iniparser_set(ini, "sound:enabled", "0");
-        }
+	    iniparser_set(ini, "sound", NULL);
 
-        iniparser_set(ini, "joy", NULL);
+	    if (core->soundEnabled == 1) {
+		    iniparser_set(ini, "sound:enabled", "1");
+	    } else {
+		    iniparser_set(ini, "sound:enabled", "0");
+	    }
 
-        sprintf(s, "%d", keyown[0]);
-        iniparser_set(ini, "joy:up", s);
-        sprintf(s, "%d", keyown[1]);
-        iniparser_set(ini, "joy:down", s);
-        sprintf(s, "%d", keyown[2]);
-        iniparser_set(ini, "joy:left", s);
-        sprintf(s, "%d", keyown[3]);
-        iniparser_set(ini, "joy:right", s);
-        sprintf(s, "%d", keyown[4]);
-        iniparser_set(ini, "joy:start", s);
-        sprintf(s, "%d", keyown[5]);
-        iniparser_set(ini, "joy:a", s);
-        sprintf(s, "%d", keyown[6]);
-        iniparser_set(ini, "joy:b", s);
-        sprintf(s, "%d", keyown[7]);
-        iniparser_set(ini, "joy:x", s);
-        sprintf(s, "%d", keyown[8]);
-        iniparser_set(ini, "joy:y", s);
-        sprintf(s, "%d", keyown[9]);
-        iniparser_set(ini, "joy:l", s);
-        sprintf(s, "%d", keyown[10]);
-        iniparser_set(ini, "joy:r", s);
-        sprintf(s, "%d", keyown[11]);
-        iniparser_set(ini, "joy:l2", s);
-        sprintf(s, "%d", keyown[12]);
-        iniparser_set(ini, "joy:r2", s);
+	    iniparser_set(ini, "joy", NULL);
 
-        iniparser_set(ini, "menu", NULL);
+	    sprintf(s, "%d", keyown[0]);
+	    iniparser_set(ini, "joy:up", s);
+	    sprintf(s, "%d", keyown[1]);
+	    iniparser_set(ini, "joy:down", s);
+	    sprintf(s, "%d", keyown[2]);
+	    iniparser_set(ini, "joy:left", s);
+	    sprintf(s, "%d", keyown[3]);
+	    iniparser_set(ini, "joy:right", s);
+	    sprintf(s, "%d", keyown[4]);
+	    iniparser_set(ini, "joy:start", s);
+	    sprintf(s, "%d", keyown[5]);
+	    iniparser_set(ini, "joy:a", s);
+	    sprintf(s, "%d", keyown[6]);
+	    iniparser_set(ini, "joy:b", s);
+	    sprintf(s, "%d", keyown[7]);
+	    iniparser_set(ini, "joy:x", s);
+	    sprintf(s, "%d", keyown[8]);
+	    iniparser_set(ini, "joy:y", s);
+	    sprintf(s, "%d", keyown[9]);
+	    iniparser_set(ini, "joy:l", s);
+	    sprintf(s, "%d", keyown[10]);
+	    iniparser_set(ini, "joy:r", s);
+	    sprintf(s, "%d", keyown[11]);
+	    iniparser_set(ini, "joy:l2", s);
+	    sprintf(s, "%d", keyown[12]);
+	    iniparser_set(ini, "joy:r2", s);
 
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[0]));
-        iniparser_set(ini, "menu:up", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[1]));
-        iniparser_set(ini, "menu:down", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[2]));
-        iniparser_set(ini, "menu:left", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[3]));
-        iniparser_set(ini, "menu:right", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[4]));
-        iniparser_set(ini, "menu:start", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[5]));
-        iniparser_set(ini, "menu:a", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[6]));
-        iniparser_set(ini, "menu:b", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[7]));
-        iniparser_set(ini, "menu:x", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[8]));
-        iniparser_set(ini, "menu:y", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[9]));
-        iniparser_set(ini, "menu:l", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[10]));
-        iniparser_set(ini, "menu:r", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[11]));
-        iniparser_set(ini, "menu:l2", s);
-        sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[12]));
-        iniparser_set(ini, "menu:r2", s);
+	    iniparser_set(ini, "menu", NULL);
 
-        iniparser_set(ini, "key", NULL);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[0]));
+	    iniparser_set(ini, "menu:up", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[1]));
+	    iniparser_set(ini, "menu:down", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[2]));
+	    iniparser_set(ini, "menu:left", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[3]));
+	    iniparser_set(ini, "menu:right", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[4]));
+	    iniparser_set(ini, "menu:start", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[5]));
+	    iniparser_set(ini, "menu:a", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[6]));
+	    iniparser_set(ini, "menu:b", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[7]));
+	    iniparser_set(ini, "menu:x", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[8]));
+	    iniparser_set(ini, "menu:y", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[9]));
+	    iniparser_set(ini, "menu:l", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[10]));
+	    iniparser_set(ini, "menu:r", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[11]));
+	    iniparser_set(ini, "menu:l2", s);
+	    sprintf(s, "%s", apps_menu_KeywordFromID(keymenu[12]));
+	    iniparser_set(ini, "menu:r2", s);
 
-        if (core->keyEmul == 2) {
-            iniparser_set(ini, "key:emulation", "2");       // Use the true keyboard
-        } else if (core->keyEmul == 3) {
-            iniparser_set(ini, "key:emulation", "3");       // Use joystick emulation
-        }
+	    iniparser_set(ini, "key", NULL);
 
-        iniparser_set(ini, "path", NULL);
-        iniparser_set(ini, "path:file", core->file_dir);
+	    if (core->keyEmul == 2) {
+		    iniparser_set(ini, "key:emulation", "2");       // Use the true keyboard
+	    } else if (core->keyEmul == 3) {
+		    iniparser_set(ini, "key:emulation", "3");       // Use joystick emulation
+	    }
 
-        char iniFile[MAX_PATH + 1];
+	    iniparser_set(ini, "path", NULL);
+	    iniparser_set(ini, "path:file", core->file_dir);
 
-        // Use global only if local file doesn't exist & local == 0
+	    char iniFile[MAX_PATH + 1];
 
-        char iniFile0[MAX_PATH + 1];
-        sprintf(iniFile0, "%s.ini", core->filename);
+	    // Use global only if local file doesn't exist & local == 0
 
-        strcpy(iniFile, core->home_dir);
-        apps_disk_path2Abs(iniFile, "cfg");
-        apps_disk_path2Abs(iniFile, iniFile0);
+	    char iniFile0[MAX_PATH + 1];
+	    sprintf(iniFile0, "%s.ini", core->filename);
 
-        FILE *fic = fopen(iniFile, "rb");
-        if (fic != NULL) {
-            fclose(fic);
-            local = 1;
-        }
+	    strcpy(iniFile, core->home_dir);
+	    apps_disk_path2Abs(iniFile, "cfg");
+	    apps_disk_path2Abs(iniFile, iniFile0);
 
-        if (local == 0) {
-            strcpy(iniFile, core->home_dir);
-            apps_disk_path2Abs(iniFile, "crocods.ini");
-        }
+	    FILE *fic = fopen(iniFile, "rb");
+	    if (fic != NULL) {
+		    fclose(fic);
+		    local = 1;
+	    }
 
-        fic = fopen(iniFile, "wb");
-        iniparser_dump_ini(ini, fic);
-        fclose(fic);
+	    if (local == 0) {
+		    strcpy(iniFile, core->home_dir);
+		    apps_disk_path2Abs(iniFile, "crocods.ini");
+	    }
 
-        iniparser_freedict(ini);
+	    fic = fopen(iniFile, "wb");
+	    iniparser_dump_ini(ini, fic);
+	    fclose(fic);
+
+	    iniparser_freedict(ini);
     }
 }
 
@@ -1045,11 +1044,6 @@ void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
     p = (u16 *)core->MemBitmap;
     p += (y * core->MemBitmap_width);
 
-    //    for (int i=0;i<384;i++) {
-    //        p[i]=rand()&0xFFFF;
-    //    }
-    //    return;
-
     if (core->lastMode != 2) {
         if (AdrLo < 0) {
             if ((core->resize != 1) && (core->resize != 2)) {
@@ -1072,8 +1066,6 @@ void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
                     *p = core->BG_PALETTE[core->TabCoul[ 16 ]];
                     p++;
                 }
-            } else {
-                // p+=XStart*4;
             }
 
             for (x = core->XStart; x < core->XEnd; x++) {
@@ -1096,8 +1088,6 @@ void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
             }
         }
     } else { // If mode 2
-        //        core->BG_PALETTE[0]=0;
-
         p += (y * core->MemBitmap_width);
 
         if (AdrLo < 0) {
@@ -1116,13 +1106,12 @@ void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
                     p++;
                 }
             }
-            if (core->resize == 2) {
+            if (core->resize == 2)
+	    {
                 for (x = 0; x < (core->XStart - 8) * 8; x++) {
                     *p = core->BG_PALETTE[core->TabCoul[ 16 ]];
                     p++;
                 }
-            } else {
-                // p+=XStart*4;
             }
 
             for (x = core->XStart; x < core->XEnd; x++) {
@@ -1154,20 +1143,20 @@ void TraceLigne8B512(core_crocods_t *core, int y, signed int AdrLo, int AdrHi)
 
 void UpdateScreen(core_crocods_t *core)
 {
-    frame++;
-
-    if (core->resize == 1) { // Auto resize ?
-        if ((core->RegsCRTC[2] != core->Regs2) || (core->RegsCRTC[6] != core->Regs6) || (core->RegsCRTC[1] != core->Regs1) || (core->RegsCRTC[7] != core->Regs7)) {
+    if (core->resize == 1)
+    {
+	// Auto resize ?
+        if ((core->RegsCRTC[2] != core->Regs2) || (core->RegsCRTC[6] != core->Regs6) || (core->RegsCRTC[1] != core->Regs1) || (core->RegsCRTC[7] != core->Regs7))
             calcSize(core);
-        }
     }
 
-    if (core->crtc_updated) {
+    if (core->crtc_updated)
+    {
         core->crtc_updated = 0;
 
-        if (core->UpdateInk == 1) { // It's would be beter to put before each lines
+	// It would be beter to put before each lines
+        if (core->UpdateInk == 1) 
             CalcPoints(core);
-        }
     }
 }
 
@@ -1179,7 +1168,8 @@ void appendIcon(core_crocods_t *core, int x, int y, int timer)
 
 void RunMenu(core_crocods_t *core, int menu)
 {
-    if (menu != ID_NULL) {
+    if (menu != ID_NULL)
+    {
         ExecuteMenu(core, menu, NULL);
 
         core->wait_key_released = 1;
@@ -1192,49 +1182,17 @@ int nds_ReadKey(core_crocods_t *core)
     if (AutoType_Active(core)) {
         AutoType_Update(core);
     } else {
-        u16 keys_pressed;
-        // static u16 oldkey;
-//        int n;
-
-        //       scanKeys();
-        //     keys_pressed = keysHeld();
-
-        keys_pressed = core->ipc.keys_pressed;
+        u16 keys_pressed = core->ipc.keys_pressed;
 
         if (core->ipc.touchDown == 1) {
-            int x, y; // , n;
-
-            x = core->ipc.touchXpx;
-            y = core->ipc.touchYpx;
-
-            /* if ((x>0) & (x<32) & (y>=25) & (y<=36)) {
-             * ExecuteMenu(core, ID_RESET, NULL);
-             * ipc.touchDown=0;
-             * }
-             */
+            int x = core->ipc.touchXpx;
+            int y = core->ipc.touchYpx;
 
             if ((x >= 230) && (x <= 254) && (y >= 1) && (y <= 33)) { // 52
                 core->inMenu = 1;
                 apps_menu_init(core);
             }
-
-            /*
-             * for (n = 0; n < NBCPCKEY; n++) {
-             *  if ((x >= keypos[n].left) && (x <= keypos[n].right) && (y >= keypos[n].top) && (y <= keypos[n].bottom)) {
-             *      PressKey(core, n);
-             *      break;
-             *  }
-             * } */
         }
-
-        /*
-         * keyown[0]=CPC_JOY_UP;
-         * keyown[1]=CPC_JOY_DOWN;
-         * keyown[2]=CPC_JOY_LEFT;
-         * keyown[3]=CPC_JOY_RIGHT;
-         * keyown[4]=CPC_RETURN;
-         * keyown[5]=CPC_JOY_FIRE1;
-         * keyown[6]=CPC_JOY_FIRE2;*/
 
         if ((keys_pressed & KEY_SELECT) == KEY_SELECT) {
             core->last_keys_pressed = keys_pressed;
@@ -1246,51 +1204,39 @@ int nds_ReadKey(core_crocods_t *core)
                 RunMenu(core, keymenu[0]);
             }
 
-            if ((keys_pressed & KEY_DOWN) == KEY_DOWN) {
+            if ((keys_pressed & KEY_DOWN) == KEY_DOWN)
                 RunMenu(core, keymenu[1]);
-            }
 
-            if ((keys_pressed & KEY_LEFT) == KEY_LEFT) {
+            if ((keys_pressed & KEY_LEFT) == KEY_LEFT)
                 RunMenu(core, keymenu[2]);
-            }
 
-            if ((keys_pressed & KEY_RIGHT) == KEY_RIGHT) {
+            if ((keys_pressed & KEY_RIGHT) == KEY_RIGHT)
                 RunMenu(core, keymenu[3]);
-            }
 
-            if ((keys_pressed & KEY_START) == KEY_START) {
+            if ((keys_pressed & KEY_START) == KEY_START)
                 RunMenu(core, keymenu[4]);
-            }
 
-            if ((keys_pressed & KEY_A) == KEY_A) {
+            if ((keys_pressed & KEY_A) == KEY_A)
                 RunMenu(core, keymenu[5]);
-            }
 
-            if ((keys_pressed & KEY_B) == KEY_B) {
+            if ((keys_pressed & KEY_B) == KEY_B)
                 RunMenu(core, keymenu[6]);
-            }
 
-            if ((keys_pressed & KEY_X) == KEY_X) {
+            if ((keys_pressed & KEY_X) == KEY_X)
                 RunMenu(core, keymenu[7]);
-            }
-            if ((keys_pressed & KEY_Y) == KEY_Y) {
+            if ((keys_pressed & KEY_Y) == KEY_Y)
                 RunMenu(core, keymenu[8]);
-            }
 
-            if ((keys_pressed & KEY_L) == KEY_L) {
+            if ((keys_pressed & KEY_L) == KEY_L)
                 RunMenu(core, keymenu[9]);
-            }
-            if ((keys_pressed & KEY_R) == KEY_R) {
+            if ((keys_pressed & KEY_R) == KEY_R)
                 RunMenu(core, keymenu[10]);
-            }
 
-            if ((keys_pressed & KEY_L2) == KEY_L2) {
+            if ((keys_pressed & KEY_L2) == KEY_L2)
                 RunMenu(core, keymenu[11]);
-            }
 
-            if ((keys_pressed & KEY_R2) == KEY_R2) {
+            if ((keys_pressed & KEY_R2) == KEY_R2)
                 RunMenu(core, keymenu[12]);
-            }
         }
 
         if ((core->keyEmul == 3) && (core->inKeyboard == 0)) {
@@ -1372,12 +1318,10 @@ int nds_ReadKey(core_crocods_t *core)
                 CPC_ClearScanCode(core, keyown[12]);
             }
         }
-
-        // oldkey = keys_pressed;
     }
 
     return 0;
-} /* nds_ReadKey */
+}
 
 void nds_initBorder(core_crocods_t *core, int *_borderX, int *_borderY)
 {
@@ -1435,28 +1379,29 @@ void nds_init(core_crocods_t *core)
     static char *tmp_directory;
 
     // Set home_dir if not set before the function nds_init
-    if (core->home_dir == NULL) {
-        core->home_dir = (char *)calloc(MAX_PATH + 1, 1);
+    if (core->home_dir == NULL)
+    {
+	    core->home_dir = (char *)calloc(MAX_PATH + 1, 1);
 
-        char *homeDir = getenv("HOME");
-        if (homeDir != NULL) {
-            strcpy(core->home_dir, homeDir);
-        }
+	    char *homeDir = getenv("HOME");
+	    if (homeDir != NULL)
+		    strcpy(core->home_dir, homeDir);
 
 #ifdef _WIN32
-        if (homeDir == NULL) {
-            char homeDir[MAX_PATH + 1];
-            sprintf(homeDir, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));     // Win32 value - or LOCALAPPDATA ?
-            strcpy(core->home_dir, homeDir);
-        }
+	    if (homeDir == NULL)
+	    {
+		    char homeDir[MAX_PATH + 1];
+		    sprintf(homeDir, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));     // Win32 value - or LOCALAPPDATA ?
+		    strcpy(core->home_dir, homeDir);
+	    }
 #endif
 
-        apps_disk_path2Abs(core->home_dir, ".crocods");
+	    apps_disk_path2Abs(core->home_dir, ".crocods");
 
 #ifdef _WIN32
-        mkdir(core->home_dir);
+	    mkdir(core->home_dir);
 #else
-        mkdir(core->home_dir, 0777);
+	    mkdir(core->home_dir, 0777);
 #endif
     }
     tmp_directory = malloc(MAX_PATH + 1);
@@ -1480,20 +1425,15 @@ void nds_init(core_crocods_t *core)
     loadIni(core, 0);
 
     free(tmp_directory);
-} /* nds_init */
+}
 
 void Autoexec(core_crocods_t *core)
 {
-    if (core->Fmnbr == 0) {
+    if (core->Fmnbr == 0)
+    {
         SetPalette(core, -1);
         return;
     }
-}
-
-void myconsoleClear(core_crocods_t *core)
-{
-    memset(core->consolestring, 0, 1024);
-    core->consolepos = 0;
 }
 
 u16 computeColor(int x, int y, int frame)
@@ -1535,12 +1475,10 @@ void cpcprint16_6w_limit(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_wid
     frame++;
 
     int dbl = 2;
-    if (core->screenIsOptimized) {
+    if (core->screenIsOptimized)
         dbl = (core->lastMode == 2) ? 2 : 1;
-    }
-    if (MemBitmap != core->MemBitmap) {
+    if (MemBitmap != core->MemBitmap)
         dbl = 1;
-    }
 
     pdwAddr = (u16 *)MemBitmap + (y * MemBitmap_width * dbl) + x;
 
@@ -1596,7 +1534,7 @@ void cpcprint16_6w_limit(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_wid
         }
         pdwAddr += 6 * multi; // set screen address to next character position
     }
-} /* cpcprint16 */
+}
 
 void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x, int y, char *pchStr, u16 bColor, u16 backgroundColor, int multi, char transparent)
 {
@@ -1611,12 +1549,10 @@ void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x
     frame++;
 
     int dbl = 2;
-    if (core->screenIsOptimized) {
+    if (core->screenIsOptimized)
         dbl = (core->lastMode == 2) ? 2 : 1;
-    }
-    if (MemBitmap != core->MemBitmap) {
+    if (MemBitmap != core->MemBitmap)
         dbl = 1;
-    }
 
     pdwAddr = (u16 *)MemBitmap + (y * MemBitmap_width * dbl) + x;
 
@@ -1641,9 +1577,8 @@ void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x
     for (n = 0; n < iLen; n++) {
         u16 *pdwLine;
         iIdx = (int)pchStr[n]; // get the ASCII value
-        if ((iIdx < FNT_MIN_CHAR) || (iIdx > FNT_MAX_CHAR)) { // limit it to the range of chars in the font
+        if ((iIdx < FNT_MIN_CHAR) || (iIdx > FNT_MAX_CHAR)) // limit it to the range of chars in the font
             iIdx = FNT_BAD_CHAR;
-        }
         iIdx -= FNT_MIN_CHAR; // zero base the index
         pdwLine = pdwAddr; // keep a reference to the current screen position
 
@@ -1651,40 +1586,17 @@ void cpcprint16(core_crocods_t *core, u16 *MemBitmap, u32 MemBitmap_width, int x
 
         for (iRow = 0; iRow < FNT_CHAR_HEIGHT; iRow++) { // loop for all rows in the font character
             for (my = 0; my < multi; my++) {
-                u16 *pdPixel;
-//                char first = 1;
-
-                pdPixel = pdwLine;
-                bRow = bFont[iIdx]; // get the bitmap information for one row
-                for (iCol = 0; iCol < 8; iCol++) { // loop for all columns in the font character
-                    for (mx = 0; mx < multi; mx++) {
-                        // bColor = computeColor(iCol + n*8, iRow, frame);
-//                        bColor = 255; // computeColor((n) * 8 * multi + iCol * multi + mx, multi + iRow * multi + my, frame);
-
-// transparent=0;      backgroundColor = bColor;
-
-                        if (bRow & 0x80) {
-                            // if (multi>1) {
-
-                            //     for (mz=1; mz<=2; mz++) {
-
-                            //         if (*(pdPixel-MemBitmap_width*mz)!=bColor) {
-                            //             *(pdPixel-MemBitmap_width*mz)=backgroundColor;
-                            //         }
-                            //         if (*(pdPixel-mz)!=bColor) {
-                            //             *(pdPixel-mz)=backgroundColor;
-                            //         }
-
-                            //         *(pdPixel+MemBitmap_width*mz)=backgroundColor;
-                            //         *(pdPixel+mz)=backgroundColor;
-                            //     }
-                            // }
-
+                u16 *pdPixel = pdwLine;
+                bRow         = bFont[iIdx]; // get the bitmap information for one row
+                for (iCol = 0; iCol < 8; iCol++)
+		{
+                    // loop for all columns in the font character
+                    for (mx = 0; mx < multi; mx++)
+		    {
+                        if (bRow & 0x80)
                             *pdPixel = bColor;
-//                            first = 0;
-                        } else if (!transparent) {
+                        else if (!transparent)
                             *pdPixel =  backgroundColor;
-                        }
 
                         pdPixel++;
                     }
@@ -1766,15 +1678,16 @@ static void createDefaultIni(core_crocods_t *core, int local)
 
     strcpy(iniFile, core->home_dir);
 
-    if (local) {
+    if (local)
+    {
         char iniFile0[MAX_PATH + 1];
         sprintf(iniFile0, "%s.ini", core->filename);
 
         apps_disk_path2Abs(iniFile, "cfg");
         apps_disk_path2Abs(iniFile, iniFile0);
-    } else {
-        apps_disk_path2Abs(iniFile, "crocods.ini");
     }
+    else
+        apps_disk_path2Abs(iniFile, "crocods.ini");
 
     if ((ini = fopen(iniFile, "w")) == NULL)
         return;
@@ -1790,7 +1703,10 @@ static void createDefaultIni(core_crocods_t *core, int local)
 // local: 1 -> load custom ini
 void loadIni(core_crocods_t *core, int local)
 {
-    if (core->home_dir != NULL) {
+    if (core->home_dir == NULL)
+	    return;
+
+    {
         dictionary *ini;
 
         char iniFile[MAX_PATH + 1];
@@ -1843,9 +1759,8 @@ void loadIni(core_crocods_t *core, int local)
         }
 
         i = iniparser_getint(ini, "display:resize", -1);
-        if ((i == -1)  && (local == 0)) {
+        if ((i == -1)  && (local == 0))
             i = 1;
-        }
 
         if (i == 1) {                                // AUTO
             ExecuteMenu(core, ID_SCREEN_AUTO, NULL);
@@ -1858,13 +1773,13 @@ void loadIni(core_crocods_t *core, int local)
         }
 
         i = iniparser_getint(ini, "display:scanline", -1);
-        if (i == -1) {
-            if (local == 0) {
+        if (i == -1)
+	{
+            if (local == 0)
                 core->scanline = 0;
-            }
-        } else {
-            core->scanline = i;
         }
+	else
+            core->scanline = i;
 
         i = iniparser_getint(ini, "key:emulation", -1);
         if ((i == -1)  && (local == 0)) {
@@ -1874,80 +1789,62 @@ void loadIni(core_crocods_t *core, int local)
             i = 3;
 #endif
         }
-        if ((i == 2) || (i == 3)) {
+        if ((i == 2) || (i == 3))
             core->keyEmul = i;
-        }
-
-        /*
-         *
-         * keyown[0] = CPC_JOY_UP;
-         *         keyown[1] = CPC_JOY_DOWN;
-         *         keyown[2] = CPC_JOY_LEFT;
-         *         keyown[3] = CPC_JOY_RIGHT;
-         *         keyown[4] = CPC_RETURN;
-         *         keyown[5] = CPC_JOY_FIRE1;
-         *         keyown[6] = CPC_JOY_FIRE2;
-         *         keyown[7] = CPC_2;
-         *         keyown[8] = CPC_3;
-         *
-         */
 
         i = iniparser_getint(ini, "joy:up", -1);
-        if (i == -1) {
-            if (local == 0) {  // global
+        if (i == -1)
+	{
+            if (local == 0)  // global
                 keyown[0] = CPC_JOY_UP;
-            }
-        } else {
+        }
+	else
             keyown[0] = i;
-        }
         i = iniparser_getint(ini, "joy:down", -1);
-        if (i == -1) {
-            if (local == 0) {    // global
+        if (i == -1)
+	{
+            if (local == 0) // global
                 keyown[1] = CPC_JOY_DOWN;
-            }
-        } else {
-            keyown[1] = i;
         }
+	else
+            keyown[1] = i;
         i = iniparser_getint(ini, "joy:left", -1);
         if (i == -1) {
-            if (local == 0) {    // global
+            if (local == 0) // global
                 keyown[2] = CPC_JOY_LEFT;
-            }
-        } else {
+        }
+	else
             keyown[2] = i;
-        }
         i = iniparser_getint(ini, "joy:right", -1);
-        if (i == -1) {
-            if (local == 0) {    // global
+        if (i == -1)
+	{
+            if (local == 0) // global
                 keyown[3] = CPC_JOY_RIGHT;
-            }
-        } else {
+        }
+	else
             keyown[3] = i;
-        }
         i = iniparser_getint(ini, "joy:start", -1);
-        if (i == -1) {
-            if (local == 0) {    // global
+        if (i == -1)
+	{
+            if (local == 0) // global
                 keyown[4] = CPC_RETURN;
-            }
-        } else {
-            keyown[4] = i;
         }
+	else
+            keyown[4] = i;
         i = iniparser_getint(ini, "joy:a", -1);
         if (i == -1) {
-            if (local == 0) {    // global
+            if (local == 0) // global
                 keyown[5] = CPC_JOY_FIRE1;
-            }
-        } else {
-            keyown[5] = i;
         }
+	else
+            keyown[5] = i;
         i = iniparser_getint(ini, "joy:b", -1);
         if (i == -1) {
-            if (local == 0) {    // global
+            if (local == 0) // global
                 keyown[6] = CPC_JOY_FIRE2;
-            }
-        } else {
-            keyown[6] = i;
         }
+	else
+            keyown[6] = i;
         i = iniparser_getint(ini, "joy:x", -1);
         if (i == -1) {
             if (local == 0) {    // global
@@ -1990,12 +1887,10 @@ void loadIni(core_crocods_t *core, int local)
         }
         i = iniparser_getint(ini, "joy:r2", -1);
         if (i == -1) {
-            if (local == 0) {        // global
+            if (local == 0) // global
                 keyown[12] = CPC_7;       // Not used
-            }
-        } else {
+        } else
             keyown[12] = i;
-        }
 
         // Key Menu
 
@@ -2003,28 +1898,26 @@ void loadIni(core_crocods_t *core, int local)
 
         s = iniparser_getstring(ini, "menu:up", NULL);
         if (s == NULL) {
-            if (local == 0) {                    // global
+            if (local == 0) // global
                 keymenu[0] = ID_NULL;
-            }
-        } else {
-            keymenu[0] = apps_menu_IDFromKeyword(s);
         }
+	else
+            keymenu[0] = apps_menu_IDFromKeyword(s);
         s = iniparser_getstring(ini, "menu:down", NULL);
         if (s == NULL) {
-            if (local == 0) {                      // global
+            if (local == 0) // global
                 keymenu[1] = ID_NULL;
-            }
-        } else {
+        }
+	else
             keymenu[1] = apps_menu_IDFromKeyword(s);
-        }
         s = iniparser_getstring(ini, "menu:left", NULL);
-        if (s == NULL) {
-            if (local == 0) {                      // global
+        if (s == NULL)
+	{
+            if (local == 0) // global
                 keymenu[2] = ID_NULL;
-            }
-        } else {
-            keymenu[2] = apps_menu_IDFromKeyword(s);
         }
+	else
+            keymenu[2] = apps_menu_IDFromKeyword(s);
         s = iniparser_getstring(ini, "menu:right", NULL);
         if (s == NULL) {
             if (local == 0) {                      // global
@@ -2059,12 +1952,11 @@ void loadIni(core_crocods_t *core, int local)
         }
         s = iniparser_getstring(ini, "menu:x", NULL);
         if (s == NULL) {
-            if (local == 0) {                      // global
+            if (local == 0) // global
                 keymenu[7] = ID_NULL;
-            }
-        } else {
-            keymenu[7] = apps_menu_IDFromKeyword(s);
         }
+	else
+            keymenu[7] = apps_menu_IDFromKeyword(s);
         s = iniparser_getstring(ini, "menu:y", NULL);
         if (s == NULL) {
             if (local == 0) {                      // global
@@ -2093,33 +1985,30 @@ void loadIni(core_crocods_t *core, int local)
         }
         s = iniparser_getstring(ini, "menu:l2", NULL);
         if (s == NULL) {
-            if (local == 0) {                          // global
+            if (local == 0) // global
                 keymenu[11] = ID_NULL;                 // Not used
-            }
-        } else {
+        }
+	else
             keymenu[11] = apps_menu_IDFromKeyword(s);
-        }
         s = iniparser_getstring(ini, "menu:r2", NULL);
-        if (s == NULL) {
-            if (local == 0) {                          // global
-                keymenu[12] = ID_NULL;                 // Not used
-            }
-        } else {
-            keymenu[12] = apps_menu_IDFromKeyword(s);
+        if (s == NULL)
+	{
+            if (local == 0) // global
+                keymenu[12] = ID_NULL; // Not used
         }
+	else
+            keymenu[12] = apps_menu_IDFromKeyword(s);
 
         // End keymenu
 
         i = iniparser_getint(ini, "sound:enabled", -1);
-        if ((i == -1)  && (local == 0)) {
+        if ((i == -1)  && (local == 0))
             i = 1;
-        }
 
-        if (i == 1) {
+        if (i == 1)
             ExecuteMenu(core, ID_SOUND_ENABLE, NULL);
-        } else {
+        else
             ExecuteMenu(core, ID_SOUND_DISABLE, NULL);
-        }
 
         s = iniparser_getstring(ini, "path:file", core->home_dir);
         core->file_dir = (char *)malloc(strlen(s) + 1);
@@ -2128,4 +2017,3 @@ void loadIni(core_crocods_t *core, int local)
         iniparser_freedict(ini);
     }
 }
-

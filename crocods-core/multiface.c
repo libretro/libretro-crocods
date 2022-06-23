@@ -3,8 +3,6 @@
 #include  "crtc.h"
 #include  "vga.h"
 #include  "ppi.h"
-#include  "config.h"
-
 
 #ifdef USE_MULTIFACE
 /********************************************************* !NAME! **************

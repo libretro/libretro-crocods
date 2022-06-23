@@ -1,5 +1,4 @@
 #include  "plateform.h"
-#include  "config.h"
 #include  "ppi.h"
 #include  "crtc.h"
 #include  "upd.h"

@@ -7,7 +7,6 @@
 
 #include "autotype.h"
 #include "snapshot.h"
-#include "config.h"
 #include "sound.h"
 
 #include "z80.h"

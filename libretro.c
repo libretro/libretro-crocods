@@ -14,6 +14,8 @@
 #include "crocods-core/plateform.h"
 #include "crocods-core/gif.h"
 
+int Sound = 1;
+
 extern const unsigned char icons_gif[];
 extern const unsigned char cpc6128_bin[];
 extern const unsigned char romdisc_bin[];
@@ -230,19 +232,11 @@ void retro_init(void)
 
     AutoType_Init(&gb);
 
-    if (ReadConfig()) {
-        HardResetCPC(&gb);
-
-    } else {
-        //   NSLog(@"Fichier de configuration du CPC non trouvÈ.");
-    }
+    Sound = 1;
+    HardResetCPC(&gb);
 
     initSound(&gb, 44100);
-
-//     printf("End of retro_init\n");
-
-
-} /* retro_init */
+}
 
 void retro_deinit(void)
 {

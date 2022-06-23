@@ -106,7 +106,6 @@
 #include  "vga.h"
 #include  "crtc.h"
 #include  "gestport.h"
-#include  "config.h"
 #include  "plateform.h"
 #include  "rompack.h"
 

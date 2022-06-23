@@ -45,8 +45,6 @@ extern "C"
 #define HAVE_FS
 #endif
 
-#include "config.h"
-
 #include "autotype.h"
 #include "crtc.h"
 #include "upd.h"

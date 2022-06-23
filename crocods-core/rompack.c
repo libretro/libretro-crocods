@@ -1,7 +1,6 @@
 #include  "rompack.h"
 
 #include  "plateform.h"
-#include  "config.h"
 #include  "sound.h"
 #include  "crtc.h"
 #include  "ppi.h"

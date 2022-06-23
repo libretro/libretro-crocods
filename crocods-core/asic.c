@@ -1,7 +1,5 @@
 #include "asic.h"
 
-#include "config.h"
-
 #include "z80.h"
 
 #include "plateform.h"

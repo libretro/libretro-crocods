@@ -545,7 +545,7 @@ typedef struct core_crocods_s {
     u8 scanline;
 
     int Regs1, Regs2, Regs6, Regs7;     // Used by the auto resize
-    u16 MemBitmap[384 * 288 * 2];       // Max screen size
+    u16 MemBitmap[384 * 288 * 4];       // Max screen size
 
     u16 MemBitmap_width;
     

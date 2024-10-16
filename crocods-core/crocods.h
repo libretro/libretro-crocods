@@ -21,7 +21,7 @@
  * Types
  */
 
-#define CROCOVERSION "2020-02-04"
+#define CROCOVERSION "2024-10-16"
 
 #ifndef crocods_nds_h
 #define crocods_nds_h

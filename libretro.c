@@ -24,6 +24,12 @@ char Core_old_Key_Sate[512];
 
 static int KeySymToCPCKey[RETROK_LAST];
 
+/* The core retains these by pointer (core->borderX / core->borderY) and
+ * dereferences them for the lifetime of the session, so they must not live
+ * on retro_init's stack frame. */
+static int border_x;
+static int border_y;
+
 retro_log_printf_t log_cb;
 retro_video_refresh_t video_cb;
 
@@ -87,8 +93,8 @@ u16 scanlineMask[] = {0b1110111101011101,
 
 u16 textureBytes[384 * 288 * 2];
 
-u32 old_width1 = 0, old_height1 = 0, old_left1 = 0, old_top1 = 0, old_bpl1 = 0;
-u16 old_width2 = 0, old_height2 = 0;
+static u32 old_width1 = 0, old_height1 = 0, old_left1 = 0, old_top1 = 0, old_bpl1 = 0;
+static u16 old_width2 = 0, old_height2 = 0;
 
 u32 *incX, *incY;
 
@@ -143,9 +149,10 @@ void retro_init(void)
 {
     char *savedir = NULL;
     int i;
-    int bx, by;
 
     // Set Video
+    free(incX);
+    free(incY);
     incX = (u32 *)malloc(384 * 2 * sizeof(u32)); // malloc the max width
     incY = (u32 *)malloc(272 * sizeof(u32));     // malloc the max height
 
@@ -257,7 +264,7 @@ void retro_init(void)
 
     // Init nds
 
-    nds_initBorder(&gb, &bx, &by);
+    nds_initBorder(&gb, &border_x, &border_y);
     nds_init(&gb);
 
     updateFromEnvironment();
@@ -272,7 +279,22 @@ void retro_init(void)
 
 void retro_deinit(void)
 {
+    free(incX);
+    incX = NULL;
+    free(incY);
+    incY = NULL;
 
+    /* The scaling LUTs above are only rebuilt when the blit geometry changes,
+     * so the cached geometry has to be invalidated together with them.
+     * Otherwise a second retro_init/retro_load_game cycle indexes freshly
+     * allocated, still uninitialised LUTs. */
+    old_width1  = 0;
+    old_height1 = 0;
+    old_left1   = 0;
+    old_top1    = 0;
+    old_bpl1    = 0;
+    old_width2  = 0;
+    old_height2 = 0;
 }
 
 unsigned retro_api_version(void)

@@ -30,7 +30,7 @@
 
 #include  "crocods.h"
 #include  "platform.h"
-#include  "retro_endianness.h"
+#include <retro_endianness.h>
 
 
 typedef unsigned short word;

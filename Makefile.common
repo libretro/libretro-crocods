@@ -1,3 +1,5 @@
+INCFLAGS := -I$(CORE_DIR)/libretro-common/include
+
 SOURCES_C := $(CORE_DIR)/libretro.c \
     $(wildcard $(CORE_DIR)/crocods-core/*.c) \
     $(wildcard $(CORE_DIR)/crocods-core/iniparser/*.c) \

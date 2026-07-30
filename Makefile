@@ -287,7 +287,7 @@ CORE_DIR := .
 include Makefile.common
 
 OBJECTS := $(SOURCES_C:.c=.o)
-CFLAGS += $(fpic) $(PLATFORM_DEFINES)
+CFLAGS += $(fpic) $(PLATFORM_DEFINES) $(INCFLAGS)
 
 CFLAGS += 
 LFLAGS := 

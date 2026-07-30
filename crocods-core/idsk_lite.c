@@ -1,5 +1,5 @@
 #include "crocods.h"
-#include "retro_endianness.h"
+#include <retro_endianness.h>
 
 #include <ctype.h>
 

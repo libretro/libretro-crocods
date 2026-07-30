@@ -1,5 +1,7 @@
 #include "ppi.h"
 
+#include <streams/file_stream.h>
+
 #include "sound.h"
 #include "crtc.h"
 
@@ -41,8 +43,8 @@
 void CloseTap(core_crocods_t *core)
 {
     if ( core->fCas ) {
-        fwrite(BufTape, PosBufTape, 1, fCas);
-        fclose(fCas);
+        filestream_write(fCas, BufTape, PosBufTape);
+        filestream_close(fCas);
         fCas = NULL;
     }
     OctetCalcul = 0;
@@ -72,7 +74,8 @@ void CloseTap(core_crocods_t *core)
 void OpenTapWrite(core_crocods_t *core, char *Nom)
 {
     CloseTap();
-    fCas = fopen(Nom, "wb");
+    fCas = filestream_open(Nom,
+            RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE);
     if ( fCas )
         Mode = MODE_WRITE;
 }
@@ -96,7 +99,8 @@ void OpenTapWrite(core_crocods_t *core, char *Nom)
 void OpenTapRead(core_crocods_t *core, char *Nom)
 {
     CloseTap();
-    fCas = fopen(Nom, "rb");
+    fCas = filestream_open(Nom,
+            RETRO_VFS_FILE_ACCESS_READ, RETRO_VFS_FILE_ACCESS_HINT_NONE);
     if ( fCas ) {
         Mode = MODE_READ;
     }
@@ -185,7 +189,7 @@ void WriteCas(core_crocods_t *core)
                 }
 
                 if ( vmax )
-                    fwrite(BufTape, SIZE_BUF_TAPE, 1, fCas);
+                    filestream_write(fCas, BufTape, SIZE_BUF_TAPE);
             }
             OctetCalcul = 0;
             PosBit = 0;
@@ -214,7 +218,7 @@ void ReadCas(core_crocods_t *core)
     BitTapeIn = 0;
     if ( ( Output[ 2 ] & 0x10 ) && Mode == MODE_READ ) {
         if ( !PosBufTape && !PosBit )
-            fread(BufTape, SIZE_BUF_TAPE, 1, fCas);
+            filestream_read(fCas, BufTape, SIZE_BUF_TAPE);
 
         if ( !PosBit ) {
             OctetCalcul = BufTape[ PosBufTape++ ];

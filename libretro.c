@@ -1,5 +1,8 @@
 // TEst
 #include <libretro.h>
+#include <streams/file_stream.h>
+#include <file/file_path.h>
+#include <retro_dirent.h>
 
 #include <stdint.h>
 #include <string.h>
@@ -341,8 +344,18 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 void retro_set_environment(retro_environment_t cb)
 {
     struct retro_log_callback logging;
+    struct retro_vfs_interface_info vfs_iface_info;
 
     environ_cb = cb;
+
+    vfs_iface_info.required_interface_version = DIRENT_REQUIRED_VFS_VERSION;
+    vfs_iface_info.iface                      = NULL;
+    if (cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_iface_info))
+    {
+        filestream_vfs_init(&vfs_iface_info);
+        path_vfs_init(&vfs_iface_info);
+        dirent_vfs_init(&vfs_iface_info);
+    }
 
     if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
         log_cb = logging.log;

@@ -46,18 +46,8 @@ extern const int menu_gif_length;
 #define PG_LBMASK565 0xF7DE
 #define PG_LBMASK555 0x7BDE
 
-#if defined(VITA)
-#  include <psp2/io/fcntl.h>
-#  include <psp2/io/dirent.h>
-#  include <psp2/io/stat.h>
-#elif defined(PSP)
-#  include <pspiofilemgr.h>
-#endif
-
-
-#if defined(VITA) || defined(PSP)
-#define mkdir sceIoMkdir
-#endif
+#include <streams/file_stream.h>
+#include <file/file_path.h>
 
 #define AlphaBlendFast(pixel, backpixel) (((((pixel) & PG_LBMASK565) >> 1) | (((backpixel) & PG_LBMASK565) >> 1)))
 
@@ -518,9 +508,9 @@ static void saveIni(core_crocods_t *core, int local)
 	    apps_disk_path2Abs(iniFile, "cfg");
 	    apps_disk_path2Abs(iniFile, iniFile0);
 
-	    FILE *fic = fopen(iniFile, "rb");
-	    if (fic != NULL) {
-		    fclose(fic);
+	    RFILE *fic;
+
+	    if (path_is_valid(iniFile)) {
 		    local = 1;
 	    }
 
@@ -529,9 +519,12 @@ static void saveIni(core_crocods_t *core, int local)
 		    apps_disk_path2Abs(iniFile, "crocods.ini");
 	    }
 
-	    fic = fopen(iniFile, "wb");
-	    iniparser_dump_ini(ini, fic);
-	    fclose(fic);
+	    fic = filestream_open(iniFile,
+			    RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE);
+	    if (fic != NULL) {
+		    iniparser_dump_ini(ini, fic);
+		    filestream_close(fic);
+	    }
 
 	    iniparser_freedict(ini);
     }
@@ -1398,29 +1391,17 @@ void nds_init(core_crocods_t *core)
 
 	    apps_disk_path2Abs(core->home_dir, ".crocods");
 
-#ifdef _WIN32
-	    mkdir(core->home_dir);
-#else
-	    mkdir(core->home_dir, 0777);
-#endif
+	    path_mkdir(core->home_dir);
     }
     tmp_directory = malloc(MAX_PATH + 1);
 
     strcpy(tmp_directory, core->home_dir);
     apps_disk_path2Abs(tmp_directory, "snap");
-#ifdef _WIN32
-    mkdir(tmp_directory);
-#else
-    mkdir(tmp_directory, 0777);
-#endif
+    path_mkdir(tmp_directory);
 
     strcpy(tmp_directory, core->home_dir);
     apps_disk_path2Abs(tmp_directory, "cfg");
-#ifdef _WIN32
-    mkdir(tmp_directory);
-#else
-    mkdir(tmp_directory, 0777);
-#endif
+    path_mkdir(tmp_directory);
 
     loadIni(core, 0);
 
@@ -1672,7 +1653,7 @@ void dispIcon8(core_crocods_t *core, int i, int j, int icon)
 // Create empty ini file
 static void createDefaultIni(core_crocods_t *core, int local)
 {
-    FILE *ini;
+    RFILE *ini;
 
     char iniFile[MAX_PATH + 1];
 
@@ -1689,15 +1670,16 @@ static void createDefaultIni(core_crocods_t *core, int local)
     else
         apps_disk_path2Abs(iniFile, "crocods.ini");
 
-    if ((ini = fopen(iniFile, "w")) == NULL)
+    if ((ini = filestream_open(iniFile,
+            RETRO_VFS_FILE_ACCESS_WRITE, RETRO_VFS_FILE_ACCESS_HINT_NONE)) == NULL)
         return;
 
-    fprintf(ini,
+    filestream_printf(ini,
             "#\n"
             "# CrocoDS ini file\n"
             "#\n"
             "\n");
-    fclose(ini);
+    filestream_close(ini);
 }
 
 // local: 1 -> load custom ini
@@ -1718,9 +1700,7 @@ void loadIni(core_crocods_t *core, int local)
 
         apps_disk_path2Abs(iniFile, "cfg");
         apps_disk_path2Abs(iniFile, iniFile0);
-        FILE *fic = fopen(iniFile, "rb");
-        if (fic != NULL) {
-            fclose(fic);
+        if (path_is_valid(iniFile)) {
             local = 1;
         }
 

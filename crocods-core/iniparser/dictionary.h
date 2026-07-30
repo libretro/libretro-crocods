@@ -19,6 +19,7 @@
  ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <streams/file_stream.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -164,7 +165,7 @@ void dictionary_unset(dictionary * d, const char * key);
   output file pointers.
  */
 /*--------------------------------------------------------------------------*/
-void dictionary_dump(const dictionary * d, FILE * out);
+void dictionary_dump(const dictionary * d, RFILE * out);
 
 #ifdef __cplusplus
 }

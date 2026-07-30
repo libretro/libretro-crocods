@@ -1,5 +1,7 @@
 #include  "multiface.h"
 
+#include <streams/file_stream.h>
+
 #include  "crtc.h"
 #include  "vga.h"
 #include  "ppi.h"
@@ -50,11 +52,12 @@ UBYTE MULTIFACE_ROM[ 0x4000 ];
 ********************************************************** !0! ****************/
 BOOL InitMultiface( void )
 {
-    FILE * fp = fopen( LocRomMulti, "rb" );
+    RFILE * fp = filestream_open( LocRomMulti,
+            RETRO_VFS_FILE_ACCESS_READ, RETRO_VFS_FILE_ACCESS_HINT_NONE );
     if ( fp )
         {
-        fread( MULTIFACE_ROM, 0x2000, 1, fp );
-        fclose( fp );
+        filestream_read( fp, MULTIFACE_ROM, 0x2000 );
+        filestream_close( fp );
         return( TRUE );
         }
     return( FALSE );

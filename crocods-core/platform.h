@@ -24,6 +24,8 @@
 
 #include "crocods.h"
 
+#include <streams/file_stream.h>
+
 #include "apps_shared.h"
 
 #ifndef PLATEFORM_H
@@ -361,7 +363,7 @@ typedef struct core_crocods_s {
 
     int ligneClav;     // Num�ro de ligne du clavier s�lectionn�e
 
-    FILE *fCas;         // Handle fichier lecture ou �criture cassette
+    RFILE *fCas;         // Handle fichier lecture ou �criture cassette
     UBYTE BitTapeIn;    // Bit de lecture cassette pour le port F5xx
     int PosBit;         // Position de bit de calcul pour lecture/�criture cassette
     UBYTE OctetCalcul;  // Octet de calcul pour lecture/�criture cassette

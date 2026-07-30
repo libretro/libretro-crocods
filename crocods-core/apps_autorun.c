@@ -1,5 +1,7 @@
 #include "platform.h"
 
+#include <streams/file_stream.h>
+
 #ifdef ZIP_SUPPORT
 #include "miniz.h"
 #endif
@@ -75,24 +77,24 @@ void apps_autorun_init(core_crocods_t *core, int flag)
         dsk = (u8 *)malloc(core->resources_len);
         memcpy(dsk, core->resources, core->resources_len);
     } else {
-        FILE *fic = fopen(core->openFilename, "rb");
+        RFILE *fic = filestream_open(core->openFilename,
+                RETRO_VFS_FILE_ACCESS_READ, RETRO_VFS_FILE_ACCESS_HINT_NONE);
         if (fic == NULL) {
             appendIcon(core, 0, 4, 60);
             apps_autorun_end(core);
             return;
         }
-        fseek(fic, 0, SEEK_END);
-        dsk_size = ftell(fic);
-        fseek(fic, 0, SEEK_SET);
+        dsk_size = (long)filestream_get_size(fic);
 
         dsk = (u8 *)malloc(dsk_size);
         if (dsk == NULL) {
+            filestream_close(fic);
             appendIcon(core, 0, 4, 60);
             apps_autorun_end(core);
             return;
         }
-        fread(dsk, 1, dsk_size, fic);
-        fclose(fic);
+        filestream_read(fic, dsk, dsk_size);
+        filestream_close(fic);
 
         char *p = strrchr(core->openFilename, '/');
 

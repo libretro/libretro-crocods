@@ -1,4 +1,5 @@
 #include "gif.h"
+#include <streams/file_stream.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -120,27 +121,27 @@ int ReadBackgroundGif16(u16 *dest, unsigned char *pImageFileMem, int dwImageFile
 
 int ReadBackgroundGif(u16 *dest, char *filename)
 {
-	FILE *fic;
+	RFILE *fic;
 
 	u8 *pImageFileMem;
-	long dwImageFileSize;
+	int64_t dwImageFileSize;
 
-	fic = fopen(filename, "rb");
+	fic = filestream_open(filename, RETRO_VFS_FILE_ACCESS_READ,
+			RETRO_VFS_FILE_ACCESS_HINT_NONE);
 	if (fic == NULL)
 	{
 		return 0;
 	}
-	fseek(fic, 0, SEEK_END);
-	dwImageFileSize = ftell(fic);
-	fseek(fic, 0, SEEK_SET);
+	dwImageFileSize = filestream_get_size(fic);
 
-	pImageFileMem = (u8 *)malloc(dwImageFileSize);
+	pImageFileMem = (u8 *)malloc((size_t)dwImageFileSize);
 	if (pImageFileMem == NULL)
 	{
+		filestream_close(fic);
 		return 0;
 	}
-	fread(pImageFileMem, 1, dwImageFileSize, fic);
-	fclose(fic);
+	filestream_read(fic, pImageFileMem, dwImageFileSize);
+	filestream_close(fic);
 
 	outbuf16 = dest;
 	WritePixel = WritePixel16;

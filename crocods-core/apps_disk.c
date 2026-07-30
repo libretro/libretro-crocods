@@ -1,5 +1,7 @@
 #include "platform.h"
-#include <dirent.h>
+
+#include <retro_dirent.h>
+#include <file/file_path.h>
 
 void DispAppsDisk(core_crocods_t *core, u16 keys_pressed0);
 void apps_disk_readdir(core_crocods_t *core);
@@ -71,16 +73,13 @@ void apps_disk_readdir(core_crocods_t *core)
 
     printf("Open dir %s\n", core->file_dir);
 
-    DIR *d;
-    struct dirent *dir;
-    d = opendir(core->file_dir);
+    RDIR *d;
+    d = retro_opendir(core->file_dir);
     if (d) {
-        while ((dir = readdir(d)) != NULL) {
-//            printf("%s\n", dir->d_name);
-
+        while (retro_readdir(d)) {
             char filename[256];
 
-            strcpy(filename, dir->d_name);
+            strcpy(filename, retro_dirent_get_name(d));
 
             char *ext = strrchr(filename, '.');
             if (ext != NULL) {
@@ -103,14 +102,11 @@ void apps_disk_readdir(core_crocods_t *core)
 
             if (!ok) {
                 char directory[2048];
-                struct stat s;
 
                 strcpy(directory, core->file_dir);
-                apps_disk_path2Abs(directory, dir->d_name);
+                apps_disk_path2Abs(directory, filename);
 
-                stat(directory, &s);
-
-                if (S_ISDIR(s.st_mode)) {
+                if (retro_dirent_is_dir(d, directory)) {
                     if ((filename[0] != '.') || (!strcmp(filename, ".."))) {
                         ok = 1;
                         folder = 1;
@@ -128,7 +124,7 @@ void apps_disk_readdir(core_crocods_t *core)
                 apps_disk_files_count++;
             }
         }
-        closedir(d);
+        retro_closedir(d);
 
         qsort(apps_disk_files, apps_disk_files_count, sizeof(DirEntryCroco), apps_disk_compare);
 

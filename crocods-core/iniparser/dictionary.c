@@ -360,18 +360,18 @@ void dictionary_unset(dictionary * d, const char * key)
   output file pointers.
  */
 /*--------------------------------------------------------------------------*/
-void dictionary_dump(const dictionary * d, FILE * out)
+void dictionary_dump(const dictionary * d, RFILE * out)
 {
     ssize_t  i ;
 
     if (d==NULL || out==NULL) return ;
     if (d->n<1) {
-        fprintf(out, "empty dictionary\n");
+        filestream_printf(out, "empty dictionary\n");
         return ;
     }
     for (i=0 ; i<d->size ; i++) {
         if (d->key[i]) {
-            fprintf(out, "%20s\t[%s]\n",
+            filestream_printf(out, "%20s\t[%s]\n",
                     d->key[i],
                     d->val[i] ? d->val[i] : "UNDEF");
         }

@@ -95,7 +95,7 @@ const char * iniparser_getsecname(const dictionary * d, int n);
  */
 /*--------------------------------------------------------------------------*/
 
-void iniparser_dump_ini(const dictionary * d, FILE * f);
+void iniparser_dump_ini(const dictionary * d, RFILE * f);
 
 /*-------------------------------------------------------------------------*/
 /**
@@ -110,7 +110,7 @@ void iniparser_dump_ini(const dictionary * d, FILE * f);
  */
 /*--------------------------------------------------------------------------*/
 
-void iniparser_dumpsection_ini(const dictionary * d, const char * s, FILE * f);
+void iniparser_dumpsection_ini(const dictionary * d, const char * s, RFILE * f);
 
 /*-------------------------------------------------------------------------*/
 /**
@@ -125,7 +125,7 @@ void iniparser_dumpsection_ini(const dictionary * d, const char * s, FILE * f);
   purposes mostly.
  */
 /*--------------------------------------------------------------------------*/
-void iniparser_dump(const dictionary * d, FILE * f);
+void iniparser_dump(const dictionary * d, RFILE * f);
 
 /*-------------------------------------------------------------------------*/
 /**

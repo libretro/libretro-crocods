@@ -3,10 +3,6 @@
 #include <compat/strl.h>
 #include <streams/file_stream.h>
 
-#ifdef ZIP_SUPPORT
-#include "miniz.h"
-#endif
-
 #include "idsk_lite.h"
 
 void DispAutorun(core_crocods_t *core, u16 keys_pressed0);
@@ -252,64 +248,6 @@ void apps_autorun_init(core_crocods_t *core, int flag)
         return;
     }
 
-#ifdef ZIP_SUPPORT
-    if (!memcmp(header, "PK", 2)) { // .zip & .kcr files (kcr not supported yet)
-        mz_zip_archive zip_archive;
-        memset(&zip_archive, 0, sizeof(zip_archive));
-
-        if (mz_zip_reader_init_mem(&zip_archive, dsk, dsk_size, 0) == MZ_TRUE) {
-            int i;
-            char isKcr = 0;
-
-            for (i = 0; i < (int)mz_zip_reader_get_num_files(&zip_archive); i++) {
-                mz_zip_archive_file_stat file_stat;
-                if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat)) {
-                    mz_zip_reader_end(&zip_archive);
-                    break;
-                }
-
-                if (!strcasecmp(file_stat.m_filename, "settings.ini")) {
-                    isKcr = 1;
-                }
-            }
-
-            // TODO: handle isKcr flag!
-
-            for (i = 0; i < (int)mz_zip_reader_get_num_files(&zip_archive); i++) {
-                mz_zip_archive_file_stat file_stat;
-                mz_zip_reader_file_stat(&zip_archive, i, &file_stat);  // Return has been tested in the precedent loop
-
-                char *ext = strrchr(file_stat.m_filename, '.');
-                if (ext != NULL) {
-                    ext++;
-                }
-
-                if ((ext != NULL) &&
-                    ((!strcasecmp(ext, "sna")) ||
-                     (!strcasecmp(ext, "dsk")))) {
-                    unsigned char *undsk = (unsigned char *)malloc(file_stat.m_uncomp_size);
-                    mz_zip_reader_extract_to_mem(&zip_archive, 0, undsk, (uint)file_stat.m_uncomp_size, 0);
-
-                    BOOL autoStart = apps_autorun_files_flag;
-
-                    LireDiskMem(core, undsk, (u32)file_stat.m_uncomp_size);
-                    loadIni(core, 1); // Load local in file
-
-                    if (!autoStart) {
-                        apps_autorun_end(core);
-                    }
-                    return;
-                }
-            } // End for
-              // No .dsk or .sna found :(
-        }
-
-        appendIcon(core, 0, 4, 60);
-        apps_autorun_end(core);
-
-        return;
-    }
-#endif /* ifdef ZIP_SUPPORT */
 
     if ((!memcmp(header, "MV - CPC", 8)) || (!memcmp(header, "EXTENDED", 8))) {      // .dsk file
         BOOL autoStart = apps_autorun_files_flag;

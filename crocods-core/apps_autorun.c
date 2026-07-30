@@ -1,5 +1,6 @@
 #include "platform.h"
 
+#include <compat/strl.h>
 #include <streams/file_stream.h>
 
 #ifdef ZIP_SUPPORT
@@ -95,15 +96,19 @@ void apps_autorun_init(core_crocods_t *core, int flag)
         }
         filestream_read(fic, dsk, dsk_size);
         filestream_close(fic);
+    }
 
+    /* Derive the basename and the containing directory from the path in both
+     * cases: they seed the per-content ini lookup and the file browser, and
+     * are just as needed when the image came from memory. */
+    if (core->openFilename[0] != 0) {
         char *p = strrchr(core->openFilename, '/');
-
-        strcpy(core->filename, p ? p + 1 : (char *)core->openFilename);
-
-        // Copy basename of filename to current directory
-
         char directory[2048];
-        strcpy(directory, core->openFilename);
+
+        strlcpy(core->filename, p ? p + 1 : (char *)core->openFilename,
+                sizeof(core->filename));
+
+        strlcpy(directory, core->openFilename, sizeof(directory));
         apps_disk_path2Abs(directory, "..");
 
         core->file_dir = (char *)realloc(core->file_dir, strlen(directory) + 1);

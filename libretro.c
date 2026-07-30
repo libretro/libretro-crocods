@@ -1,5 +1,6 @@
 // TEst
 #include <libretro.h>
+#include <compat/strl.h>
 #include <streams/file_stream.h>
 #include <file/file_path.h>
 #include <retro_dirent.h>
@@ -961,14 +962,28 @@ bool retro_load_game(const struct retro_game_info *info)
         return 0;
     }
 
-    // Load .dsk or .sna
-    strcpy(gb.openFilename, info->path);
+    /* need_fullpath is false, so the frontend has already loaded the content
+     * for us. Hand the buffer straight to the core instead of reading the
+     * path back off disk: the path is not guaranteed to name a file the core
+     * can open (content inside an archive, for one), and re-reading it is a
+     * pointless second copy even when it is. */
+    if (info->data && info->size)
+        UseResources(&gb, (void *)info->data, (int)info->size);
+
+    /* The path is still needed for the extension sniff, for the per-content
+     * ini and for seeding the file browser's directory. */
+    if (info->path)
+        strlcpy(gb.openFilename, info->path, sizeof(gb.openFilename));
+    else
+        gb.openFilename[0] = '\0';
+
     ExecuteMenu(&gb, ID_AUTORUN, NULL); // Do: open disk & autorun // TODO
     return 1;
 }
 
 void retro_unload_game(void)
 {
+    FreeResources(&gb);
 }
 
 unsigned retro_get_region(void)

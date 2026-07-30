@@ -302,10 +302,32 @@ static void calcSize(core_crocods_t *core)
 void UseResources(void *core0, void *bytes, int len)
 {
     core_crocods_t *core = (core_crocods_t *)core0;
+    char           *buf;
 
-    core->resources = (char *)malloc(len); // +1); // Crash (heap buffer overflow) when omitting +1. Why ???
-    memcpy(core->resources, bytes, len);
+    /* Called once per content load; without this the previous buffer leaked
+     * on every load after the first. */
+    FreeResources(core);
+
+    if (!bytes || len <= 0)
+        return;
+
+    buf = (char *)malloc(len);
+    if (!buf)
+        return;
+
+    memcpy(buf, bytes, len);
+
+    core->resources     = buf;
     core->resources_len = len;
+}
+
+void FreeResources(void *core0)
+{
+    core_crocods_t *core = (core_crocods_t *)core0;
+
+    free(core->resources);
+    core->resources     = NULL;
+    core->resources_len = 0;
 }
 
 // -1: dernier couleur

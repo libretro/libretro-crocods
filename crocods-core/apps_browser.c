@@ -20,7 +20,6 @@ void guestGetJoystick(core_crocods_t *core, char *string);
 
 void DispBrowser(core_crocods_t *core, u16 keys_pressed0);
 
-void UseResources(void *core, void *bytes, int len); // In platform.h
 
 #define RGB565(R, G, B) ((((R) & 0xF8) << 8) | (((G) & 0xFC) << 3) | (((B) & 0xF8) >> 3))
 

@@ -615,6 +615,11 @@ int emulator_patch_ROM(core_crocods_t *core, u8 *pbROMlo);
 int nds_ReadKey(core_crocods_t *core);
 
 void nds_init(core_crocods_t *core);
+
+/* Hand the core a content image it should run from memory instead of
+ * reading it back off disk. FreeResources releases it again. */
+void UseResources(void *core, void *bytes, int len);
+void FreeResources(void *core);
 void nds_initBorder(core_crocods_t *core, int *borderX, int *borderY);
 
 #define MOD_CPC_SHIFT (0x01 << 8)

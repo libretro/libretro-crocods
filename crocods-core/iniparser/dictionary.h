@@ -22,7 +22,7 @@
 #include <streams/file_stream.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <retro_common_api.h>
 
 #ifdef __cplusplus
 extern "C" {

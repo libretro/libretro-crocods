@@ -30,9 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 struct core_crocods_s;
 typedef struct core_crocods_s core_crocods_t;
